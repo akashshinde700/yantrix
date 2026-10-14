@@ -3,6 +3,7 @@
 import { SectionHeading } from "@/components/site/section-heading";
 import { Counter } from "@/components/site/fx";
 import { Reveal } from "@/components/site/reveal";
+import { Aurora, HexRing, PulseGrid } from "@/components/site/svg-decor";
 import { CalendarDays, Layers, MonitorSmartphone, Target, type LucideIcon } from "lucide-react";
 
 /* ────────────────────────────────────────────────────────────────────
@@ -45,9 +46,12 @@ export function TechTicker() {
             <span
               key={`${tech}-${i}`}
               aria-hidden={i >= techStack.length}
-              className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition-colors duration-300 hover:border-brand-300 hover:text-brand-700"
+              className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyber-400/60 hover:text-cyber-700 hover:shadow-[0_0_20px_-4px_rgba(34,211,238,0.45)]"
             >
-              <span className="h-2 w-2 rounded-full bg-gradient-to-br from-brand-500 to-brand-800" aria-hidden="true" />
+              <span
+                className="h-2 w-2 rounded-full bg-gradient-to-br from-brand-500 to-cyber-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
+                aria-hidden="true"
+              />
               {tech}
             </span>
           ))}
@@ -104,17 +108,20 @@ const stats: Stat[] = [
 export function StatsBand() {
   return (
     <section
-      className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-950 to-ink py-14 sm:py-16"
+      className="relative overflow-hidden bg-space py-14 sm:py-16"
       aria-label="Yantrix Technology in numbers"
     >
-      {/* animated decorations */}
-      <div className="bg-dots-dark pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" />
+      {/* futuristic decor */}
+      <Aurora className="opacity-80" />
+      <PulseGrid className="opacity-50" />
+      <HexRing className="pointer-events-none absolute -left-16 top-1/2 hidden h-64 w-64 -translate-y-1/2 text-cyber-400/20 lg:block" />
+      <HexRing className="pointer-events-none absolute -right-20 top-0 hidden h-72 w-72 text-brand-400/20 lg:block" />
       <div
         className="pointer-events-none absolute -left-20 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-brand-500/15 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -right-20 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-emerald-400/10 blur-3xl"
+        className="pointer-events-none absolute -right-20 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-cyber-500/10 blur-3xl"
         aria-hidden="true"
       />
 
@@ -131,7 +138,7 @@ export function StatsBand() {
             <Reveal key={stat.label} delay={i * 0.08}>
               <div className="group relative flex flex-col items-center text-center">
                 {/* icon with orbiting dash ring on hover */}
-                <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-brand-200 ring-1 ring-white/15 transition-colors duration-300 group-hover:text-white">
+                <span className="glass relative flex h-14 w-14 items-center justify-center rounded-2xl text-cyber-300 shadow-[0_0_22px_-6px_rgba(34,211,238,0.45)] transition-colors duration-300 group-hover:text-white">
                   <svg
                     viewBox="0 0 100 100"
                     fill="none"
@@ -144,18 +151,18 @@ export function StatsBand() {
                       r="48"
                       stroke="currentColor"
                       strokeWidth="2"
-                      className="dash-flow text-brand-400"
+                      className="dash-flow text-cyber-400"
                       strokeLinecap="round"
                     />
                   </svg>
                   <stat.icon className="h-6.5 w-6.5 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
                 </span>
 
-                <p className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                <p className="text-glow-soft mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">
                   <Counter to={stat.value} />
-                  <span className="text-gradient">{stat.suffix}</span>
+                  <span className="text-gradient-cyber">{stat.suffix}</span>
                 </p>
-                <p className="mt-1.5 text-sm font-extrabold uppercase tracking-wider text-brand-200">
+                <p className="mt-1.5 text-sm font-extrabold uppercase tracking-wider text-cyber-200">
                   {stat.label}
                 </p>
                 <p className="mt-1 max-w-[220px] text-xs leading-relaxed text-slate-400">{stat.sub}</p>

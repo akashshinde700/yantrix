@@ -27,11 +27,16 @@ export function SectionHeading({
           className={cn(
             "inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs font-bold uppercase tracking-wider",
             dark
-              ? "bg-white/10 text-brand-200 ring-1 ring-white/15"
-              : "bg-brand-50 text-brand-700 ring-1 ring-brand-100"
+              ? "glass text-cyber-200 shadow-[0_0_20px_-6px_rgba(34,211,238,0.4)]"
+              : "bg-white text-brand-700 ring-1 ring-brand-100 shadow-[0_2px_14px_-4px_rgba(37,99,235,0.25)]"
           )}
         >
-          <span className={cn("h-1.5 w-1.5 rounded-full", dark ? "bg-brand-300" : "bg-brand-600")} />
+          <span
+            className={cn(
+              "dot-pulse h-1.5 w-1.5 rounded-full",
+              dark ? "bg-cyber-400" : "bg-gradient-to-br from-brand-500 to-cyber-400"
+            )}
+          />
           {eyebrow}
         </span>
       ) : null}

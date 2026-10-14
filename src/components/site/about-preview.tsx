@@ -34,8 +34,8 @@ export function AboutPreview() {
           </div>
           {/* Floating since card */}
           <div className="absolute -bottom-6 left-6 right-6 sm:left-8 sm:right-auto">
-            <div className="flex items-center gap-4 rounded-2xl bg-brand-950 p-5 shadow-2xl shadow-brand-950/30 ring-1 ring-white/10">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-2xl font-black text-white">
+            <div className="glass flex items-center gap-4 rounded-2xl p-5 shadow-2xl shadow-space/40 ring-1 ring-cyber-400/30 shadow-[0_0_36px_-8px_rgba(34,211,238,0.4)]">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-2xl font-black text-white shadow-[0_0_20px_-4px_rgba(34,211,238,0.7)]">
                 {siteConfig.foundedYear}
               </span>
               <div>
@@ -65,7 +65,7 @@ export function AboutPreview() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Button
               onClick={() => navigate("about")}
-              className="h-11 rounded-full bg-brand-700 px-6 font-bold shadow-md shadow-brand-700/25 hover:bg-brand-800"
+              className="btn-futur btn-shine h-11 rounded-full px-6 font-bold text-white"
             >
               More About Us
             </Button>

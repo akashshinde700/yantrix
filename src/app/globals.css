@@ -43,7 +43,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Yantrix Technology brand palette — deep blue / white / black */
+/* Yantrix Technology brand palette — deep blue / white / black + cyber-cyan futuristic accent */
 @theme {
   --color-brand-50: #eff5ff;
   --color-brand-100: #dbe8fe;
@@ -57,6 +57,13 @@
   --color-brand-900: #1e3a8a;
   --color-brand-950: #0f1f4e;
   --color-ink: #0f172a;
+  --color-space: #050914;
+  --color-space-2: #0a1128;
+  --color-cyber-200: #a5f3fc;
+  --color-cyber-300: #67e8f9;
+  --color-cyber-400: #22d3ee;
+  --color-cyber-500: #06b6d4;
+  --color-cyber-600: #0891b2;
   --color-whatsapp: #25d366;
   --color-whatsapp-dark: #1eb85a;
 }
@@ -413,6 +420,12 @@
   .dash-flow-slow,
   .animate-spin-slow,
   .animate-spin-slow-rev,
+  .animate-aurora-a,
+  .animate-aurora-b,
+  .animate-aurora-c,
+  .animate-rise,
+  .scan-line,
+  .light-beam,
   .view-panel:not([hidden]) {
     animation: none;
   }
@@ -422,4 +435,211 @@
   html {
     scroll-behavior: auto;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   FUTURISTIC "NEON" SYSTEM — aurora, glow, glass, cyber grid, beams
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Aurora: three slow-drifting blurred energy blobs (dark bands) ── */
+@keyframes aurora-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(70px, -50px) scale(1.18);
+  }
+}
+@keyframes aurora-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-80px, 40px) scale(1.22);
+  }
+}
+@keyframes aurora-c {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1.08);
+  }
+  50% {
+    transform: translate(50px, 60px) scale(0.92);
+  }
+}
+.animate-aurora-a {
+  animation: aurora-a 16s ease-in-out infinite;
+}
+.animate-aurora-b {
+  animation: aurora-b 20s ease-in-out infinite;
+}
+.animate-aurora-c {
+  animation: aurora-c 24s ease-in-out infinite;
+}
+
+/* ── Rising particles (hero floor) ── */
+@keyframes rise {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  82% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateY(-150px);
+    opacity: 0;
+  }
+}
+.animate-rise {
+  animation-name: rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* ── Vertical scanning line (sweeps top → bottom) ── */
+@keyframes scan-y {
+  0% {
+    top: -18%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    top: 112%;
+    opacity: 0;
+  }
+}
+.scan-line {
+  animation: scan-y 7.5s linear infinite;
+}
+
+/* ── Cyber grid (thin cyan/blue lines, radial fade) ── */
+.bg-grid-futur {
+  background-image: linear-gradient(rgba(103, 232, 249, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(103, 232, 249, 0.09) 1px, transparent 1px),
+    linear-gradient(rgba(96, 154, 250, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 154, 250, 0.05) 1px, transparent 1px);
+  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 62%, black 25%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 62%, black 25%, transparent 78%);
+}
+
+/* ── Diagonal light beam sweep (for panels) ── */
+@keyframes beam-x {
+  0% {
+    transform: translateX(-140%) skewX(-16deg);
+  }
+  55%,
+  100% {
+    transform: translateX(260%) skewX(-16deg);
+  }
+}
+.light-beam {
+  animation: beam-x 6s ease-in-out infinite;
+}
+
+/* ── Glassmorphism panel (dark backgrounds) ── */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* ── Gradient text (white → cyan → blue, animated) ── */
+.text-gradient-cyber {
+  background: linear-gradient(
+    92deg,
+    #ffffff 12%,
+    #a5f3fc 32%,
+    #22d3ee 48%,
+    #60a5fa 66%,
+    #ffffff 88%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-x 4.5s linear infinite;
+  filter: drop-shadow(0 0 22px rgba(34, 211, 238, 0.22));
+}
+
+/* ── Glow helpers ── */
+.text-glow-soft {
+  text-shadow: 0 0 24px rgba(103, 232, 249, 0.35), 0 0 60px rgba(34, 211, 238, 0.15);
+}
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.65), 0 0 34px rgba(34, 211, 238, 0.3);
+}
+.neon-line {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 211, 238, 0.55),
+    rgba(96, 165, 250, 0.55),
+    transparent
+  );
+}
+
+/* ── Card glow (light cards): cyan/blue ring + colored shadow on hover ── */
+.card-glow {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, transform 0.25s ease;
+}
+.card-glow:hover {
+  border-color: rgba(34, 211, 238, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.22),
+    0 18px 46px -14px rgba(6, 182, 212, 0.3),
+    0 6px 20px -8px rgba(37, 99, 235, 0.28);
+}
+.card-glow-dark {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.card-glow-dark:hover {
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.3),
+    0 0 34px -4px rgba(34, 211, 238, 0.28),
+    0 22px 50px -18px rgba(2, 8, 23, 0.8);
+}
+
+/* ── Futuristic primary button: blue→cyan gradient with glow ── */
+.btn-futur {
+  background-image: linear-gradient(100deg, #2563eb, #0891b2 90%);
+  box-shadow:
+    0 10px 34px -8px rgba(34, 211, 238, 0.55),
+    0 4px 14px -4px rgba(37, 99, 235, 0.5);
+  transition: box-shadow 0.3s ease, transform 0.25s ease, filter 0.3s ease;
+}
+.btn-futur:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 44px -8px rgba(34, 211, 238, 0.7),
+    0 6px 18px -4px rgba(37, 99, 235, 0.55);
+}
+
+/* ── Glowing pulse dot for eyebrow chips ── */
+@keyframes dot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55);
+  }
+  60% {
+    box-shadow: 0 0 0 6px rgba(34, 211, 238, 0);
+  }
+}
+.dot-pulse {
+  animation: dot-pulse 2s ease-out infinite;
 }

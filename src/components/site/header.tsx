@@ -30,7 +30,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50">
       {/* Top utility bar */}
-      <div className="hidden bg-brand-950 text-white md:block">
+      <div className="hidden bg-gradient-to-r from-space via-brand-950 to-space text-white md:block">
+        <div className="neon-line" aria-hidden="true" />
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs sm:px-6">
           <p className="flex items-center gap-2 font-medium">
             <span className="relative flex h-2 w-2">
@@ -51,18 +52,18 @@ export function Header() {
             </span>
             <a
               href={phoneHref}
-              className="flex items-center gap-1.5 font-bold text-white transition-colors hover:text-brand-200"
+              className="group flex items-center gap-1.5 font-bold text-white transition-colors hover:text-cyber-200"
               aria-label={`Call us at ${siteConfig.contact.phone}`}
             >
-              <Phone className="h-3.5 w-3.5 text-brand-300" aria-hidden="true" />
-              {siteConfig.contact.phone}
+              <Phone className="h-3.5 w-3.5 text-cyber-300 transition-transform duration-300 group-hover:rotate-12" aria-hidden="true" />
+              <span>{siteConfig.contact.phone}</span>
             </a>
           </div>
         </div>
       </div>
 
       {/* Main navigation bar */}
-      <div className="border-b border-slate-200/80 bg-white/90 shadow-[0_1px_12px_rgba(15,31,78,0.04)] backdrop-blur-md">
+      <div className="border-b border-slate-200/70 bg-white/85 shadow-[0_8px_32px_-12px_rgba(2,8,23,0.12)] backdrop-blur-xl">
         <nav
           className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-[72px]"
           aria-label="Main navigation"
@@ -114,7 +115,7 @@ export function Header() {
             </a>
             <Button
               onClick={() => go("contact")}
-              className="btn-shine hidden h-10 rounded-full bg-brand-700 px-5 text-sm font-bold shadow-md shadow-brand-700/25 hover:bg-brand-800 sm:inline-flex"
+              className="btn-futur btn-shine hidden h-10 rounded-full px-5 text-sm font-bold text-white sm:inline-flex"
             >
               Contact for Admission
             </Button>
@@ -163,7 +164,7 @@ export function Header() {
                 <li className="flex flex-col gap-2 pt-2">
                   <Button
                     onClick={() => go("contact")}
-                    className="h-12 rounded-xl bg-brand-700 text-base font-bold hover:bg-brand-800"
+                    className="btn-futur h-12 rounded-xl text-base font-bold text-white"
                   >
                     Contact for Admission
                   </Button>

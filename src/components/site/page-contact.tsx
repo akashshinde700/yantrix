@@ -121,7 +121,7 @@ export function PageContact() {
   return (
     <>
       {/* Page hero band */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-950 to-ink py-16 sm:py-20">
+      <section className="relative overflow-hidden bg-space py-16 sm:py-20">
         <HeroDecor
           orbitClassName="-left-24 -top-20 h-72 w-72 text-brand-400/35"
           circuitClassName="absolute inset-x-0 bottom-0 h-36 w-full text-brand-400/25"
@@ -314,7 +314,7 @@ export function PageContact() {
                       <Button
                         type="submit"
                         disabled={form.formState.isSubmitting}
-                        className="btn-shine h-12 w-full rounded-xl bg-brand-700 text-base font-bold shadow-lg shadow-brand-700/25 hover:bg-brand-800 sm:w-auto sm:px-10"
+                        className="btn-futur btn-shine h-12 w-full rounded-xl text-base font-bold text-white sm:w-auto sm:px-10"
                       >
                         {form.formState.isSubmitting ? (
                           <>

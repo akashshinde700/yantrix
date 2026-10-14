@@ -19,9 +19,12 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto bg-brand-950 text-slate-300">
+    <footer className="mt-auto bg-space text-slate-300">
+      {/* Top neon edge */}
+      <div className="neon-line" aria-hidden="true" />
+
       {/* Top strip */}
-      <div className="border-b border-white/10 bg-gradient-to-r from-brand-900 via-brand-950 to-brand-900">
+      <div className="border-b border-white/10 bg-gradient-to-r from-space-2 via-brand-950/60 to-space-2">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-center sm:px-6 md:flex-row md:text-left">
           <div>
             <h2 className="text-xl font-extrabold text-white sm:text-2xl">
@@ -34,7 +37,7 @@ export function Footer() {
           <div className="flex flex-wrap justify-center gap-3">
             <button
               onClick={() => navigate("courses")}
-              className="h-11 rounded-full bg-white px-6 text-sm font-bold text-brand-900 transition-colors hover:bg-brand-100"
+              className="h-11 rounded-full bg-white px-6 text-sm font-bold text-brand-900 transition-all hover:-translate-y-0.5 hover:bg-cyber-200"
             >
               Explore Courses
             </button>
@@ -42,7 +45,7 @@ export function Footer() {
               href={whatsappUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-11 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-bold text-white transition-colors hover:bg-emerald-600"
+              className="flex h-11 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-[0_0_26px_-6px_rgba(16,185,129,0.7)]"
             >
               <WhatsAppIcon className="h-4.5 w-4.5" />
               WhatsApp Us
@@ -140,6 +143,7 @@ export function Footer() {
       </div>
 
       {/* Bottom bar */}
+      <div className="neon-line" aria-hidden="true" />
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-center text-xs text-slate-500 sm:px-6 md:flex-row">
           <p>

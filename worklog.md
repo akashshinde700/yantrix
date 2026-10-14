@@ -70,3 +70,27 @@ Work Log:
 Stage Summary:
 - All TODO contact placeholders are gone; real details are centralized in src/lib/site-config.ts (single source of truth) and used by header, footer, contact page, WhatsApp float, FAQ and JSON-LD.
 - Note: address intentionally has no PIN code (owner gave only "dhanori laxmi nagar"); Dhanori is displayed as part of Pune, Maharashtra.
+
+---
+Task ID: 4
+Agent: Z.ai Code (main agent)
+Task: Futuristic "neon" theme overhaul — eye-catching redesign with new SVG graphics and heavier animation (user: "Theme to simple... need something more eye catching and futuristic, use svg and more animation").
+
+Work Log:
+- globals.css: added cyber-cyan token scale (cyber-200…600) + deep-space bg tokens (space #050914, space-2 #0a1128); new motion/design system — aurora keyframes (3 drifting blurred blobs), rising particles, vertical scan line, cyber grid (bg-grid-futur with radial mask), light-beam sweep, .glass panel, .text-gradient-cyber (white→cyan→blue animated + glow), .text-glow-soft/.text-glow-cyan, .neon-line, .card-glow/.card-glow-dark (cyan ring + colored shadow on hover), .btn-futur (blue→cyan gradient + glow), .dot-pulse; all added to prefers-reduced-motion guards.
+- svg-decor.tsx: new components — Aurora, HexRing (counter-rotating double hexagon + pulsing core), PulseGrid (grid + scan line), Particles (12 deterministic rising glow dots), LightBeam; CircuitLines upgraded with SVG animateMotion light pulses traveling along the paths (feGaussianBlur glow filter); FloatingCodeChips cyan-glow styling; HeroDecor now = Aurora + PulseGrid + CircuitLines + HexRing + OrbitRings (backward-compatible props) so all page-hero bands got the futuristic look for free.
+- hero-slider.tsx: deep-space bg; aurora + cyber grid + scan + circuit pulses + hex ring + orbit + particles; glass eyebrow chip with pulsing cyan dot; .text-gradient-cyber headline; btn-futur CTA + cyan-outline glass secondary; glass trust chips with glow icon tiles; mono slide counter (01/03); cyan glowing active dot; cyan progress bar with glow.
+- header.tsx: utility bar → space gradient with neon-line top edge; phone link cyan with glow hover; nav bar glassier (bg-white/85 backdrop-blur-xl); CTA buttons → btn-futur.
+- section-heading.tsx: eyebrow chips → glass (dark) / white-shadow (light) with dot-pulse accent dot.
+- Cards: card-glow added to badges, why-choose-us, course cards, training-mode light card, mission/vision, FAQ items; icon chips hover → blue→cyan gradient + glow shadow; cyber dash-rings.
+- tech-ticker.tsx: TechTicker chips hover cyan glow; StatsBand rebuilt on bg-space with aurora + pulse grid + 2 hex rings, glass icon tiles, glowing counters, cyber suffixes.
+- cta-band.tsx: rebuilt as deep-space panel — aurora + pulse grid + light beam + orbit rings + floating code chips; cyber-gradient title; btn-futur primary + glass secondary.
+- footer.tsx: bg-space with neon-line top edge + neon-line above bottom bar; hover lift + cyber hover on buttons.
+- placement-section.tsx: glass cards + card-glow-dark + cyan mono numbering with text glow; page-courses/page-about/page-contact hero bands switched to bg-space; course-card top bar → cyan gradient; Enquire/submit/counselling buttons → btn-futur; about-preview floating "Since 2024" card → glass + cyan ring + glow.
+- logo.tsx: brand mark → brand-600→space gradient with cyan ring + glow hover.
+- Verified with agent-browser (desktop 1280 + mobile 390): all 4 views render with the new theme, hero aurora/grid/hex/particles visible, stats band + hex rings render, contact form golden path re-verified (Radix select option clicked via listbox ref → "Enquiry received!" → DB row confirmed: Test Kumar / Python Programming / 9876543210), no console errors, no invalid Tailwind variant usages (grep), lint clean, dev.log clean.
+
+Stage Summary:
+- Site now has a coherent futuristic "Yantrix Neon" identity: deep-space dark bands with aurora + cyber grid + scan lines, glassmorphism panels, cyan accent glows, gradient buttons, hex/circuit/orbit SVG motion systems — while keeping the blue/white/black brand and all content/SEO intact.
+- New CSS utilities are centralized in globals.css (card-glow, btn-futur, glass, aurora, particles, scan, neon-line, text-glow) and new SVG components in svg-decor.tsx; reduced-motion fully guarded.
+- Note for future agents: text-glow-*/neon-line/glass/dot-pulse/btn-futur/card-glow* are plain CSS classes — never use them with Tailwind hover:/group-hover: variants.

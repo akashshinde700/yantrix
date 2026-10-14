@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
-import { OrbitRings } from "@/components/site/svg-decor";
+import { Aurora, FloatingCodeChips, LightBeam, OrbitRings, PulseGrid } from "@/components/site/svg-decor";
 import { useSiteStore } from "@/lib/store";
 
 /** Reusable call-to-action band shown at the bottom of pages. */
@@ -19,54 +19,36 @@ export function CtaBand({
     <section className="bg-white py-14 sm:py-16" aria-label="Call to action">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <div className="animate-gradient-x relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-700 via-brand-800 to-brand-950 px-6 py-12 text-center shadow-2xl shadow-brand-900/25 sm:px-12">
-            {/* animated decorations */}
+          <div className="relative overflow-hidden rounded-3xl bg-space px-6 py-12 shadow-2xl shadow-brand-950/30 ring-1 ring-white/10 sm:px-12">
+            {/* futuristic decor */}
+            <Aurora className="opacity-90" />
+            <PulseGrid className="opacity-50" />
+            <LightBeam />
             <OrbitRings
-              className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 text-white/20"
+              className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 text-cyber-300/25"
             />
             <OrbitRings
-              className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 text-white/15"
+              className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 text-brand-400/20"
             />
-            <div
-              className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-400/20 blur-3xl"
-              aria-hidden="true"
-            />
-            <div
-              className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl"
-              aria-hidden="true"
-            />
-
-            {/* floating code chips */}
-            <span
-              aria-hidden="true"
-              className="animate-float pointer-events-none absolute left-[8%] top-[24%] hidden rounded-lg bg-white/10 px-2.5 py-1.5 font-mono text-xs font-bold text-brand-100 ring-1 ring-white/15 md:inline-block"
-            >
-              {"</>"}
-            </span>
-            <span
-              aria-hidden="true"
-              className="animate-float-slow pointer-events-none absolute bottom-[22%] right-[9%] hidden rounded-lg bg-white/10 px-2.5 py-1.5 font-mono text-xs font-bold text-brand-100 ring-1 ring-white/15 md:inline-block"
-            >
-              {"{ }"}
-            </span>
+            <FloatingCodeChips className="hidden md:block" />
 
             <h2 className="relative text-2xl font-extrabold tracking-tight text-white text-balance sm:text-3xl">
-              {title}
+              <span className="text-gradient-cyber">{title}</span>
             </h2>
-            <p className="relative mx-auto mt-3 max-w-xl text-sm leading-relaxed text-brand-100 sm:text-base">
+            <p className="relative mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
               {description}
             </p>
             <div className="relative mt-7 flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={() => navigate("courses")}
-                className="btn-shine inline-flex h-12 items-center gap-2 rounded-full bg-white px-7 text-sm font-bold text-brand-900 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-brand-50"
+                className="btn-futur btn-shine inline-flex h-12 items-center gap-2 rounded-full px-7 text-sm font-bold text-white"
               >
                 Explore Courses
                 <ArrowRight className="h-4.5 w-4.5 transition-transform duration-300 hover:translate-x-0.5" aria-hidden="true" />
               </button>
               <button
                 onClick={() => navigate("contact")}
-                className="inline-flex h-12 items-center gap-2 rounded-full border border-white/30 bg-white/5 px-7 text-sm font-bold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/15"
+                className="inline-flex h-12 items-center gap-2 rounded-full border border-cyber-400/40 bg-white/5 px-7 text-sm font-bold text-white backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-cyber-300/70 hover:bg-white/10 hover:text-cyber-200 hover:shadow-[0_0_28px_-6px_rgba(34,211,238,0.5)]"
               >
                 Contact for Admission
               </button>

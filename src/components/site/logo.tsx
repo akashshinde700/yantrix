@@ -12,7 +12,7 @@ export function Logo({
     <span className={cn("flex items-center gap-2.5", className)}>
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-900 shadow-md shadow-brand-900/20 transition-all duration-500 group-hover:rotate-[10deg] group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-brand-700/40"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 via-brand-800 to-space shadow-md shadow-brand-900/20 ring-1 ring-cyber-400/25 transition-all duration-500 group-hover:rotate-[10deg] group-hover:scale-110 group-hover:shadow-[0_0_24px_-2px_rgba(34,211,238,0.55)]"
       >
         <svg viewBox="0 0 64 64" className="h-6 w-6" fill="none">
           <path

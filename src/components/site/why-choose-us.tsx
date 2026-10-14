@@ -5,6 +5,7 @@ import { Building2, MonitorSmartphone } from "lucide-react";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { tiltHandlers } from "@/components/site/fx";
+import { Aurora, LightBeam } from "@/components/site/svg-decor";
 import { badges, whyChooseUs } from "@/lib/data";
 import { useSiteStore } from "@/lib/store";
 
@@ -19,9 +20,9 @@ export function BadgesStrip() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.1, duration: 0.5, ease: "easeOut" }}
-              className="group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-brand-950/[0.06] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-900/10"
+              className="card-glow group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-brand-950/[0.06] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-900/10"
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-md shadow-brand-700/25 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 via-brand-700 to-cyber-600 text-white shadow-md shadow-brand-700/25 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.6)]">
                 <badge.icon className="h-6 w-6" aria-hidden="true" />
               </span>
               <div>
@@ -56,16 +57,16 @@ export function WhyChooseUs() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: "easeOut" }}
               {...tiltHandlers(4)}
-              className="tilt-card spotlight-card group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:border-brand-200 hover:shadow-xl hover:shadow-brand-900/[0.08]"
+              className="tilt-card spotlight-card card-glow group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/[0.08]"
             >
               {/* animated corner glow */}
               <span
                 aria-hidden="true"
-                className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-brand-100/0 blur-2xl transition-all duration-500 group-hover:bg-brand-300/40"
+                className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-brand-100/0 blur-2xl transition-all duration-500 group-hover:bg-cyber-300/40"
               />
 
               {/* Icon with dash-flow ring + wiggle on hover */}
-              <span className="relative z-10 flex h-13 w-13 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-colors duration-300 group-hover:bg-brand-700 group-hover:text-white">
+              <span className="relative z-10 flex h-13 w-13 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-brand-600 group-hover:to-cyber-500 group-hover:text-white group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.65)]">
                 <svg
                   viewBox="0 0 100 100"
                   fill="none"
@@ -78,7 +79,7 @@ export function WhyChooseUs() {
                     r="47"
                     stroke="currentColor"
                     strokeWidth="3"
-                    className="dash-flow text-brand-500"
+                    className="dash-flow text-cyber-400"
                     strokeLinecap="round"
                   />
                 </svg>
@@ -145,10 +146,18 @@ export function TrainingModes() {
                 {...tiltHandlers(4)}
                 className={
                   mode.style === "dark"
-                    ? "tilt-card spotlight-card spotlight-dark relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-7 text-white shadow-xl shadow-brand-900/20"
-                    : "tilt-card spotlight-card relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
+                    ? "tilt-card spotlight-card spotlight-dark card-glow-dark relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-brand-800 via-brand-950 to-space p-7 text-white shadow-xl shadow-brand-900/20"
+                    : "tilt-card spotlight-card card-glow relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
                 }
               >
+                {/* futuristic inner decor for the dark card */}
+                {mode.style === "dark" ? (
+                  <>
+                    <Aurora className="opacity-60" />
+                    <LightBeam />
+                  </>
+                ) : null}
+
                 {/* Icon chip */}
                 <span
                   className={

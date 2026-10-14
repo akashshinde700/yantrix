@@ -48,7 +48,7 @@ export function FaqSection() {
               <AccordionItem
                 key={faq.question}
                 value={`faq-${i}`}
-                className="rounded-2xl border border-slate-200/90 bg-slate-50/60 px-5 mb-3 last:border-b last:border-slate-200/90 data-[state=open]:border-brand-200 data-[state=open]:bg-brand-50/50"
+                className="card-glow rounded-2xl border border-slate-200/90 bg-slate-50/60 px-5 mb-3 last:border-b last:border-slate-200/90 data-[state=open]:border-cyber-400/50 data-[state=open]:bg-brand-50/50 data-[state=open]:shadow-[0_0_22px_-6px_rgba(34,211,238,0.35)]"
               >
                 <AccordionTrigger className="py-4 text-left text-[15px] font-bold text-ink hover:no-underline hover:text-brand-700 [&>svg]:text-brand-600">
                   {faq.question}

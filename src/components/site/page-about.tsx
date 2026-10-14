@@ -22,7 +22,7 @@ export function PageAbout() {
   return (
     <>
       {/* Page hero band */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-950 to-ink py-16 sm:py-20">
+      <section className="relative overflow-hidden bg-space py-16 sm:py-20">
         <HeroDecor
           orbitClassName="-right-24 -top-20 h-72 w-72 text-brand-400/35"
           circuitClassName="absolute inset-x-0 bottom-0 h-36 w-full text-brand-400/25"
@@ -107,8 +107,8 @@ export function PageAbout() {
           />
           <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
             <Reveal>
-              <div className="spotlight-card group h-full rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-900/[0.08]">
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-700 text-white shadow-lg shadow-brand-700/25 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+              <div className="spotlight-card card-glow group h-full rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-900/[0.08]">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-lg shadow-cyber-500/30 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
                   <Flag className="h-7 w-7" aria-hidden="true" />
                 </span>
                 <h3 className="mt-5 text-xl font-extrabold text-ink">Our Mission</h3>
@@ -120,8 +120,8 @@ export function PageAbout() {
               </div>
             </Reveal>
             <Reveal delay={0.1}>
-              <div className="spotlight-card group h-full rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-900/[0.08]">
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-white shadow-lg shadow-ink/25 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+              <div className="spotlight-card card-glow group h-full rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-900/[0.08]">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-cyber-300 shadow-lg shadow-ink/25 ring-1 ring-cyber-400/30 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_26px_-4px_rgba(34,211,238,0.55)]">
                   <Eye className="h-7 w-7" aria-hidden="true" />
                 </span>
                 <h3 className="mt-5 text-xl font-extrabold text-ink">Our Vision</h3>
@@ -147,14 +147,14 @@ export function PageAbout() {
           <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {approachSteps.map((step, i) => (
               <Reveal key={step.step} delay={i * 0.08}>
-                <li className="group relative h-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:bg-white hover:shadow-lg hover:shadow-brand-900/[0.07]">
+                <li className="group relative h-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:shadow-brand-900/[0.07]">
                   <span
                     aria-hidden="true"
-                    className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-brand-500 to-ink transition-transform duration-500 group-hover:scale-x-100"
+                    className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-brand-500 via-cyber-400 to-brand-700 transition-transform duration-500 group-hover:scale-x-100"
                   />
                   <span
                     aria-hidden="true"
-                    className="text-3xl font-black text-brand-200 transition-colors duration-300 group-hover:text-brand-500"
+                    className="font-mono text-3xl font-black text-brand-200 transition-colors duration-300 group-hover:text-cyber-500"
                   >
                     {step.step}
                   </span>

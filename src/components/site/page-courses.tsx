@@ -24,17 +24,17 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5, delay: (index % 4) * 0.07, ease: "easeOut" }}
       {...tiltHandlers(5)}
-      className="tilt-card spotlight-card group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:-translate-y-1 hover:border-brand-200 hover:shadow-xl hover:shadow-brand-900/[0.1]"
+      className="tilt-card spotlight-card card-glow group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/[0.1]"
     >
       {/* Animated top gradient bar — sweeps in on hover */}
       <span
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 rounded-t-2xl bg-gradient-to-r from-brand-400 via-brand-600 to-ink transition-transform duration-500 ease-out group-hover:scale-x-100"
+        className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 rounded-t-2xl bg-gradient-to-r from-brand-500 via-cyber-400 to-brand-700 transition-transform duration-500 ease-out group-hover:scale-x-100"
       />
 
       <div className="relative z-10 flex items-start justify-between gap-3">
         {/* Icon with animated dash-flow ring on hover */}
-        <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-colors duration-300 group-hover:bg-brand-700 group-hover:text-white">
+        <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-brand-600 group-hover:to-cyber-500 group-hover:text-white group-hover:shadow-[0_0_22px_-4px_rgba(34,211,238,0.65)]">
           <svg
             viewBox="0 0 100 100"
             fill="none"
@@ -47,7 +47,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
               r="47"
               stroke="currentColor"
               strokeWidth="3"
-              className="dash-flow text-brand-500"
+              className="dash-flow text-cyber-400"
               strokeLinecap="round"
             />
           </svg>
@@ -107,7 +107,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
       <Button
         onClick={() => navigate("contact", { course: course.title })}
-        className="btn-shine relative z-10 mt-4 h-11 w-full rounded-xl bg-brand-700 font-bold shadow-md shadow-brand-700/20 transition-all hover:bg-brand-800"
+        className="btn-futur btn-shine relative z-10 mt-4 h-11 w-full rounded-xl font-bold text-white"
       >
         Enquire Now
         <ArrowRight
@@ -123,7 +123,7 @@ export function PageCourses() {
   return (
     <>
       {/* Page hero band */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-950 to-ink py-16 sm:py-20">
+      <section className="relative overflow-hidden bg-space py-16 sm:py-20">
         <HeroDecor
           orbitClassName="-right-20 -top-24 h-80 w-80 text-brand-400/40"
           circuitClassName="absolute inset-x-0 bottom-0 h-40 w-full text-brand-400/25"
@@ -141,7 +141,7 @@ export function PageCourses() {
               (chip) => (
                 <span
                   key={chip}
-                  className="rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold text-brand-100 ring-1 ring-white/15 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15"
+                  className="glass rounded-full px-4 py-1.5 text-xs font-bold text-cyber-200 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(34,211,238,0.5)]"
                 >
                   {chip}
                 </span>
@@ -184,7 +184,7 @@ export function PageCourses() {
       <section className="bg-white py-14 sm:py-16" aria-labelledby="course-help-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid items-center gap-8 rounded-3xl border border-slate-100 bg-slate-50/80 p-8 sm:p-10 lg:grid-cols-[auto_1fr_auto]">
-            <span className="hover-wiggle mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-700 text-white shadow-lg shadow-brand-700/30 lg:mx-0">
+            <span className="hover-wiggle mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-lg shadow-cyber-500/30 lg:mx-0">
               <MessageCircleQuestion className="h-8 w-8" aria-hidden="true" />
             </span>
             <div className="text-center lg:text-left">
@@ -199,7 +199,7 @@ export function PageCourses() {
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Button
                 onClick={() => useSiteStore.getState().navigate("contact")}
-                className="btn-shine h-11 rounded-full bg-brand-700 px-6 font-bold hover:bg-brand-800"
+                className="btn-futur btn-shine h-11 rounded-full px-6 font-bold text-white"
               >
                 <Users className="mr-1 h-4.5 w-4.5" aria-hidden="true" />
                 Get Free Counselling

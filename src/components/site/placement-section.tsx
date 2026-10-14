@@ -10,7 +10,7 @@ import { placementPoints } from "@/lib/data";
 export function PlacementSection() {
   return (
     <section
-      className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-950 to-ink py-16 sm:py-20"
+      className="relative overflow-hidden bg-space py-16 sm:py-20"
       aria-labelledby="placement-heading"
     >
       {/* Decorative glows + animated SVG decor */}
@@ -36,9 +36,9 @@ export function PlacementSection() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
               {...tiltHandlers(4)}
-              className="tilt-card spotlight-card spotlight-dark group rounded-2xl bg-white/[0.06] p-6 ring-1 ring-white/10 backdrop-blur-sm transition-colors hover:bg-white/[0.1] hover:ring-white/20"
+              className="tilt-card spotlight-card spotlight-dark card-glow-dark group rounded-2xl bg-white/[0.06] p-6 ring-1 ring-white/10 backdrop-blur-sm transition-colors hover:bg-white/[0.1] hover:ring-cyber-400/40"
             >
-              <span className="inline-block text-sm font-black tracking-widest text-brand-300 transition-transform duration-300 group-hover:scale-110">
+              <span className="text-glow-cyan inline-block font-mono text-sm font-black tracking-widest text-cyber-300 transition-transform duration-300 group-hover:scale-110">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <h3 className="mt-3 text-base font-extrabold text-white">{point.title}</h3>
