@@ -21,16 +21,16 @@ export function AboutPreview() {
     <section className="bg-white py-16 sm:py-20" aria-labelledby="home-about-heading">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
         {/* Image side */}
-        <Reveal className="relative">
+        <Reveal className="group/reveal relative">
           <div className="relative overflow-hidden rounded-3xl shadow-xl shadow-brand-950/10">
             <Image
               src="/images/about-institute.png"
               alt="Modern training environment at Yantrix Technology institute"
               width={1152}
               height={864}
-              className="h-auto w-full object-cover"
+              className="h-auto w-full object-cover transition-transform duration-700 ease-out group-hover/reveal:scale-[1.04]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-950/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-950/40 to-transparent transition-opacity duration-500 group-hover/reveal:opacity-0" />
           </div>
           {/* Floating since card */}
           <div className="absolute -bottom-6 left-6 right-6 sm:left-8 sm:right-auto">

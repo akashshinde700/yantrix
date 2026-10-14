@@ -71,8 +71,12 @@ export function Footer() {
               <li key={link.view}>
                 <button
                   onClick={() => navigate(link.view)}
-                  className="text-sm text-slate-400 transition-colors hover:text-white"
+                  className="group flex items-center gap-2 text-sm text-slate-400 transition-colors hover:text-white"
                 >
+                  <span
+                    aria-hidden="true"
+                    className="h-px w-0 bg-brand-300 transition-all duration-300 group-hover:w-4"
+                  />
                   {link.label}
                 </button>
               </li>
@@ -88,8 +92,12 @@ export function Footer() {
               <li key={course.slug}>
                 <button
                   onClick={() => navigate("courses", { section: "course-grid" })}
-                  className="text-left text-sm text-slate-400 transition-colors hover:text-white"
+                  className="group flex items-center gap-2 text-left text-sm text-slate-400 transition-colors hover:text-white"
                 >
+                  <span
+                    aria-hidden="true"
+                    className="h-px w-0 bg-brand-300 transition-all duration-300 group-hover:w-4"
+                  />
                   {course.title}
                 </button>
               </li>

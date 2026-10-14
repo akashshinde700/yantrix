@@ -2,6 +2,7 @@
 
 import { HeroSlider } from "@/components/site/hero-slider";
 import { BadgesStrip, WhyChooseUs, TrainingModes } from "@/components/site/why-choose-us";
+import { TechTicker, StatsBand } from "@/components/site/tech-ticker";
 import { AboutPreview } from "@/components/site/about-preview";
 import { PlacementSection } from "@/components/site/placement-section";
 import { FaqSection } from "@/components/site/faq-section";
@@ -12,6 +13,8 @@ export function PageHome() {
     <>
       <HeroSlider />
       <BadgesStrip />
+      <TechTicker />
+      <StatsBand />
       <WhyChooseUs />
       <TrainingModes />
       <AboutPreview />

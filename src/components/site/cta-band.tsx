@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
+import { OrbitRings } from "@/components/site/svg-decor";
 import { useSiteStore } from "@/lib/store";
 
 /** Reusable call-to-action band shown at the bottom of pages. */
@@ -18,7 +19,14 @@ export function CtaBand({
     <section className="bg-white py-14 sm:py-16" aria-label="Call to action">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-700 via-brand-800 to-brand-950 px-6 py-12 text-center shadow-2xl shadow-brand-900/25 sm:px-12">
+          <div className="animate-gradient-x relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-700 via-brand-800 to-brand-950 px-6 py-12 text-center shadow-2xl shadow-brand-900/25 sm:px-12">
+            {/* animated decorations */}
+            <OrbitRings
+              className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 text-white/20"
+            />
+            <OrbitRings
+              className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 text-white/15"
+            />
             <div
               className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-400/20 blur-3xl"
               aria-hidden="true"
@@ -27,6 +35,21 @@ export function CtaBand({
               className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl"
               aria-hidden="true"
             />
+
+            {/* floating code chips */}
+            <span
+              aria-hidden="true"
+              className="animate-float pointer-events-none absolute left-[8%] top-[24%] hidden rounded-lg bg-white/10 px-2.5 py-1.5 font-mono text-xs font-bold text-brand-100 ring-1 ring-white/15 md:inline-block"
+            >
+              {"</>"}
+            </span>
+            <span
+              aria-hidden="true"
+              className="animate-float-slow pointer-events-none absolute bottom-[22%] right-[9%] hidden rounded-lg bg-white/10 px-2.5 py-1.5 font-mono text-xs font-bold text-brand-100 ring-1 ring-white/15 md:inline-block"
+            >
+              {"{ }"}
+            </span>
+
             <h2 className="relative text-2xl font-extrabold tracking-tight text-white text-balance sm:text-3xl">
               {title}
             </h2>
@@ -36,10 +59,10 @@ export function CtaBand({
             <div className="relative mt-7 flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={() => navigate("courses")}
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-7 text-sm font-bold text-brand-900 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-brand-50"
+                className="btn-shine inline-flex h-12 items-center gap-2 rounded-full bg-white px-7 text-sm font-bold text-brand-900 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-brand-50"
               >
                 Explore Courses
-                <ArrowRight className="h-4.5 w-4.5" aria-hidden="true" />
+                <ArrowRight className="h-4.5 w-4.5 transition-transform duration-300 hover:translate-x-0.5" aria-hidden="true" />
               </button>
               <button
                 onClick={() => navigate("contact")}

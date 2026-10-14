@@ -259,7 +259,7 @@ export const heroSlides: Slide[] = [
     description:
       "Work on real-world projects, strengthen your portfolio and step into the IT industry with confidence.",
     image: "/images/hero-3.png",
-    alt: "Young IT professionals celebrating career success in a modern office",
+    alt: "Team of young Indian IT professionals showing unity and career success at a modern training institute",
   },
 ];
 

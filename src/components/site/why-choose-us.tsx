@@ -1,9 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Building2, MonitorSmartphone } from "lucide-react";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
+import { tiltHandlers } from "@/components/site/fx";
 import { badges, whyChooseUs } from "@/lib/data";
+import { useSiteStore } from "@/lib/store";
 
 export function BadgesStrip() {
   return (
@@ -16,9 +19,9 @@ export function BadgesStrip() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.1, duration: 0.5, ease: "easeOut" }}
-              className="flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-brand-950/[0.06] transition-shadow hover:shadow-xl hover:shadow-brand-900/10"
+              className="group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-brand-950/[0.06] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-900/10"
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-md shadow-brand-700/25">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-md shadow-brand-700/25 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
                 <badge.icon className="h-6 w-6" aria-hidden="true" />
               </span>
               <div>
@@ -44,7 +47,7 @@ export function WhyChooseUs() {
           title="Everything you need to go from beginner to job-ready"
           description="We focus on the things that actually move your career forward — practical skills, real projects and honest guidance."
         />
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3">
           {whyChooseUs.map((feature, i) => (
             <motion.article
               key={feature.title}
@@ -52,13 +55,41 @@ export function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: "easeOut" }}
-              className="group rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-xl hover:shadow-brand-900/[0.08]"
+              {...tiltHandlers(4)}
+              className="tilt-card spotlight-card group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:border-brand-200 hover:shadow-xl hover:shadow-brand-900/[0.08]"
             >
-              <span className="flex h-13 w-13 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-colors duration-300 group-hover:bg-brand-700 group-hover:text-white">
-                <feature.icon className="h-6.5 w-6.5" aria-hidden="true" />
+              {/* animated corner glow */}
+              <span
+                aria-hidden="true"
+                className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-brand-100/0 blur-2xl transition-all duration-500 group-hover:bg-brand-300/40"
+              />
+
+              {/* Icon with dash-flow ring + wiggle on hover */}
+              <span className="relative z-10 flex h-13 w-13 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-colors duration-300 group-hover:bg-brand-700 group-hover:text-white">
+                <svg
+                  viewBox="0 0 100 100"
+                  fill="none"
+                  aria-hidden="true"
+                  className="absolute -inset-2 h-[calc(100%+16px)] w-[calc(100%+16px)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="47"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    className="dash-flow text-brand-500"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <feature.icon
+                  className="h-6.5 w-6.5 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                  aria-hidden="true"
+                />
               </span>
-              <h3 className="mt-5 text-lg font-extrabold text-ink">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+
+              <h3 className="relative z-10 mt-5 text-lg font-extrabold text-ink">{feature.title}</h3>
+              <p className="relative z-10 mt-2 text-sm leading-relaxed text-muted-foreground">
                 {feature.description}
               </p>
             </motion.article>
@@ -81,6 +112,7 @@ export function TrainingModes() {
         "Same curriculum as classroom batches",
       ],
       cta: "Enquire for Online Batch",
+      icon: MonitorSmartphone,
       style: "light" as const,
     },
     {
@@ -93,6 +125,7 @@ export function TrainingModes() {
         "Peer learning with batchmates",
       ],
       cta: "Enquire for Offline Batch",
+      icon: Building2,
       style: "dark" as const,
     },
   ];
@@ -105,21 +138,33 @@ export function TrainingModes() {
           title="Online & offline training — pick what fits your life"
           description="Both modes follow the same practical curriculum with live projects and placement assistance."
         />
-        <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-12 grid max-w-4xl gap-6 [perspective:1400px] md:grid-cols-2">
           {modes.map((mode, i) => (
             <Reveal key={mode.name} delay={i * 0.1}>
               <div
+                {...tiltHandlers(4)}
                 className={
                   mode.style === "dark"
-                    ? "flex h-full flex-col rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-7 text-white shadow-xl shadow-brand-900/20"
-                    : "flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
+                    ? "tilt-card spotlight-card spotlight-dark relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-7 text-white shadow-xl shadow-brand-900/20"
+                    : "tilt-card spotlight-card relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
                 }
               >
+                {/* Icon chip */}
+                <span
+                  className={
+                    mode.style === "dark"
+                      ? "relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-brand-200 ring-1 ring-white/15 transition-transform duration-300 hover:scale-110"
+                      : "relative flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-transform duration-300 hover:scale-110"
+                  }
+                >
+                  <mode.icon className="h-6 w-6" aria-hidden="true" />
+                </span>
+
                 <h3
                   className={
                     mode.style === "dark"
-                      ? "text-xl font-extrabold text-white"
-                      : "text-xl font-extrabold text-ink"
+                      ? "mt-4 text-xl font-extrabold text-white"
+                      : "mt-4 text-xl font-extrabold text-ink"
                   }
                 >
                   {mode.name}
@@ -129,7 +174,10 @@ export function TrainingModes() {
                 </p>
                 <ul className="mt-5 flex-1 space-y-3">
                   {mode.points.map((point) => (
-                    <li key={point} className="flex items-start gap-2.5">
+                    <li
+                      key={point}
+                      className="flex items-start gap-2.5 transition-transform duration-300 hover:translate-x-1.5"
+                    >
                       <CheckIcon dark={mode.style === "dark"} />
                       <span
                         className={
@@ -147,8 +195,8 @@ export function TrainingModes() {
                   onClick={() => useSiteStore.getState().navigate("contact")}
                   className={
                     mode.style === "dark"
-                      ? "mt-6 h-11 w-full rounded-full bg-white text-sm font-bold text-brand-900 transition-colors hover:bg-brand-100"
-                      : "mt-6 h-11 w-full rounded-full border-2 border-brand-700 text-sm font-bold text-brand-700 transition-colors hover:bg-brand-700 hover:text-white"
+                      ? "btn-shine mt-6 h-11 w-full rounded-full bg-white text-sm font-bold text-brand-900 transition-all hover:-translate-y-0.5 hover:bg-brand-100"
+                      : "mt-6 h-11 w-full rounded-full border-2 border-brand-700 text-sm font-bold text-brand-700 transition-all hover:-translate-y-0.5 hover:bg-brand-700 hover:text-white"
                   }
                 >
                   {mode.cta}

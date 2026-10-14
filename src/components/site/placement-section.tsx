@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { Info } from "lucide-react";
 import { SectionHeading } from "@/components/site/section-heading";
+import { HeroDecor } from "@/components/site/svg-decor";
+import { tiltHandlers } from "@/components/site/fx";
 import { placementPoints } from "@/lib/data";
 
 export function PlacementSection() {
@@ -11,8 +13,11 @@ export function PlacementSection() {
       className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-950 to-ink py-16 sm:py-20"
       aria-labelledby="placement-heading"
     >
-      {/* Decorative glows */}
-      <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl" aria-hidden="true" />
+      {/* Decorative glows + animated SVG decor */}
+      <HeroDecor
+        orbitClassName="-left-20 top-10 h-64 w-64 text-brand-400/30"
+        circuitClassName="absolute inset-x-0 bottom-0 h-36 w-full text-brand-400/20"
+      />
       <div className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
@@ -22,7 +27,7 @@ export function PlacementSection() {
           title="Placement assistance that works for you, step by step"
           description="We prepare you for the hiring process with structured, honest support — from your resume to your final interview rounds."
         />
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-4">
           {placementPoints.map((point, i) => (
             <motion.div
               key={point.title}
@@ -30,9 +35,10 @@ export function PlacementSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
-              className="rounded-2xl bg-white/[0.06] p-6 ring-1 ring-white/10 backdrop-blur-sm transition-colors hover:bg-white/[0.1]"
+              {...tiltHandlers(4)}
+              className="tilt-card spotlight-card spotlight-dark group rounded-2xl bg-white/[0.06] p-6 ring-1 ring-white/10 backdrop-blur-sm transition-colors hover:bg-white/[0.1] hover:ring-white/20"
             >
-              <span className="text-sm font-black tracking-widest text-brand-300">
+              <span className="inline-block text-sm font-black tracking-widest text-brand-300 transition-transform duration-300 group-hover:scale-110">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <h3 className="mt-3 text-base font-extrabold text-white">{point.title}</h3>

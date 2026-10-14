@@ -26,6 +26,7 @@ import {
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
+import { HeroDecor } from "@/components/site/svg-decor";
 import { useSiteStore } from "@/lib/store";
 import { courses } from "@/lib/data";
 import { siteConfig, whatsappUrl } from "@/lib/site-config";
@@ -121,7 +122,10 @@ export function PageContact() {
     <>
       {/* Page hero band */}
       <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-950 to-ink py-16 sm:py-20">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl" aria-hidden="true" />
+        <HeroDecor
+          orbitClassName="-left-24 -top-20 h-72 w-72 text-brand-400/35"
+          circuitClassName="absolute inset-x-0 bottom-0 h-36 w-full text-brand-400/25"
+        />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
             dark
@@ -310,7 +314,7 @@ export function PageContact() {
                       <Button
                         type="submit"
                         disabled={form.formState.isSubmitting}
-                        className="h-12 w-full rounded-xl bg-brand-700 text-base font-bold shadow-lg shadow-brand-700/25 hover:bg-brand-800 sm:w-auto sm:px-10"
+                        className="btn-shine h-12 w-full rounded-xl bg-brand-700 text-base font-bold shadow-lg shadow-brand-700/25 hover:bg-brand-800 sm:w-auto sm:px-10"
                       >
                         {form.formState.isSubmitting ? (
                           <>

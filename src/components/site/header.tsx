@@ -61,7 +61,7 @@ export function Header() {
         >
           <button
             onClick={() => go("home")}
-            className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
+            className="group rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
             aria-label={`${siteConfig.name} — go to home page`}
           >
             <Logo />
@@ -75,7 +75,7 @@ export function Header() {
                   onClick={() => go(item.view)}
                   aria-current={view === item.view ? "page" : undefined}
                   className={cn(
-                    "relative rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                    "nav-link relative rounded-full px-4 py-2 text-sm font-semibold transition-colors",
                     view === item.view
                       ? "text-brand-700"
                       : "text-slate-600 hover:bg-brand-50 hover:text-brand-700"
@@ -99,14 +99,14 @@ export function Header() {
               href={whatsappUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200 transition-colors hover:bg-emerald-100 sm:flex"
+              className="hidden h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200 transition-all hover:scale-110 hover:bg-emerald-100 sm:flex"
               aria-label="Chat with us on WhatsApp"
             >
               <WhatsAppIcon className="h-5 w-5" />
             </a>
             <Button
               onClick={() => go("contact")}
-              className="hidden h-10 rounded-full bg-brand-700 px-5 text-sm font-bold shadow-md shadow-brand-700/25 hover:bg-brand-800 sm:inline-flex"
+              className="btn-shine hidden h-10 rounded-full bg-brand-700 px-5 text-sm font-bold shadow-md shadow-brand-700/25 hover:bg-brand-800 sm:inline-flex"
             >
               Contact for Admission
             </Button>
