@@ -1,0 +1,44 @@
+import { siteConfig } from "@/lib/site-config";
+import { cn } from "@/lib/utils";
+
+export function Logo({
+  variant = "light",
+  className,
+}: {
+  variant?: "light" | "dark";
+  className?: string;
+}) {
+  return (
+    <span className={cn("flex items-center gap-2.5", className)}>
+      <span
+        aria-hidden="true"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-900 shadow-md shadow-brand-900/20"
+      >
+        <svg viewBox="0 0 64 64" className="h-6 w-6" fill="none">
+          <path
+            d="M18 17h11l3 9 3-9h11l-9.5 19.5V47h-9V36.5L18 17z"
+            fill="#ffffff"
+          />
+        </svg>
+      </span>
+      <span className="flex flex-col leading-none">
+        <span
+          className={cn(
+            "text-lg font-extrabold tracking-tight",
+            variant === "light" ? "text-ink" : "text-white"
+          )}
+        >
+          Yantrix <span className="text-brand-600">Technology</span>
+        </span>
+        <span
+          className={cn(
+            "mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]",
+            variant === "light" ? "text-muted-foreground" : "text-brand-200"
+          )}
+        >
+          {siteConfig.domain}
+        </span>
+      </span>
+    </span>
+  );
+}
