@@ -9,6 +9,8 @@ import { useSiteStore } from "@/lib/store";
 import { heroSlides } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { CircuitLines, GridDots, HexRing, OrbitRings, Particles, PulseGrid, Aurora } from "@/components/site/svg-decor";
+import { DataStreams, HudStatusChip, NeuralCore } from "@/components/site/ai-decor";
+import { Magnetic, ScrambleText, TerminalTyper } from "@/components/site/ai-fx";
 
 const AUTOPLAY_MS = 6000;
 
@@ -83,9 +85,11 @@ export function HeroSlider() {
         <Aurora className="opacity-90" />
         <PulseGrid className="opacity-60" />
         <GridDots className="opacity-30" />
+        <DataStreams className="opacity-[0.13]" />
         <CircuitLines className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-44 w-full text-cyber-400/25 lg:block" />
         <OrbitRings className="pointer-events-none absolute -right-24 top-1/2 hidden h-[440px] w-[440px] -translate-y-1/2 text-cyber-300/25 xl:block" />
         <HexRing className="pointer-events-none absolute -left-16 -bottom-20 hidden h-72 w-72 text-brand-400/25 lg:block" />
+        <NeuralCore className="pointer-events-none absolute -right-28 top-1/2 hidden h-[560px] w-[560px] -translate-y-1/2 text-cyber-300/45 xl:block" />
         <Particles className="opacity-80" />
 
         {/* Content */}
@@ -108,14 +112,21 @@ export function HeroSlider() {
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyber-400 opacity-75" />
                       <span className="dot-pulse relative inline-flex h-1.5 w-1.5 rounded-full bg-cyber-400" />
                     </span>
-                    {slide.eyebrow}
+                    <ScrambleText text={slide.eyebrow} />
                   </motion.span>
 
                   <motion.h1
                     variants={textItem}
                     className="text-4xl font-extrabold leading-[1.08] tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]"
                   >
-                    <span className="text-gradient-cyber">{slide.title}</span>
+                    <span className="sr-only">{slide.title}</span>
+                    <span
+                      aria-hidden="true"
+                      className="text-gradient-cyber glitch-hover"
+                      data-text={slide.title}
+                    >
+                      {slide.title}
+                    </span>
                   </motion.h1>
 
                   <motion.p
@@ -126,19 +137,23 @@ export function HeroSlider() {
                   </motion.p>
 
                   <motion.div variants={textItem} className="mt-1 flex flex-wrap items-center gap-3">
-                    <Button
-                      onClick={() => navigate("courses")}
-                      className="btn-futur btn-shine h-12 rounded-full px-7 text-base font-bold text-white"
-                    >
-                      Explore Courses
-                    </Button>
-                    <Button
-                      onClick={() => navigate("contact")}
-                      variant="outline"
-                      className="h-12 rounded-full border-cyber-400/40 bg-white/5 px-7 text-base font-bold text-white backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-cyber-300/70 hover:bg-white/10 hover:text-cyber-200 hover:shadow-[0_0_28px_-6px_rgba(34,211,238,0.5)]"
-                    >
-                      Contact for Admission
-                    </Button>
+                    <Magnetic>
+                      <Button
+                        onClick={() => navigate("courses")}
+                        className="btn-futur btn-shine h-12 rounded-full px-7 text-base font-bold text-white"
+                      >
+                        Explore Courses
+                      </Button>
+                    </Magnetic>
+                    <Magnetic>
+                      <Button
+                        onClick={() => navigate("contact")}
+                        variant="outline"
+                        className="h-12 rounded-full border-cyber-400/40 bg-white/5 px-7 text-base font-bold text-white backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-cyber-300/70 hover:bg-white/10 hover:text-cyber-200 hover:shadow-[0_0_28px_-6px_rgba(34,211,238,0.5)]"
+                      >
+                        Contact for Admission
+                      </Button>
+                    </Magnetic>
                   </motion.div>
                 </motion.div>
               </AnimatePresence>
@@ -177,6 +192,10 @@ export function HeroSlider() {
             </div>
           </div>
         </div>
+
+        {/* HUD status readout (top-right) + live AI terminal (bottom-right) */}
+        <HudStatusChip className="absolute right-6 top-6 z-10" />
+        <TerminalTyper className="absolute bottom-14 right-6 z-10 hidden w-80 xl:block" />
 
         {/* Arrows */}
         <button

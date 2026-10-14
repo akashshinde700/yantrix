@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
 import { Aurora, FloatingCodeChips, LightBeam, OrbitRings, PulseGrid } from "@/components/site/svg-decor";
+import { DataStreams, HudCorners, RoboBuddy } from "@/components/site/ai-decor";
 import { useSiteStore } from "@/lib/store";
 
 /** Reusable call-to-action band shown at the bottom of pages. */
@@ -23,7 +24,9 @@ export function CtaBand({
             {/* futuristic decor */}
             <Aurora className="opacity-90" />
             <PulseGrid className="opacity-50" />
+            <DataStreams className="opacity-[0.12]" />
             <LightBeam />
+            <HudCorners dark className="rounded-3xl" />
             <OrbitRings
               className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 text-cyber-300/25"
             />
@@ -31,9 +34,13 @@ export function CtaBand({
               className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 text-brand-400/20"
             />
             <FloatingCodeChips className="hidden md:block" />
+            <RoboBuddy className="absolute -left-7 bottom-4 hidden h-32 w-32 text-cyber-300/80 lg:block" />
 
             <h2 className="relative text-2xl font-extrabold tracking-tight text-white text-balance sm:text-3xl">
-              <span className="text-gradient-cyber">{title}</span>
+              <span className="sr-only">{title}</span>
+              <span aria-hidden="true" className="text-gradient-cyber glitch-hover" data-text={title}>
+                {title}
+              </span>
             </h2>
             <p className="relative mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
               {description}

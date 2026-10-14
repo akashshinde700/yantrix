@@ -6,6 +6,7 @@ import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { tiltHandlers } from "@/components/site/fx";
 import { Aurora, LightBeam } from "@/components/site/svg-decor";
+import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
 import { badges, whyChooseUs } from "@/lib/data";
 import { useSiteStore } from "@/lib/store";
 
@@ -22,6 +23,8 @@ export function BadgesStrip() {
               transition={{ delay: 0.15 + i * 0.1, duration: 0.5, ease: "easeOut" }}
               className="card-glow group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-brand-950/[0.06] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-900/10"
             >
+              <HudCorners />
+              <ScanSweep />
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 via-brand-700 to-cyber-600 text-white shadow-md shadow-brand-700/25 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.6)]">
                 <badge.icon className="h-6 w-6" aria-hidden="true" />
               </span>
@@ -64,6 +67,8 @@ export function WhyChooseUs() {
                 aria-hidden="true"
                 className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-brand-100/0 blur-2xl transition-all duration-500 group-hover:bg-cyber-300/40"
               />
+              <HudCorners />
+              <ScanSweep />
 
               {/* Icon with dash-flow ring + wiggle on hover */}
               <span className="relative z-10 flex h-13 w-13 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-brand-600 group-hover:to-cyber-500 group-hover:text-white group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.65)]">
@@ -157,6 +162,8 @@ export function TrainingModes() {
                     <LightBeam />
                   </>
                 ) : null}
+                <HudCorners dark={mode.style === "dark"} />
+                <ScanSweep />
 
                 {/* Icon chip */}
                 <span

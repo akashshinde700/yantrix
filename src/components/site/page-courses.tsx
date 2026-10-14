@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/site/section-heading";
 import { CtaBand } from "@/components/site/cta-band";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
+import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
 import { tiltHandlers } from "@/components/site/fx";
 import { courses, type Course } from "@/lib/data";
 import { useSiteStore } from "@/lib/store";
@@ -31,6 +32,8 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
         aria-hidden="true"
         className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 rounded-t-2xl bg-gradient-to-r from-brand-500 via-cyber-400 to-brand-700 transition-transform duration-500 ease-out group-hover:scale-x-100"
       />
+      <HudCorners />
+      <ScanSweep />
 
       <div className="relative z-10 flex items-start justify-between gap-3">
         {/* Icon with animated dash-flow ring on hover */}

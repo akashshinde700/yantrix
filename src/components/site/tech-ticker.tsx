@@ -4,6 +4,7 @@ import { SectionHeading } from "@/components/site/section-heading";
 import { Counter } from "@/components/site/fx";
 import { Reveal } from "@/components/site/reveal";
 import { Aurora, HexRing, PulseGrid } from "@/components/site/svg-decor";
+import { HudCorners } from "@/components/site/ai-decor";
 import { CalendarDays, Layers, MonitorSmartphone, Target, type LucideIcon } from "lucide-react";
 
 /* ────────────────────────────────────────────────────────────────────
@@ -137,6 +138,7 @@ export function StatsBand() {
           {stats.map((stat, i) => (
             <Reveal key={stat.label} delay={i * 0.08}>
               <div className="group relative flex flex-col items-center text-center">
+                <HudCorners dark className="rounded-2xl" />
                 {/* icon with orbiting dash ring on hover */}
                 <span className="glass relative flex h-14 w-14 items-center justify-center rounded-2xl text-cyber-300 shadow-[0_0_22px_-6px_rgba(34,211,238,0.45)] transition-colors duration-300 group-hover:text-white">
                   <svg

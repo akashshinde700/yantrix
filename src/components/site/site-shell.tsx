@@ -9,6 +9,7 @@ import { PageCourses } from "@/components/site/page-courses";
 import { PageAbout } from "@/components/site/page-about";
 import { PageContact } from "@/components/site/page-contact";
 import { ScrollProgress, BackToTop } from "@/components/site/fx";
+import { CursorGlow } from "@/components/site/ai-fx";
 import { useSiteStore } from "@/lib/store";
 import { viewSeo } from "@/lib/site-config";
 
@@ -58,6 +59,7 @@ export function SiteShell() {
         Skip to main content
       </a>
       <ScrollProgress />
+      <CursorGlow />
       <Header />
       <main id="main-content" className="flex-1">
         <div className="view-panel" hidden={view !== "home"}>
