@@ -5,7 +5,8 @@ import { siteConfig } from "@/lib/site-config";
 /* ────────────────────────────────────────────────────────────────────
    JSON-LD structured data (SEO / AEO / GEO).
    All schemas are server-rendered so crawlers always see them.
-   No fabricated data: no fake ratings, reviews, addresses or phones.
+   Contact details below come from the confirmed business information
+   in src/lib/site-config.ts — no fabricated ratings or reviews.
    ──────────────────────────────────────────────────────────────────── */
 
 const organizationSchema = {
@@ -17,6 +18,22 @@ const organizationSchema = {
   description: siteConfig.positioning,
   foundingDate: String(siteConfig.foundedYear),
   slogan: siteConfig.tagline,
+  email: siteConfig.contact.email,
+  telephone: "+91-88060-03000",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Laxmi Nagar, Dhanori",
+    addressLocality: "Pune",
+    addressRegion: "Maharashtra",
+    addressCountry: "IN",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+91-88060-03000",
+    email: siteConfig.contact.email,
+    contactType: "customer service",
+    availableLanguage: ["English", "Hindi", "Marathi"],
+  },
   knowsAbout: [
     "Full Stack Development",
     "Web Development",

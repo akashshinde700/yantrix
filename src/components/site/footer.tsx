@@ -4,7 +4,7 @@ import { GraduationCap, MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { useSiteStore } from "@/lib/store";
-import { siteConfig, whatsappUrl, type SiteView } from "@/lib/site-config";
+import { siteConfig, whatsappUrl, phoneHref, emailHref, type SiteView } from "@/lib/site-config";
 import { courses } from "@/lib/data";
 
 const quickLinks: { view: SiteView; label: string }[] = [
@@ -111,11 +111,21 @@ export function Footer() {
           <ul className="mt-4 space-y-3 text-sm">
             <li className="flex items-start gap-2.5">
               <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
-              <span className="text-slate-400">{siteConfig.contact.phone}</span>
+              <a
+                href={phoneHref}
+                className="text-slate-400 underline-offset-4 transition-colors hover:text-white hover:underline"
+              >
+                {siteConfig.contact.phone}
+              </a>
             </li>
             <li className="flex items-start gap-2.5">
               <Mail className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
-              <span className="text-slate-400">{siteConfig.contact.email}</span>
+              <a
+                href={emailHref}
+                className="break-words text-slate-400 underline-offset-4 transition-colors hover:text-white hover:underline"
+              >
+                {siteConfig.contact.email}
+              </a>
             </li>
             <li className="flex items-start gap-2.5">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />

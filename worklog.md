@@ -52,3 +52,21 @@ Stage Summary:
 - Content rules preserved: "Placement Assistance" (never guaranteed), TODO contact placeholders, editable durations, no fabricated stats (StatsBand uses only verifiable facts).
 - Key new artifacts: src/components/site/{svg-decor,fx,tech-ticker}.tsx; updated globals.css + 12 site components; 3 regenerated images in public/images.
 - Note for future agents: Next 16 dev image cache = .next/dev/cache/images — clear it (and restart dev) whenever files in public/images are replaced.
+
+---
+Task ID: 3
+Agent: Z.ai Code (main agent)
+Task: Add the real business contact details supplied by the owner — mobile 8806003000, email support@yantrixtechnology.com, location Dhanori Laxmi Nagar (Pune) — replacing all TODO placeholders across the site.
+
+Work Log:
+- src/lib/site-config.ts: whatsappNumber = 918806003000 (wa.me deep links), phone = "+91 88060 03000", email = support@yantrixtechnology.com, address = "Laxmi Nagar, Dhanori, Pune, Maharashtra"; added phoneHref (tel:) and emailHref (mailto:) exports; removed TODO header comments.
+- src/components/site/page-contact.tsx: todoDetails → contactDetails; Phone + Email now clickable (tel:/mailto:) with brand-color hover underline; removed amber "Edit me" badges and the "details are pending" notice; WhatsApp card now shows the number as a chip.
+- src/components/site/footer.tsx: phone + email converted to clickable links with hover:text-white hover:underline.
+- src/components/site/header.tsx: utility bar now shows click-to-call "+91 88060 03000" link; "New Batches Enrolling" hidden below lg to prevent md overflow.
+- src/lib/data.ts: FAQ "How can students contact Yantrix Technology?" answer updated with phone, email and Dhanori (Pune) address.
+- src/app/page.tsx: EducationalOrganization JSON-LD now includes telephone, email, PostalAddress (Laxmi Nagar, Dhanori / Pune / Maharashtra / IN) and ContactPoint (customer service; English, Hindi, Marathi).
+- Verified with agent-browser (desktop 1280 + mobile 390): contact view shows all real details, hrefs = tel:+918806003000 / mailto:support@yantrixtechnology.com / wa.me/918806003000 (WhatsApp card + float), footer + header correct, no TODO/"Edit me" remnants, JSON-LD & FAQ updated (curl), console clean, lint clean, dev.log clean.
+
+Stage Summary:
+- All TODO contact placeholders are gone; real details are centralized in src/lib/site-config.ts (single source of truth) and used by header, footer, contact page, WhatsApp float, FAQ and JSON-LD.
+- Note: address intentionally has no PIN code (owner gave only "dhanori laxmi nagar"); Dhanori is displayed as part of Pune, Maharashtra.

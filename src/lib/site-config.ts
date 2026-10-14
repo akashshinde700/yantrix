@@ -2,13 +2,12 @@
  * Central site configuration for Yantrix Technology.
  *
  * ─────────────────────────────────────────────────────────────────────
- *  EDITABLE PLACEHOLDERS (marked with TODO):
- *  1. whatsappNumber  → replace with the business WhatsApp number
+ *  BUSINESS CONTACT DETAILS (confirmed by the business owner):
+ *  1. whatsappNumber  → business WhatsApp number
  *                       (country code + number, digits only, no "+" or spaces)
  *  2. contact.phone   → business phone number
  *  3. contact.email   → business email address
  *  4. contact.address → office / training-centre address
- *  Nothing here is fabricated — all unknown values are clearly marked TODO.
  * ─────────────────────────────────────────────────────────────────────
  */
 
@@ -22,17 +21,22 @@ export const siteConfig = {
     "Yantrix Technology helps students and professionals learn practical IT skills through online and offline training, live project-based learning, and placement assistance.",
   foundedYear: 2024,
 
-  // TODO: Replace with the real WhatsApp business number (digits only, with country code, e.g. 91XXXXXXXXXX)
-  whatsappNumber: "910000000000",
+  // Business WhatsApp number — 8806003000 with India country code (91)
+  whatsappNumber: "918806003000",
 
   contact: {
-    // TODO: Replace with real business details
-    phone: "TODO — to be updated",
-    email: "TODO — to be updated",
-    address: "TODO — to be updated",
+    phone: "+91 88060 03000",
+    email: "support@yantrixtechnology.com",
+    address: "Laxmi Nagar, Dhanori, Pune, Maharashtra",
     hours: "Mon – Sat · 9:00 AM – 7:00 PM",
   },
 } as const;
+
+/** Click-to-call link for the business phone number. */
+export const phoneHref = "tel:+918806003000";
+
+/** Pre-filled mailto link for the business email. */
+export const emailHref = "mailto:support@yantrixtechnology.com";
 
 /** Build a wa.me deep-link with a pre-filled enquiry message. */
 export function whatsappUrl(message?: string): string {

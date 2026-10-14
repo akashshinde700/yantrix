@@ -29,7 +29,7 @@ import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { useSiteStore } from "@/lib/store";
 import { courses } from "@/lib/data";
-import { siteConfig, whatsappUrl } from "@/lib/site-config";
+import { siteConfig, whatsappUrl, phoneHref, emailHref } from "@/lib/site-config";
 
 /* ── Validation schema (shared shape with the API route) ── */
 const contactFormSchema = z.object({
@@ -64,11 +64,11 @@ type ContactFormValues = z.input<typeof contactFormSchema>;
 
 const courseOptions = [...courses.map((c) => c.title), "General Enquiry / Not Sure Yet"];
 
-const todoDetails = [
-  { icon: Phone, label: "Phone", value: siteConfig.contact.phone },
-  { icon: Mail, label: "Email", value: siteConfig.contact.email },
-  { icon: MapPin, label: "Address", value: siteConfig.contact.address },
-  { icon: Clock, label: "Working Hours", value: siteConfig.contact.hours },
+const contactDetails = [
+  { icon: Phone, label: "Phone", value: siteConfig.contact.phone, href: phoneHref },
+  { icon: Mail, label: "Email", value: siteConfig.contact.email, href: emailHref },
+  { icon: MapPin, label: "Address", value: siteConfig.contact.address, href: null },
+  { icon: Clock, label: "Working Hours", value: siteConfig.contact.hours, href: null },
 ];
 
 export function PageContact() {
@@ -341,7 +341,7 @@ export function PageContact() {
               <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-7">
                 <h2 className="text-lg font-extrabold text-ink">Contact Information</h2>
                 <ul className="mt-5 space-y-4">
-                  {todoDetails.map((detail) => (
+                  {contactDetails.map((detail) => (
                     <li key={detail.label} className="flex items-start gap-3.5">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-100">
                         <detail.icon className="h-5 w-5" aria-hidden="true" />
@@ -350,22 +350,22 @@ export function PageContact() {
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                           {detail.label}
                         </p>
-                        <p className="placeholder-chip mt-1 inline-flex items-center gap-2 px-2.5 py-1 text-sm font-semibold text-slate-500">
-                          {detail.value}
-                          {detail.value.startsWith("TODO") ? (
-                            <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-700">
-                              Edit me
-                            </span>
-                          ) : null}
-                        </p>
+                        {detail.href ? (
+                          <a
+                            href={detail.href}
+                            className="mt-1 inline-block break-words text-sm font-semibold text-brand-700 underline-offset-4 transition-colors hover:text-brand-900 hover:underline"
+                          >
+                            {detail.value}
+                          </a>
+                        ) : (
+                          <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-700">
+                            {detail.value}
+                          </p>
+                        )}
                       </div>
                     </li>
                   ))}
                 </ul>
-                <p className="mt-5 rounded-lg bg-slate-50 px-3.5 py-2.5 text-xs leading-relaxed text-slate-500 ring-1 ring-slate-100">
-                  Contact details are pending from the business team and will be updated here
-                  shortly. Until then, WhatsApp or the form above is the fastest way to reach us.
-                </p>
               </div>
             </Reveal>
 
@@ -380,6 +380,10 @@ export function PageContact() {
                 <p className="mt-2 text-sm leading-relaxed text-emerald-50">
                   Ask about courses, fees, batch timings or admission — chat with our counsellors
                   directly.
+                </p>
+                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold tracking-wide text-white ring-1 ring-white/20">
+                  <WhatsAppIcon className="h-3.5 w-3.5" />
+                  {siteConfig.contact.phone}
                 </p>
                 <a
                   href={whatsappUrl()}

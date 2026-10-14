@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, GraduationCap, MonitorSmartphone, Handshake } from "lucide-react";
+import { Menu, X, GraduationCap, MonitorSmartphone, Handshake, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { useSiteStore } from "@/lib/store";
-import { siteConfig, whatsappUrl, type SiteView } from "@/lib/site-config";
+import { siteConfig, whatsappUrl, phoneHref, type SiteView } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 const navItems: { view: SiteView; label: string }[] = [
@@ -45,10 +45,18 @@ export function Header() {
               <Handshake className="h-3.5 w-3.5" aria-hidden="true" />
               Placement Assistance
             </span>
-            <span className="flex items-center gap-1.5 text-brand-100">
+            <span className="hidden items-center gap-1.5 text-brand-100 lg:flex">
               <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
               New Batches Enrolling — Enquire Now
             </span>
+            <a
+              href={phoneHref}
+              className="flex items-center gap-1.5 font-bold text-white transition-colors hover:text-brand-200"
+              aria-label={`Call us at ${siteConfig.contact.phone}`}
+            >
+              <Phone className="h-3.5 w-3.5 text-brand-300" aria-hidden="true" />
+              {siteConfig.contact.phone}
+            </a>
           </div>
         </div>
       </div>

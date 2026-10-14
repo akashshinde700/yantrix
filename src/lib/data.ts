@@ -148,7 +148,7 @@ export const faqs: Faq[] = [
   {
     question: "How can students contact Yantrix Technology?",
     answer:
-      "You can reach us through the enquiry form on YantrixTechnology.com, the WhatsApp chat button on this website, or by visiting us during working hours (Mon–Sat, 9 AM–7 PM). We usually respond within 24 hours.",
+      "You can call or WhatsApp us on +91 88060 03000, email support@yantrixtechnology.com, or fill in the enquiry form on YantrixTechnology.com. You can also visit us at our training centre in Laxmi Nagar, Dhanori, Pune (Mon–Sat, 9 AM–7 PM). We usually respond within 24 hours.",
   },
   {
     question: "Do I need prior coding experience to join a course?",
