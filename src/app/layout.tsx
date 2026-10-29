@@ -87,10 +87,36 @@ export default async function RootLayout({
   const { gaMeasurementId, clarityId } = content.seo.global;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/*
+          Fail-safe: Framer Motion entrance animations start from
+          `opacity: 0`. If the browser never produces animation frames
+          (JS disabled, background tab at load, headless renderers, some
+          crawlers) the content would stay invisible, so we mark the
+          document and globals.css reveals it instantly.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var n=0,last=0,done=false,' +
+              'r=window.requestAnimationFrame||function(c){return setTimeout(c,16)};' +
+              'function t(){n++;if(!done)r(t)}' +
+              'r(t);' +
+              'var iv=setInterval(function(){' +
+              'if(done)return clearInterval(iv);' +
+              'var progressed=n-last;last=n;' +
+              'if(progressed<5){done=true;document.documentElement.setAttribute("data-motion","off");clearInterval(iv)}' +
+              '},400);' +
+              'setTimeout(function(){if(!done)clearInterval(iv)},20000)' +
+              '}catch(e){document.documentElement.setAttribute("data-motion","off")}})();',
+          }}
+        />
+        <noscript>
+          <style>{`[style*="opacity:0"],[style*="opacity: 0"]{opacity:1!important}[style*="translateY"],[style*="translateX"]{transform:none!important}`}</style>
+        </noscript>
       </head>
       <body className="antialiased bg-background font-sans text-foreground">
         {children}

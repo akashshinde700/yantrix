@@ -13,18 +13,35 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-/* Very small in-memory brute-force guard: 8 attempts / 10 min / IP. */
-const attempts = new Map<string, number[]>();
+/*
+ * Small in-memory brute-force guard: 10 *failed* logins / 10 min / IP.
+ * Successful logins are not counted, so normal use never locks anyone out.
+ */
+const failures = new Map<string, number[]>();
 const WINDOW = 10 * 60 * 1000;
-const MAX = 8;
+const MAX_FAILURES = 10;
 
-function tooMany(ip: string): boolean {
+function isBlocked(ip: string): boolean {
   const now = Date.now();
-  const recent = (attempts.get(ip) ?? []).filter((t) => now - t < WINDOW);
-  if (recent.length >= MAX) return true;
+  const recent = (failures.get(ip) ?? []).filter((t) => now - t < WINDOW);
+  failures.set(ip, recent);
+  return recent.length >= MAX_FAILURES;
+}
+
+function recordFailure(ip: string): void {
+  const now = Date.now();
+  const recent = (failures.get(ip) ?? []).filter((t) => now - t < WINDOW);
   recent.push(now);
-  attempts.set(ip, recent);
-  return false;
+  failures.set(ip, recent);
+  if (failures.size > 5000) {
+    for (const [key, times] of failures) {
+      if (times.every((t) => now - t >= WINDOW)) failures.delete(key);
+    }
+  }
+}
+
+function clearFailures(ip: string): void {
+  failures.delete(ip);
 }
 
 export async function POST(request: NextRequest) {
@@ -33,7 +50,7 @@ export async function POST(request: NextRequest) {
     request.headers.get("x-real-ip") ??
     "unknown";
 
-  if (tooMany(ip)) {
+  if (isBlocked(ip)) {
     return NextResponse.json(
       { ok: false, error: "Too many login attempts. Please wait 10 minutes." },
       { status: 429 }
@@ -58,11 +75,13 @@ export async function POST(request: NextRequest) {
   await ensureDefaultAdmin();
   const admin = await authenticate(parsed.data.email, parsed.data.password);
   if (!admin) {
+    recordFailure(ip);
     return NextResponse.json(
       { ok: false, error: "Incorrect email or password." },
       { status: 401 }
     );
   }
+  clearFailures(ip);
 
   const response = NextResponse.json({ ok: true, name: admin.name, role: admin.role });
   response.cookies.set(SESSION_COOKIE, createSessionToken(admin), {

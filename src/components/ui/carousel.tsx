@@ -90,11 +90,17 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api || !setApi) return
+    // Handing the Embla instance back to the consumer is an external sync.
     setApi(api)
   }, [api, setApi])
 
   React.useEffect(() => {
     if (!api) return
+
+    // Notify the consumer of the initial slide, then subscribe to changes.
+    // `onSelect` is a prop callback (the consumer's own store), not local
+    // state, so this effect only wires up an external subscription.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)

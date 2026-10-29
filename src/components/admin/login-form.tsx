@@ -16,6 +16,7 @@ export function LoginForm() {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+    event.stopPropagation();
     setLoading(true);
     setError(null);
     const response = await fetch("/api/admin/login", {
@@ -36,6 +37,9 @@ export function LoginForm() {
   return (
     <form
       onSubmit={submit}
+      // No native submission: a submit before hydration would put the
+      // password in the URL query string.
+      action={undefined}
       className="space-y-4 rounded-2xl border border-white/10 bg-white p-6 shadow-2xl shadow-space/40"
     >
       <div className="space-y-2">
@@ -76,7 +80,8 @@ export function LoginForm() {
       ) : null}
 
       <Button
-        type="submit"
+        type="button"
+        onClick={submit}
         disabled={loading}
         className="btn-futur h-11 w-full rounded-xl text-sm font-bold text-white"
       >

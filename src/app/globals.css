@@ -795,3 +795,37 @@
     display: none;
   }
 }
+
+/* ────────────────────────────────────────────────────────────────────
+   Animation fail-safe
+   ────────────────────────────────────────────────────────────────────
+   Entrance animations start from `opacity: 0` (Framer Motion inline
+   styles). If the browser never runs an animation frame — JS disabled,
+   requestAnimationFrame paused/throttled (background tab, headless
+   renderers, some crawlers) or reduced-motion — the content would stay
+   invisible. The inline script in app/layout.tsx sets
+   `data-motion="off"` on <html> when no frame is produced, and the rules
+   below then reveal that content immediately.
+   ──────────────────────────────────────────────────────────────────── */
+html[data-motion="off"] [style*="opacity:0"],
+html[data-motion="off"] [style*="opacity: 0"] {
+  opacity: 1 !important;
+}
+
+html[data-motion="off"] [style*="translateY"],
+html[data-motion="off"] [style*="translateX"],
+html[data-motion="off"] [style*="scale("] {
+  transform: none !important;
+}
+
+/* Same protection for visitors without JavaScript at all. */
+@media (scripting: none) {
+  [style*="opacity:0"],
+  [style*="opacity: 0"] {
+    opacity: 1 !important;
+  }
+  [style*="translateY"],
+  [style*="translateX"] {
+    transform: none !important;
+  }
+}
