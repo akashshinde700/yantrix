@@ -120,3 +120,24 @@ Stage Summary:
 - Site now has a full "AI-core" identity: animated neural network chip + traveling synapse signals in the hero, matrix data streams, live typing terminal, SYS.ONLINE HUD readout, robot mascot in CTA, HUD corner brackets + scan sweeps on all cards, decoding/scramble eyebrows, glitch-on-hover headlines, magnetic CTAs, cursor glow, circuit-seam section dividers — all aria-hidden/decorative, reduced-motion guarded, SSR-safe (no useId/mpath ids, deterministic data).
 - Known environment quirk (not a bug): Tailwind v4 gates hover:/group-hover: behind @media (hover: hover); agent-browser headless reports hover:none so those effects can't be screenshot-verified natively — verified via rule injection instead.
 - Key new artifacts: src/components/site/{ai-decor,ai-fx}.tsx; updated globals.css + hero-slider, site-shell, why-choose-us, page-courses, tech-ticker, cta-band, page-home.
+
+## Admin panel + SEO / AEO / GEO expansion
+
+- Replaced static content modules (`src/lib/data.ts`, `src/lib/site-config.ts`) and
+  the unused Prisma setup with a JSON content store (`src/lib/content/store.ts`,
+  `data/*.json`, seeded from `src/lib/content/defaults.ts`).
+- Added a password-protected admin panel at `/admin` (owner / editor / viewer roles,
+  scrypt passwords, HMAC-signed session cookies, in-memory login rate limiting,
+  audit log) covering hero slides, courses, FAQs, every page section, page copy,
+  navigation, business settings, SEO settings, the enquiry inbox and admin users.
+- Every public component now reads content from a React context
+  (`SiteContentProvider`) so admin edits render immediately.
+- Real crawlable routes for `/`, `/courses`, `/about`, `/contact` with per-page
+  metadata, canonical URLs and server-rendered JSON-LD (organisation, local
+  business, website, courses, FAQ, breadcrumbs).
+- Added `sitemap.xml`, `robots.txt` (AI crawlers allowed), `manifest.webmanifest`
+  and an admin-editable `llms.txt` for AI answer engines (AEO/GEO).
+- Contact form now writes to the JSON store; admin inbox supports statuses, notes,
+  search and CSV export.
+- Fonts switched from build-time `next/font/google` fetching to a CSS `@import`
+  so the project builds in offline / restricted-network environments.

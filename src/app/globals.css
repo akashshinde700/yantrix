@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -69,6 +70,12 @@
 }
 
 :root {
+  /* Fonts are loaded from Google Fonts via <link> in app/layout.tsx
+     (self-hosted / blocked-network safe: these stacks are the fallbacks). */
+  --font-jakarta: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
   --radius: 0.75rem;
   --background: #ffffff;
   --foreground: #0f172a;

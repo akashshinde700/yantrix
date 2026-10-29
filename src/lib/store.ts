@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import type { SiteView } from "@/lib/site-config";
+import type { SiteView } from "@/lib/content/types";
 
 interface SiteState {
   view: SiteView;

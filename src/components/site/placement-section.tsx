@@ -5,9 +5,15 @@ import { Info } from "lucide-react";
 import { SectionHeading } from "@/components/site/section-heading";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { tiltHandlers } from "@/components/site/fx";
-import { placementPoints } from "@/lib/data";
+import { useCollection, useSection, useSettings } from "@/lib/content/provider";
+import type { PlacementPoint } from "@/lib/content/types";
 
 export function PlacementSection() {
+  const points = useCollection<PlacementPoint>("placementPoints");
+  const section = useSection("placement");
+  const settings = useSettings();
+  if (section.hidden || points.length === 0) return null;
+
   return (
     <section
       className="relative overflow-hidden bg-space py-16 sm:py-20"
@@ -23,14 +29,14 @@ export function PlacementSection() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           dark
-          eyebrow="Placement Assistance"
-          title="Placement assistance that works for you, step by step"
-          description="We prepare you for the hiring process with structured, honest support — from your resume to your final interview rounds."
+          eyebrow={section.eyebrow}
+          title={section.title}
+          description={section.description}
         />
         <div className="mt-12 grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-4">
-          {placementPoints.map((point, i) => (
+          {points.map((point, i) => (
             <motion.div
-              key={point.title}
+              key={point.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -51,9 +57,8 @@ export function PlacementSection() {
         <p className="mx-auto mt-10 flex max-w-3xl items-start justify-center gap-2 rounded-xl bg-white/[0.05] px-5 py-4 text-center text-[13px] leading-relaxed text-slate-300 ring-1 ring-white/10">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
           <span>
-            <strong className="font-bold text-white">Please note:</strong> Yantrix Technology
-            provides <em className="not-italic font-semibold text-brand-200">placement assistance</em> to
-            all eligible students. We do not offer a 100% placement guarantee.
+            <strong className="font-bold text-white">Please note:</strong> {settings.name}{" "}
+            {settings.footer.disclaimer}
           </span>
         </p>
       </div>

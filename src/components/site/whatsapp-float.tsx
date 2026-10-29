@@ -2,15 +2,17 @@
 
 import { motion } from "framer-motion";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
-import { whatsappUrl } from "@/lib/site-config";
+import { useSettings } from "@/lib/content/provider";
+import { whatsappUrl } from "@/lib/content/helpers";
 
 export function WhatsAppFloat() {
+  const settings = useSettings();
   return (
     <motion.a
-      href={whatsappUrl()}
+      href={whatsappUrl(settings)}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with Yantrix Technology on WhatsApp"
+      aria-label={`Chat with ${settings.name} on WhatsApp`}
       className="group fixed bottom-5 right-5 z-50 flex items-center gap-0 rounded-full bg-whatsapp p-4 text-white shadow-xl shadow-emerald-600/30 transition-all hover:scale-105 hover:bg-whatsapp-dark sm:bottom-6 sm:right-6"
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}

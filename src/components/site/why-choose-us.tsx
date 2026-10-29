@@ -1,23 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Building2, MonitorSmartphone } from "lucide-react";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { tiltHandlers } from "@/components/site/fx";
 import { Aurora, LightBeam } from "@/components/site/svg-decor";
 import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
-import { badges, whyChooseUs } from "@/lib/data";
+import { useCollection, useSection } from "@/lib/content/provider";
+import { ContentIcon } from "@/components/site/content-icon";
+import type { Feature, TrainingMode } from "@/lib/content/types";
 import { useSiteStore } from "@/lib/store";
 
 export function BadgesStrip() {
+  const items = useCollection<Feature>("badges");
+  const section = useSection("badges");
+  if (section.hidden || items.length === 0) return null;
+
   return (
-    <section className="relative z-10 bg-white pb-4" aria-label="Key highlights">
+    <section className="relative z-10 bg-white pb-4" aria-label={section.eyebrow || "Key highlights"}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid -translate-y-12 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-          {badges.map((badge, i) => (
+          {items.map((badge, i) => {
+            return (
             <motion.div
-              key={badge.title}
+              key={badge.id}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.1, duration: 0.5, ease: "easeOut" }}
@@ -26,7 +32,7 @@ export function BadgesStrip() {
               <HudCorners />
               <ScanSweep />
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 via-brand-700 to-cyber-600 text-white shadow-md shadow-brand-700/25 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.6)]">
-                <badge.icon className="h-6 w-6" aria-hidden="true" />
+                <ContentIcon name={badge.icon} className="h-6 w-6" />
               </span>
               <div>
                 <h3 className="text-base font-extrabold text-ink">{badge.title}</h3>
@@ -35,7 +41,8 @@ export function BadgesStrip() {
                 </p>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -43,18 +50,23 @@ export function BadgesStrip() {
 }
 
 export function WhyChooseUs() {
+  const items = useCollection<Feature>("features");
+  const section = useSection("why");
+  if (section.hidden || items.length === 0) return null;
+
   return (
     <section className="bg-slate-50 py-16 sm:py-20" aria-labelledby="why-choose-heading">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Why Choose Us"
-          title="Everything you need to go from beginner to job-ready"
-          description="We focus on the things that actually move your career forward — practical skills, real projects and honest guidance."
+          eyebrow={section.eyebrow}
+          title={section.title}
+          description={section.description}
         />
         <div className="mt-12 grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3">
-          {whyChooseUs.map((feature, i) => (
+          {items.map((feature, i) => {
+            return (
             <motion.article
-              key={feature.title}
+              key={feature.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -88,9 +100,9 @@ export function WhyChooseUs() {
                     strokeLinecap="round"
                   />
                 </svg>
-                <feature.icon
+                <ContentIcon
+                  name={feature.icon}
                   className="h-6.5 w-6.5 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-                  aria-hidden="true"
                 />
               </span>
 
@@ -99,7 +111,8 @@ export function WhyChooseUs() {
                 {feature.description}
               </p>
             </motion.article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -107,46 +120,21 @@ export function WhyChooseUs() {
 }
 
 export function TrainingModes() {
-  const modes = [
-    {
-      name: "Online Training",
-      tagline: "Learn from anywhere, live.",
-      points: [
-        "Live, interactive sessions with trainers",
-        "Join from home — save travel time",
-        "Recorded backup for revision",
-        "Same curriculum as classroom batches",
-      ],
-      cta: "Enquire for Online Batch",
-      icon: MonitorSmartphone,
-      style: "light" as const,
-    },
-    {
-      name: "Offline Training",
-      tagline: "Learn in the classroom, together.",
-      points: [
-        "In-person, practical classroom sessions",
-        "Hands-on computer lab access",
-        "Face-to-face mentoring and doubt-solving",
-        "Peer learning with batchmates",
-      ],
-      cta: "Enquire for Offline Batch",
-      icon: Building2,
-      style: "dark" as const,
-    },
-  ];
+  const modes = useCollection<TrainingMode>("trainingModes");
+  const section = useSection("modes");
+  if (section.hidden || modes.length === 0) return null;
 
   return (
     <section className="bg-white py-16 sm:py-20" aria-labelledby="training-modes-heading">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="Flexible Learning"
-          title="Online & offline training — pick what fits your life"
-          description="Both modes follow the same practical curriculum with live projects and placement assistance."
+          eyebrow={section.eyebrow}
+          title={section.title}
+          description={section.description}
         />
         <div className="mx-auto mt-12 grid max-w-4xl gap-6 [perspective:1400px] md:grid-cols-2">
           {modes.map((mode, i) => (
-            <Reveal key={mode.name} delay={i * 0.1}>
+            <Reveal key={mode.id} delay={i * 0.1}>
               <div
                 {...tiltHandlers(4)}
                 className={
@@ -173,7 +161,7 @@ export function TrainingModes() {
                       : "relative flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-transform duration-300 hover:scale-110"
                   }
                 >
-                  <mode.icon className="h-6 w-6" aria-hidden="true" />
+                  <ContentIcon name={mode.icon} className="h-6 w-6" />
                 </span>
 
                 <h3

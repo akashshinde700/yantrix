@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site-config";
+import { useSettings } from "@/lib/content/provider";
 import { cn } from "@/lib/utils";
 
 export function Logo({
@@ -8,6 +8,7 @@ export function Logo({
   variant?: "light" | "dark";
   className?: string;
 }) {
+  const settings = useSettings();
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <span
@@ -28,7 +29,7 @@ export function Logo({
             variant === "light" ? "text-ink" : "text-white"
           )}
         >
-          Yantrix <span className="text-brand-600">Technology</span>
+          {settings.shortName} <span className="text-brand-600">{settings.name.replace(settings.shortName, "").trim() || "Technology"}</span>
         </span>
         <span
           className={cn(
@@ -36,7 +37,7 @@ export function Logo({
             variant === "light" ? "text-muted-foreground" : "text-brand-200"
           )}
         >
-          {siteConfig.domain}
+          {settings.domain}
         </span>
       </span>
     </span>

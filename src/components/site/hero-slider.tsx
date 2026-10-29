@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Handshake, MonitorSmartphone } from "lucide-react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteStore } from "@/lib/store";
-import { heroSlides } from "@/lib/data";
+import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { ContentIcon } from "@/components/site/content-icon";
+import type { HeroSlide, TrustChip } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 import { CircuitLines, GridDots, HexRing, OrbitRings, Particles, PulseGrid, Aurora } from "@/components/site/svg-decor";
 import { DataStreams, HudStatusChip, NeuralCore } from "@/components/site/ai-decor";
@@ -15,39 +17,59 @@ import { Magnetic, ScrambleText, TerminalTyper } from "@/components/site/ai-fx";
 const AUTOPLAY_MS = 6000;
 
 /* Staggered entrance for slide text */
-const textContainer = {
+const textContainer: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.09, delayChildren: 0.12 } },
 };
-const textItem = {
+const textItem: Variants = {
   hidden: { opacity: 0, y: 26 },
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
 };
 
 export function HeroSlider() {
   const navigate = useSiteStore((s) => s.navigate);
+  const settings = useSettings();
+  const heroSlides = useCollection<HeroSlide>("heroSlides");
+  const trustChips = useCollection<TrustChip>("trustChips");
+  const home = useSiteContent().pages.home;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const go = useCallback((dir: 1 | -1) => {
-    setIndex((i) => (i + dir + heroSlides.length) % heroSlides.length);
-  }, []);
+  const total = heroSlides.length;
+  const go = useCallback(
+    (dir: 1 | -1) => {
+      if (total < 1) return;
+      setIndex((i) => (i + dir + total) % total);
+    },
+    [total]
+  );
 
   useEffect(() => {
-    if (paused) return;
-    timer.current = setInterval(() => setIndex((i) => (i + 1) % heroSlides.length), AUTOPLAY_MS);
+    if (paused || total < 2) return;
+    timer.current = setInterval(() => setIndex((i) => (i + 1) % total), AUTOPLAY_MS);
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, [paused, index]);
+  }, [paused, index, total]);
 
-  const slide = heroSlides[index];
+  /* Guard: nothing to show if every slide was removed in the admin panel */
+  if (total === 0) {
+    return (
+      <section className="relative isolate overflow-hidden bg-space py-24 text-center text-white">
+        <p className="text-sm font-semibold text-slate-300">
+          No hero slides yet — add one from the admin panel.
+        </p>
+      </section>
+    );
+  }
+
+  const slide = heroSlides[Math.min(index, total - 1)];
 
   return (
     <section
       aria-roledescription="carousel"
-      aria-label="Yantrix Technology highlights"
+      aria-label={`${settings.name} highlights`}
       className="relative isolate overflow-hidden bg-space"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -142,7 +164,7 @@ export function HeroSlider() {
                         onClick={() => navigate("courses")}
                         className="btn-futur btn-shine h-12 rounded-full px-7 text-base font-bold text-white"
                       >
-                        Explore Courses
+                        {home.heroPrimaryCta}
                       </Button>
                     </Magnetic>
                     <Magnetic>
@@ -151,7 +173,7 @@ export function HeroSlider() {
                         variant="outline"
                         className="h-12 rounded-full border-cyber-400/40 bg-white/5 px-7 text-base font-bold text-white backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-cyber-300/70 hover:bg-white/10 hover:text-cyber-200 hover:shadow-[0_0_28px_-6px_rgba(34,211,238,0.5)]"
                       >
-                        Contact for Admission
+                        {home.heroSecondaryCta}
                       </Button>
                     </Magnetic>
                   </motion.div>
@@ -159,37 +181,30 @@ export function HeroSlider() {
               </AnimatePresence>
             </div>
 
-            {/* Floating glass trust chips (desktop) */}
-            <div className="pointer-events-none absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col gap-4 xl:flex">
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-                className="glass animate-float flex items-center gap-3 rounded-2xl p-4 pr-6 shadow-[0_0_30px_-8px_rgba(34,211,238,0.35)]"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30 shadow-[0_0_18px_-4px_rgba(16,185,129,0.6)]">
-                  <Handshake className="h-5.5 w-5.5" aria-hidden="true" />
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-white">Placement Assistance</p>
-                  <p className="text-xs text-slate-300">Support at every career step</p>
-                </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.55, duration: 0.6 }}
-                className="glass animate-float-slow flex items-center gap-3 rounded-2xl p-4 pr-6 shadow-[0_0_30px_-8px_rgba(34,211,238,0.35)]"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyber-500/15 text-cyber-300 ring-1 ring-cyber-400/30 shadow-[0_0_18px_-4px_rgba(34,211,238,0.7)]">
-                  <MonitorSmartphone className="h-5.5 w-5.5" aria-hidden="true" />
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-white">Online &amp; Offline Batches</p>
-                  <p className="text-xs text-slate-300">Learn your way, anywhere</p>
-                </div>
-              </motion.div>
-            </div>
+            {/* Floating glass trust chips (desktop) — editable in /admin/pages */}
+            {home.heroTrustChips && trustChips.length > 0 ? (
+              <div className="pointer-events-none absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col gap-4 xl:flex">
+                {trustChips.map((chip, i) => {
+                  return (
+                    <motion.div
+                      key={chip.id}
+                      initial={{ opacity: 0, x: 40 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + i * 0.15, duration: 0.6 }}
+                      className="glass animate-float flex items-center gap-3 rounded-2xl p-4 pr-6 shadow-[0_0_30px_-8px_rgba(34,211,238,0.35)]"
+                    >
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30 shadow-[0_0_18px_-4px_rgba(16,185,129,0.6)]">
+                        <ContentIcon name={chip.icon} className="h-5.5 w-5.5" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-white">{chip.title}</p>
+                        <p className="text-xs text-slate-300">{chip.subtitle}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -219,7 +234,7 @@ export function HeroSlider() {
             aria-hidden="true"
             className="font-mono text-[10px] font-bold tracking-[0.3em] text-cyber-300/70"
           >
-            {String(index + 1).padStart(2, "0")} / {String(heroSlides.length).padStart(2, "0")}
+            {String(Math.min(index, total - 1) + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
           </span>
           <div className="flex gap-2.5">
             {heroSlides.map((_, i) => (
