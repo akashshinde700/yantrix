@@ -57,3 +57,4 @@ server.log
 
 # allow the env template
 !.env.example
+db/*.db
