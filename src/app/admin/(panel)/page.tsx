@@ -17,7 +17,8 @@ export const dynamic = "force-dynamic";
 export default async function AdminDashboard() {
   const [content, enquiries] = await Promise.all([getContent(), getEnquiries()]);
   const audit = seoAudit(content);
-  const passed = audit.filter((check) => check.ok).length;
+  const passed = audit.filter((check) => check.level === "ok").length;
+  const toFix = audit.filter((check) => check.level !== "ok");
   const newEnquiries = enquiries.filter((enquiry) => enquiry.status === "new");
   const courses = content.collections.courses.filter((course) => course.active !== false);
   const faqs = content.collections.faqs.filter((faq) => faq.active !== false);
@@ -109,19 +110,24 @@ export default async function AdminDashboard() {
             </div>
           </header>
           <ul className="space-y-2 p-5">
-            {audit
-              .filter((check) => !check.ok)
+            {toFix
               .slice(0, 5)
               .map((check) => (
                 <li key={check.label} className="flex items-start gap-2 text-sm">
-                  <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                  <TriangleAlert
+                    className={
+                      check.level === "fail"
+                        ? "mt-0.5 h-4 w-4 shrink-0 text-destructive"
+                        : "mt-0.5 h-4 w-4 shrink-0 text-amber-500"
+                    }
+                  />
                   <span>
                     <strong className="font-semibold text-ink">{check.label}</strong>
                     <span className="block text-xs text-muted-foreground">{check.hint}</span>
                   </span>
                 </li>
               ))}
-            {audit.every((check) => check.ok) ? (
+            {toFix.length === 0 ? (
               <li className="flex items-center gap-2 text-sm text-emerald-700">
                 <CheckCircle2 className="h-4 w-4" /> Everything looks good.
               </li>

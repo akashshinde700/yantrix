@@ -47,18 +47,34 @@ export default async function SeoAdminPage() {
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-bold text-ink">SEO health checklist</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {audit.filter((check) => check.ok).length} of {audit.length} checks passing.
+          {audit.filter((check) => check.level === "ok").length} passing ·{" "}
+          {audit.filter((check) => check.level === "warn").length} recommended ·{" "}
+          {audit.filter((check) => check.level === "fail").length} to fix
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {audit.map((check) => (
             <li key={check.label} className="flex items-start gap-2 text-sm">
-              {check.ok ? (
+              {check.level === "ok" ? (
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
               ) : (
-                <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                <TriangleAlert
+                  className={
+                    check.level === "fail"
+                      ? "mt-0.5 h-4 w-4 shrink-0 text-destructive"
+                      : "mt-0.5 h-4 w-4 shrink-0 text-amber-500"
+                  }
+                />
               )}
               <span>
-                <strong className={check.ok ? "font-semibold text-ink" : "font-semibold text-amber-700"}>
+                <strong
+                  className={
+                    check.level === "ok"
+                      ? "font-semibold text-ink"
+                      : check.level === "fail"
+                        ? "font-semibold text-destructive"
+                        : "font-semibold text-amber-700"
+                  }
+                >
                   {check.label}
                 </strong>
                 <span className="block text-xs text-muted-foreground">{check.hint}</span>

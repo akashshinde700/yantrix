@@ -57,3 +57,6 @@ server.log
 
 # allow the env template
 !.env.example
+
+# audit artefacts (screenshots + reports)
+/audit-output/

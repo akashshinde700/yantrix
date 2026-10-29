@@ -277,75 +277,108 @@ export function buildLlmsTxt(content: SiteContent): string {
   return lines.join("\n");
 }
 
-/** Simple on-page SEO health checks shown in the admin SEO screen. */
+export type AuditLevel = "ok" | "warn" | "fail";
+
+export interface AuditCheck {
+  label: string;
+  /** true when the check passes ("ok" or an acceptable "warn") */
+  ok: boolean;
+  level: AuditLevel;
+  hint: string;
+}
+
+/**
+ * On-page SEO health checks shown in the admin panel.
+ *
+ * Title/description lengths follow Google's display guidance: longer text is
+ * still indexed, it is only truncated in results, so it is reported as a
+ * warning rather than a failure.
+ */
 export function seoAudit(content: SiteContent) {
   const { settings, seo } = content;
-  const checks: { label: string; ok: boolean; hint: string }[] = [];
+  const checks: AuditCheck[] = [];
+
+  const push = (label: string, level: AuditLevel, hint: string) =>
+    checks.push({ label, ok: level !== "fail", level, hint });
   const pages = Object.entries(seo.pages) as [SiteView, typeof seo.pages.home][];
 
   for (const [view, page] of pages) {
-    checks.push({
-      label: `${view}: title length`,
-      ok: page.title.length >= 30 && page.title.length <= 70,
-      hint: `${page.title.length} characters (aim for 30–70)`,
-    });
-    checks.push({
-      label: `${view}: meta description length`,
-      ok: page.description.length >= 70 && page.description.length <= 170,
-      hint: `${page.description.length} characters (aim for 70–170)`,
-    });
-    checks.push({
-      label: `${view}: not set to noindex`,
-      ok: !page.noindex,
-      hint: page.noindex ? "This page is hidden from search engines" : "Indexable",
-    });
+    const titleLength = page.title.length;
+    push(
+      `${view}: title length`,
+      titleLength < 15
+        ? "fail"
+        : titleLength <= 65
+          ? "ok"
+          : titleLength <= 120
+            ? "warn"
+            : "fail",
+      `${titleLength} characters — ${titleLength > 65 ? "long titles get truncated in search results" : "ideal range is 30–65"}`
+    );
+
+    const descriptionLength = page.description.length;
+    push(
+      `${view}: meta description length`,
+      descriptionLength < 50
+        ? "fail"
+        : descriptionLength <= 160
+          ? "ok"
+          : descriptionLength <= 320
+            ? "warn"
+            : "fail",
+      `${descriptionLength} characters — ${descriptionLength > 160 ? "descriptions over 160 characters are cut off" : "ideal range is 70–160"}`
+    );
+
+    push(
+      `${view}: indexable`,
+      page.noindex ? "fail" : "ok",
+      page.noindex ? "This page is hidden from search engines (noindex)" : "Indexable"
+    );
   }
 
-  checks.push({
-    label: "Site URL configured",
-    ok: /^https?:\/\//.test(settings.url),
-    hint: settings.url,
-  });
-  checks.push({
-    label: "Google Search Console verification",
-    ok: Boolean(seo.global.googleSiteVerification),
-    hint: seo.global.googleSiteVerification ? "Configured" : "Add the verification token in SEO settings",
-  });
-  checks.push({
-    label: "Open Graph image",
-    ok: Boolean(seo.global.ogImage),
-    hint: seo.global.ogImage || "Add a social share image",
-  });
-  checks.push({
-    label: "Analytics connected",
-    ok: Boolean(seo.global.gaMeasurementId || seo.global.clarityId),
-    hint: seo.global.gaMeasurementId || seo.global.clarityId || "No analytics ID yet",
-  });
-  checks.push({
-    label: "FAQ schema (AEO)",
-    ok: seo.aeo.enableFaqSchema && content.collections.faqs.some((f) => f.active !== false),
-    hint: "Structured Q&A helps AI answer engines quote your site",
-  });
-  checks.push({
-    label: "Course schema",
-    ok: seo.aeo.enableCourseSchema && content.collections.courses.some((c) => c.active !== false),
-    hint: "Enables course rich results",
-  });
-  checks.push({
-    label: "llms.txt for AI crawlers",
-    ok: seo.aeo.llmsTxtEnabled,
-    hint: "/llms.txt",
-  });
-  checks.push({
-    label: "Street address + locality",
-    ok: Boolean(settings.contact.address && settings.contact.city),
-    hint: "Local SEO / GEO needs a complete address",
-  });
-  checks.push({
-    label: "Geo coordinates",
-    ok: Boolean(seo.global.geoLatitude && seo.global.geoLongitude),
-    hint: "Used by local search and map results",
-  });
+  push(
+    "Site URL configured",
+    /^https?:\/\//.test(settings.url) ? "ok" : "fail",
+    settings.url
+  );
+  push(
+    "Google Search Console verification",
+    seo.global.googleSiteVerification ? "ok" : "warn",
+    seo.global.googleSiteVerification ? "Configured" : "Add the verification token in SEO settings"
+  );
+  push(
+    "Open Graph image",
+    seo.global.ogImage ? "ok" : "fail",
+    seo.global.ogImage || "Add a social share image"
+  );
+  push(
+    "Analytics connected",
+    seo.global.gaMeasurementId || seo.global.clarityId ? "ok" : "warn",
+    seo.global.gaMeasurementId || seo.global.clarityId || "No analytics ID yet"
+  );
+  push(
+    "FAQ schema (AEO)",
+    seo.aeo.enableFaqSchema && content.collections.faqs.some((f) => f.active !== false) ? "ok" : "fail",
+    "Structured Q&A helps AI answer engines quote your site"
+  );
+  push(
+    "Course schema",
+    seo.aeo.enableCourseSchema && content.collections.courses.some((c) => c.active !== false)
+      ? "ok"
+      : "fail",
+    "Enables course rich results"
+  );
+  push("llms.txt for AI crawlers", seo.aeo.llmsTxtEnabled ? "ok" : "warn", "/llms.txt");
+  push(
+    "Street address + locality",
+    settings.contact.address && settings.contact.city ? "ok" : "fail",
+    "Local SEO / GEO needs a complete address"
+  );
+  push(
+    "Geo coordinates",
+    seo.global.geoLatitude && seo.global.geoLongitude ? "ok" : "warn",
+    "Used by local search and map results"
+  );
 
   return checks;
 }
