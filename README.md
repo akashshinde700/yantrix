@@ -81,22 +81,28 @@ npm run start
 
 ## Data storage
 
-Website content, enquiries and admin accounts are stored as JSON documents in
-`./data` (configurable with `DATA_DIR`), written atomically with a per-file write
-queue. The directory is gitignored and seeded automatically from
-`src/lib/content/defaults.ts` on first run, so a fresh deploy just works — no
-database required.
+Content, enquiries, admin accounts and the audit log live in **MySQL**
+(`DATABASE_URL`); `db/schema.sql` documents the tables, which are created
+automatically on first use.
 
-```
-data/
-├── site-content.json   # all editable website content
-├── enquiries.json      # contact form submissions
-├── admins.json         # admin accounts (scrypt-hashed passwords)
-└── audit-log.json      # recent admin actions
+```bash
+mysql -e 'CREATE DATABASE IF NOT EXISTS yantrix'
+# .env → DATABASE_URL=mysql://root:root@localhost:3306/yantrix
 ```
 
-If the directory is not writable the store falls back to in-memory data for the
-running process (useful for read-only previews).
+`src/lib/content/store.ts` is a small façade over two interchangeable backends:
+
+| `CONTENT_STORE`  | Behaviour                                                                                                                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auto` (default) | MySQL, falling back to the JSON file store in `./data` when the database cannot be reached (fresh checkout, CI, `next build` without a database, offline preview). The fallback is logged once and lasts for the process. |
+| `mysql`          | MySQL only — connection problems are fatal. Use this in production so a misconfigured database never silently writes to local files.                                                                                      |
+| `json`           | JSON files only, no database needed.                                                                                                                                                                                      |
+
+The JSON fallback keeps `site-content.json`, `enquiries.json`, `admins.json` and
+`audit-log.json` in `./data` (configurable with `DATA_DIR`, git-ignored, seeded
+from `src/lib/content/defaults.ts`, written atomically with a per-file write
+queue). If that directory is not writable either, the store keeps everything in
+memory for the running process, which is enough for read-only previews.
 
 ## Project structure
 
