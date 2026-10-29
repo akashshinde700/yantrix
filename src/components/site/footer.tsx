@@ -4,19 +4,19 @@ import { GraduationCap, MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { useSiteStore } from "@/lib/store";
-import { siteConfig, whatsappUrl, phoneHref, emailHref, type SiteView } from "@/lib/site-config";
-import { courses } from "@/lib/data";
-
-const quickLinks: { view: SiteView; label: string }[] = [
-  { view: "home", label: "Home" },
-  { view: "courses", label: "Courses" },
-  { view: "about", label: "About Us" },
-  { view: "contact", label: "Contact Us" },
-];
+import { useCollection, useSettings } from "@/lib/content/provider";
+import { emailHref, fullAddress, phoneHref, whatsappUrl } from "@/lib/content/helpers";
+import type { Course, NavLink } from "@/lib/content/types";
 
 export function Footer() {
   const navigate = useSiteStore((s) => s.navigate);
+  const settings = useSettings();
+  const quickLinks = useCollection<NavLink>("navFooter");
+  const courses = useCollection<Course>("courses");
   const year = new Date().getFullYear();
+  const waHref = whatsappUrl(settings);
+  const telHref = phoneHref(settings);
+  const mailHref = emailHref(settings);
 
   return (
     <footer className="mt-auto bg-space text-slate-300">
@@ -28,11 +28,9 @@ export function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-center sm:px-6 md:flex-row md:text-left">
           <div>
             <h2 className="text-xl font-extrabold text-white sm:text-2xl">
-              Ready to build your IT career?
+              {settings.footer.ctaTitle}
             </h2>
-            <p className="mt-1 text-sm text-slate-300">
-              Talk to us about the right course for your goals — online or offline.
-            </p>
+            <p className="mt-1 text-sm text-slate-300">{settings.footer.ctaText}</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             <button
@@ -42,7 +40,7 @@ export function Footer() {
               Explore Courses
             </button>
             <a
-              href={whatsappUrl()}
+              href={waHref}
               target="_blank"
               rel="noopener noreferrer"
               className="flex h-11 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-[0_0_26px_-6px_rgba(16,185,129,0.7)]"
@@ -59,10 +57,10 @@ export function Footer() {
         {/* Brand */}
         <div className="space-y-4">
           <Logo variant="dark" />
-          <p className="text-sm leading-relaxed text-slate-400">{siteConfig.positioning}</p>
+          <p className="text-sm leading-relaxed text-slate-400">{settings.positioning}</p>
           <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-brand-200 ring-1 ring-white/10">
             <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
-            IT Training Institute · Since {siteConfig.foundedYear}
+            IT Training Institute · Since {settings.foundedYear}
           </span>
         </div>
 
@@ -71,7 +69,7 @@ export function Footer() {
           <h3 className="text-sm font-bold uppercase tracking-wider text-white">Quick Links</h3>
           <ul className="mt-4 space-y-2.5">
             {quickLinks.map((link) => (
-              <li key={link.view}>
+              <li key={link.id}>
                 <button
                   onClick={() => navigate(link.view)}
                   className="group flex items-center gap-2 text-sm text-slate-400 transition-colors hover:text-white"
@@ -92,7 +90,7 @@ export function Footer() {
           <h3 className="text-sm font-bold uppercase tracking-wider text-white">Popular Courses</h3>
           <ul className="mt-4 space-y-2.5">
             {courses.slice(0, 5).map((course) => (
-              <li key={course.slug}>
+              <li key={course.id}>
                 <button
                   onClick={() => navigate("courses", { section: "course-grid" })}
                   className="group flex items-center gap-2 text-left text-sm text-slate-400 transition-colors hover:text-white"
@@ -115,28 +113,28 @@ export function Footer() {
             <li className="flex items-start gap-2.5">
               <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
               <a
-                href={phoneHref}
+                href={telHref}
                 className="text-slate-400 underline-offset-4 transition-colors hover:text-white hover:underline"
               >
-                {siteConfig.contact.phone}
+                {settings.contact.phone}
               </a>
             </li>
             <li className="flex items-start gap-2.5">
               <Mail className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
               <a
-                href={emailHref}
+                href={mailHref}
                 className="break-words text-slate-400 underline-offset-4 transition-colors hover:text-white hover:underline"
               >
-                {siteConfig.contact.email}
+                {settings.contact.email}
               </a>
             </li>
             <li className="flex items-start gap-2.5">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
-              <span className="text-slate-400">{siteConfig.contact.address}</span>
+              <span className="text-slate-400">{fullAddress(settings.contact)}</span>
             </li>
             <li className="flex items-start gap-2.5">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden="true" />
-              <span className="text-slate-400">{siteConfig.contact.hours}</span>
+              <span className="text-slate-400">{settings.contact.hours}</span>
             </li>
           </ul>
         </div>
@@ -147,9 +145,24 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-center text-xs text-slate-500 sm:px-6 md:flex-row">
           <p>
-            © {year} {siteConfig.name}. All rights reserved.
+            © {year} {settings.name}. All rights reserved.
+            {settings.footer.copyright ? ` ${settings.footer.copyright}` : ""}
           </p>
-          <p>Placement assistance is provided — not a guarantee of employment.</p>
+          <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <span>{settings.footer.disclaimer}</span>
+            <a href="/privacy" className="underline-offset-4 hover:text-white hover:underline">
+              {settings.legal.privacyTitle}
+            </a>
+            <a href="/terms" className="underline-offset-4 hover:text-white hover:underline">
+              {settings.legal.termsTitle}
+            </a>
+            <a
+              href="/admin"
+              className="font-semibold text-slate-600 underline-offset-4 transition-colors hover:text-white hover:underline"
+            >
+              Admin
+            </a>
+          </p>
         </div>
       </div>
     </footer>

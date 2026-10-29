@@ -10,13 +10,14 @@ import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
 import { tiltHandlers } from "@/components/site/fx";
-import { courses, type Course } from "@/lib/data";
+import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { ContentIcon } from "@/components/site/content-icon";
+import { whatsappUrl } from "@/lib/content/helpers";
+import type { Course, SimpleItem } from "@/lib/content/types";
 import { useSiteStore } from "@/lib/store";
-import { whatsappUrl } from "@/lib/site-config";
 
 function CourseCard({ course, index }: { course: Course; index: number }) {
   const navigate = useSiteStore((s) => s.navigate);
-  const Icon = course.icon;
 
   return (
     <motion.article
@@ -54,9 +55,9 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
               strokeLinecap="round"
             />
           </svg>
-          <Icon
+          <ContentIcon
+            name={course.icon}
             className="h-6 w-6 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-            aria-hidden="true"
           />
         </span>
         <div className="flex flex-wrap justify-end gap-1.5">
@@ -123,6 +124,12 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 }
 
 export function PageCourses() {
+  const courses = useCollection<Course>("courses");
+  const chips = useCollection<SimpleItem>("courseChips");
+  const section = useSection("coursesPage");
+  const settings = useSettings();
+  const copy = useSiteContent().pages.courses;
+
   return (
     <>
       {/* Page hero band */}
@@ -135,21 +142,19 @@ export function PageCourses() {
           <SectionHeading
             dark
             align="left"
-            eyebrow="Our Courses"
-            title="Career-oriented IT courses, taught the practical way"
-            description="Choose from in-demand programs across development, data, design and marketing — with online and offline batches, live projects and placement assistance."
+            eyebrow={section.eyebrow}
+            title={section.title}
+            description={section.description}
           />
           <div className="mt-6 flex flex-wrap gap-2.5">
-            {["Online & Offline Batches", "Live Projects", "Placement Assistance", "Experienced Trainers"].map(
-              (chip) => (
-                <span
-                  key={chip}
-                  className="glass rounded-full px-4 py-1.5 text-xs font-bold text-cyber-200 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(34,211,238,0.5)]"
-                >
-                  {chip}
-                </span>
-              )
-            )}
+            {chips.map((chip) => (
+              <span
+                key={chip.id}
+                className="glass rounded-full px-4 py-1.5 text-xs font-bold text-cyber-200 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(34,211,238,0.5)]"
+              >
+                {chip.label}
+              </span>
+            ))}
           </div>
         </div>
       </section>
@@ -159,15 +164,14 @@ export function PageCourses() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {courses.map((course, i) => (
-              <CourseCard key={course.slug} course={course} index={i} />
+              <CourseCard key={course.id} course={course} index={i} />
             ))}
           </div>
 
           {/* Editable-content + disclaimer notes */}
           <div className="mx-auto mt-10 max-w-3xl space-y-2 text-center">
             <p className="text-xs leading-relaxed text-slate-500">
-              * Durations shown are typical ranges and may vary by batch and track. Contact us for
-              the current batch schedule and detailed syllabus.
+              {copy.note}
             </p>
             <p className="text-xs leading-relaxed text-slate-500">
               Looking for something specific or corporate training for your team?{" "}
@@ -191,12 +195,9 @@ export function PageCourses() {
               <MessageCircleQuestion className="h-8 w-8" aria-hidden="true" />
             </span>
             <div className="text-center lg:text-left">
-              <h2 className="text-xl font-extrabold text-ink sm:text-2xl">
-                Not sure which course is right for you?
-              </h2>
+              <h2 className="text-xl font-extrabold text-ink sm:text-2xl">{copy.helpTitle}</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Share your background and goals — our counsellors will suggest the best starting
-                point, batch timing and mode of learning for you.
+                {copy.helpText}
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
@@ -205,10 +206,10 @@ export function PageCourses() {
                 className="btn-futur btn-shine h-11 rounded-full px-6 font-bold text-white"
               >
                 <Users className="mr-1 h-4.5 w-4.5" aria-hidden="true" />
-                Get Free Counselling
+                {copy.helpCta}
               </Button>
               <a
-                href={whatsappUrl("Hello Yantrix Technology, I need help choosing the right course.")}
+                href={whatsappUrl(settings, `Hello ${settings.name}, I need help choosing the right course.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-emerald-600"

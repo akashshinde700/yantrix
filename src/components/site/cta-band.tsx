@@ -5,16 +5,15 @@ import { Reveal } from "@/components/site/reveal";
 import { Aurora, FloatingCodeChips, LightBeam, OrbitRings, PulseGrid } from "@/components/site/svg-decor";
 import { DataStreams, HudCorners, RoboBuddy } from "@/components/site/ai-decor";
 import { useSiteStore } from "@/lib/store";
+import { useSection } from "@/lib/content/provider";
 
 /** Reusable call-to-action band shown at the bottom of pages. */
-export function CtaBand({
-  title = "Start your IT journey with Yantrix Technology today",
-  description = "Not sure which course fits you? Talk to our team — we'll help you choose based on your goals and background.",
-}: {
-  title?: string;
-  description?: string;
-}) {
+export function CtaBand({ title, description }: { title?: string; description?: string }) {
   const navigate = useSiteStore((s) => s.navigate);
+  const section = useSection("cta");
+  if (section.hidden) return null;
+  const heading = title ?? section.title;
+  const body = description ?? section.description;
 
   return (
     <section className="bg-white py-14 sm:py-16" aria-label="Call to action">
@@ -37,13 +36,13 @@ export function CtaBand({
             <RoboBuddy className="absolute -left-7 bottom-4 hidden h-32 w-32 text-cyber-300/80 lg:block" />
 
             <h2 className="relative text-2xl font-extrabold tracking-tight text-white text-balance sm:text-3xl">
-              <span className="sr-only">{title}</span>
-              <span aria-hidden="true" className="text-gradient-cyber glitch-hover" data-text={title}>
-                {title}
+              <span className="sr-only">{heading}</span>
+              <span aria-hidden="true" className="text-gradient-cyber glitch-hover" data-text={heading}>
+                {heading}
               </span>
             </h2>
             <p className="relative mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
-              {description}
+              {body}
             </p>
             <div className="relative mt-7 flex flex-wrap items-center justify-center gap-3">
               <button

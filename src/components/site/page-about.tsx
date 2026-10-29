@@ -1,24 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import { Eye, Flag, GraduationCap, Building2, CalendarDays, Laptop, MonitorSmartphone, Handshake, Globe } from "lucide-react";
+import { Eye, Flag, GraduationCap } from "lucide-react";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta-band";
 import { HeroDecor } from "@/components/site/svg-decor";
-import { approachSteps } from "@/lib/data";
-import { siteConfig } from "@/lib/site-config";
-
-const quickFacts = [
-  { label: "Institute", value: siteConfig.name, icon: Building2 },
-  { label: "Founded", value: String(siteConfig.foundedYear), icon: CalendarDays },
-  { label: "Focus", value: "Practical IT training & career growth", icon: Laptop },
-  { label: "Training modes", value: "Online & Offline batches", icon: MonitorSmartphone },
-  { label: "Placement support", value: "Assistance (not a guarantee)", icon: Handshake },
-  { label: "Website", value: siteConfig.domain, icon: Globe },
-];
+import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { ContentIcon } from "@/components/site/content-icon";
+import type { ApproachStep, QuickFact } from "@/lib/content/types";
 
 export function PageAbout() {
+  const settings = useSettings();
+  const copy = useSiteContent().pages.about;
+  const heroSection = useSection("aboutPage");
+  const storySection = useSection("about");
+  const approachSteps = useCollection<ApproachStep>("approachSteps");
+  const quickFacts = useCollection<QuickFact>("quickFacts");
+
   return (
     <>
       {/* Page hero band */}
@@ -31,9 +30,13 @@ export function PageAbout() {
           <SectionHeading
             dark
             align="left"
-            eyebrow={`About Us · Since ${siteConfig.foundedYear}`}
-            title="We train people for real IT careers"
-            description={siteConfig.positioning}
+            eyebrow={
+              heroSection.eyebrow
+                ? `${heroSection.eyebrow} · Since ${settings.foundedYear}`
+                : `${settings.name} · Since ${settings.foundedYear}`
+            }
+            title={heroSection.title}
+            description={heroSection.description || settings.positioning}
           />
         </div>
       </section>
@@ -52,7 +55,7 @@ export function PageAbout() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-950/50 to-transparent" />
               <p className="absolute bottom-5 left-5 right-5 rounded-xl bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur-md ring-1 ring-white/15">
-                Practical learning space — built for hands-on IT training.
+                {copy.imageCaption}
               </p>
             </div>
           </Reveal>
@@ -60,32 +63,25 @@ export function PageAbout() {
           <div>
             <SectionHeading
               align="left"
-              eyebrow="Our Story"
-              title={`Started in ${siteConfig.foundedYear} with a simple belief`}
-              description="Yantrix Technology was founded in 2024 as an IT training institute focused on practical learning and career growth. We saw a gap between what students study and what companies actually expect — so we built programs that close it."
+              eyebrow={storySection.eyebrow}
+              title={copy.storyTitle || storySection.title}
+              description={copy.storyParagraphs[0] ?? storySection.description}
             />
             <div className="mt-5 space-y-4 text-[15px] leading-relaxed text-slate-700">
-              <p>
-                Every course at Yantrix Technology is designed around doing: clear fundamentals,
-                guided practice, and live projects that learners can show in interviews. Our
-                trainers come with real industry experience and mentor each student personally.
-              </p>
-              <p>
-                Whether you are a student starting your career, a graduate switching to IT, or a
-                working professional upgrading your skills — you get the same commitment: honest
-                guidance, practical training and support until you are job-ready.
-              </p>
+              {copy.storyParagraphs.slice(1).map((paragraph, index) => (
+                <p key={`story-${index}`}>{paragraph}</p>
+              ))}
             </div>
 
             {/* Quick facts — structured for AI search engines (GEO) */}
             <div className="mt-8 rounded-2xl border border-brand-100 bg-brand-50/60 p-5">
               <h3 className="text-sm font-bold uppercase tracking-wider text-brand-800">
-                Yantrix Technology at a glance
+                {settings.name} at a glance
               </h3>
               <dl className="mt-4 grid gap-3 sm:grid-cols-2">
                 {quickFacts.map((fact) => (
-                  <div key={fact.label} className="flex items-start gap-2.5">
-                    <fact.icon className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
+                  <div key={fact.id} className="flex items-start gap-2.5">
+                    <ContentIcon name={fact.icon} className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
                     <div>
                       <dt className="text-xs font-semibold text-slate-500">{fact.label}</dt>
                       <dd className="text-sm font-bold text-ink">{fact.value}</dd>
@@ -111,11 +107,9 @@ export function PageAbout() {
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-lg shadow-cyber-500/30 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
                   <Flag className="h-7 w-7" aria-hidden="true" />
                 </span>
-                <h3 className="mt-5 text-xl font-extrabold text-ink">Our Mission</h3>
+                <h3 className="mt-5 text-xl font-extrabold text-ink">{copy.missionTitle}</h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-                  To make practical, career-oriented IT education accessible to every student and
-                  professional — teaching real skills through hands-on training, live projects and
-                  mentorship that translates directly into job readiness.
+                  {copy.missionText}
                 </p>
               </div>
             </Reveal>
@@ -124,11 +118,9 @@ export function PageAbout() {
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-cyber-300 shadow-lg shadow-ink/25 ring-1 ring-cyber-400/30 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_26px_-4px_rgba(34,211,238,0.55)]">
                   <Eye className="h-7 w-7" aria-hidden="true" />
                 </span>
-                <h3 className="mt-5 text-xl font-extrabold text-ink">Our Vision</h3>
+                <h3 className="mt-5 text-xl font-extrabold text-ink">{copy.visionTitle}</h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-                  To become a trusted destination for IT learning — known for honest guidance,
-                  industry-relevant courses and learners who step into the industry confident,
-                  skilled and ready to contribute from day one.
+                  {copy.visionText}
                 </p>
               </div>
             </Reveal>
@@ -146,7 +138,7 @@ export function PageAbout() {
           />
           <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {approachSteps.map((step, i) => (
-              <Reveal key={step.step} delay={i * 0.08}>
+              <Reveal key={step.id} delay={i * 0.08}>
                 <li className="group relative h-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:shadow-brand-900/[0.07]">
                   <span
                     aria-hidden="true"
@@ -170,17 +162,13 @@ export function PageAbout() {
           <Reveal delay={0.2}>
             <p className="mx-auto mt-10 flex max-w-2xl items-center justify-center gap-2 rounded-xl bg-brand-50 px-5 py-4 text-center text-[13px] leading-relaxed text-brand-900 ring-1 ring-brand-100">
               <GraduationCap className="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
-              Every program ends with placement assistance — resume building, interview preparation
-              and job-search guidance. Assistance, honestly provided; never a guaranteed placement.
+              {copy.disclaimer}
             </p>
           </Reveal>
         </div>
       </section>
 
-      <CtaBand
-        title="Want to visit us or know more about our programs?"
-        description="Reach out through the enquiry form or WhatsApp — we're happy to walk you through the courses, batches and fees."
-      />
+      <CtaBand />
     </>
   );
 }

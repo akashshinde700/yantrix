@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/lib/db";
+import { addEnquiry } from "@/lib/content/store";
 
 /* ── Validation (mirrors the client-side schema) ── */
 const enquirySchema = z.object({
@@ -78,15 +78,13 @@ export async function POST(request: NextRequest) {
 
     const { name, email, mobile, course, message } = parsed.data;
 
-    const enquiry = await db.courseEnquiry.create({
-      data: {
-        name,
-        email: email.toLowerCase(),
-        mobile,
-        course,
-        message: message && message.length > 0 ? message : null,
-      },
-      select: { id: true, createdAt: true },
+    const enquiry = await addEnquiry({
+      name,
+      email: email.toLowerCase(),
+      mobile,
+      course,
+      message: message && message.length > 0 ? message : null,
+      source: "website",
     });
 
     return NextResponse.json({ ok: true, id: enquiry.id }, { status: 201 });

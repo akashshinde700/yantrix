@@ -5,33 +5,20 @@ import { Counter } from "@/components/site/fx";
 import { Reveal } from "@/components/site/reveal";
 import { Aurora, HexRing, PulseGrid } from "@/components/site/svg-decor";
 import { HudCorners } from "@/components/site/ai-decor";
-import { CalendarDays, Layers, MonitorSmartphone, Target, type LucideIcon } from "lucide-react";
+import { ContentIcon } from "@/components/site/content-icon";
+import { useCollection, useSection } from "@/lib/content/provider";
+import type { SimpleItem, Stat } from "@/lib/content/types";
 
 /* ────────────────────────────────────────────────────────────────────
    TechTicker — infinite marquee of technologies taught across courses.
    Inspired by leading IT-institute sites; pauses on hover.
    ──────────────────────────────────────────────────────────────────── */
 
-const techStack = [
-  "HTML5",
-  "CSS3",
-  "JavaScript",
-  "React",
-  "Node.js",
-  "Python",
-  "Java",
-  "SQL",
-  "Power BI",
-  "Excel",
-  "Figma",
-  "SEO",
-  "Google Ads",
-  "Git & GitHub",
-  "MS Office",
-  "ChatGPT for Work",
-];
 
 export function TechTicker() {
+  const items = useCollection<SimpleItem>("techStack");
+  if (items.length === 0) return null;
+  const techStack = items.map((item) => item.label);
   const row = [...techStack, ...techStack]; // duplicated for a seamless -50% loop
 
   return (
@@ -67,46 +54,11 @@ export function TechTicker() {
    founded year, number of courses, learning modes, practical focus.
    ──────────────────────────────────────────────────────────────────── */
 
-interface Stat {
-  icon: LucideIcon;
-  value: number;
-  suffix: string;
-  label: string;
-  sub: string;
-}
-
-const stats: Stat[] = [
-  {
-    icon: CalendarDays,
-    value: 2024,
-    suffix: "",
-    label: "Founded",
-    sub: "A new-age IT training institute",
-  },
-  {
-    icon: Layers,
-    value: 8,
-    suffix: "+",
-    label: "Career Courses",
-    sub: "Development, data, design & marketing",
-  },
-  {
-    icon: MonitorSmartphone,
-    value: 2,
-    suffix: "",
-    label: "Learning Modes",
-    sub: "Live online & classroom batches",
-  },
-  {
-    icon: Target,
-    value: 100,
-    suffix: "%",
-    label: "Practical Learning",
-    sub: "Project-based, hands-on curriculum",
-  },
-];
-
 export function StatsBand() {
+  const stats = useCollection<Stat>("stats");
+  const section = useSection("stats");
+  if (section.hidden || stats.length === 0) return null;
+
   return (
     <section
       className="relative overflow-hidden bg-space py-14 sm:py-16"
@@ -129,14 +81,15 @@ export function StatsBand() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           dark
-          eyebrow="Yantrix in Numbers"
-          title="Small institute, serious standards"
-          description="Real, verifiable facts — no inflated counts, no fake promises. Just focused, practical IT training."
+          eyebrow={section.eyebrow}
+          title={section.title}
+          description={section.description}
         />
 
         <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
-          {stats.map((stat, i) => (
-            <Reveal key={stat.label} delay={i * 0.08}>
+          {stats.map((stat, i) => {
+            return (
+            <Reveal key={stat.id} delay={i * 0.08}>
               <div className="group relative flex flex-col items-center text-center">
                 <HudCorners dark className="rounded-2xl" />
                 {/* icon with orbiting dash ring on hover */}
@@ -157,7 +110,10 @@ export function StatsBand() {
                       strokeLinecap="round"
                     />
                   </svg>
-                  <stat.icon className="h-6.5 w-6.5 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
+                  <ContentIcon
+                    name={stat.icon}
+                    className="h-6.5 w-6.5 transition-transform duration-300 group-hover:scale-110"
+                  />
                 </span>
 
                 <p className="text-glow-soft mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">
@@ -170,7 +126,8 @@ export function StatsBand() {
                 <p className="mt-1 max-w-[220px] text-xs leading-relaxed text-slate-400">{stat.sub}</p>
               </div>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

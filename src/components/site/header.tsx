@@ -7,20 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { useSiteStore } from "@/lib/store";
-import { siteConfig, whatsappUrl, phoneHref, type SiteView } from "@/lib/site-config";
+import { useCollection, useSettings } from "@/lib/content/provider";
+import { phoneHref, whatsappUrl } from "@/lib/content/helpers";
+import type { NavLink, SiteView } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
-
-const navItems: { view: SiteView; label: string }[] = [
-  { view: "home", label: "Home" },
-  { view: "courses", label: "Courses" },
-  { view: "about", label: "About Us" },
-  { view: "contact", label: "Contact Us" },
-];
 
 export function Header() {
   const view = useSiteStore((s) => s.view);
   const navigate = useSiteStore((s) => s.navigate);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const settings = useSettings();
+  const navItems = useCollection<NavLink>("navHeader");
+  const waHref = whatsappUrl(settings);
+  const telHref = phoneHref(settings);
 
   const go = (v: SiteView) => {
     setMobileOpen(false);
@@ -39,24 +38,24 @@ export function Header() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
             </span>
             <MonitorSmartphone className="h-3.5 w-3.5 text-brand-300" aria-hidden="true" />
-            Online &amp; Offline Training Available
+            {settings.topBar.badge}
           </p>
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 text-brand-100">
               <Handshake className="h-3.5 w-3.5" aria-hidden="true" />
-              Placement Assistance
+              {settings.topBar.note}
             </span>
             <span className="hidden items-center gap-1.5 text-brand-100 lg:flex">
               <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
-              New Batches Enrolling — Enquire Now
+              {settings.topBar.extra}
             </span>
             <a
-              href={phoneHref}
+              href={telHref}
               className="group flex items-center gap-1.5 font-bold text-white transition-colors hover:text-cyber-200"
-              aria-label={`Call us at ${siteConfig.contact.phone}`}
+              aria-label={`Call us at ${settings.contact.phone}`}
             >
               <Phone className="h-3.5 w-3.5 text-cyber-300 transition-transform duration-300 group-hover:rotate-12" aria-hidden="true" />
-              <span>{siteConfig.contact.phone}</span>
+              <span>{settings.contact.phone}</span>
             </a>
           </div>
         </div>
@@ -71,7 +70,7 @@ export function Header() {
           <button
             onClick={() => go("home")}
             className="group rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
-            aria-label={`${siteConfig.name} — go to home page`}
+            aria-label={`${settings.name} — go to home page`}
           >
             <Logo />
           </button>
@@ -79,7 +78,7 @@ export function Header() {
           {/* Desktop nav */}
           <ul className="hidden items-center gap-1 lg:flex">
             {navItems.map((item) => (
-              <li key={item.view}>
+              <li key={item.id}>
                 <button
                   onClick={() => go(item.view)}
                   aria-current={view === item.view ? "page" : undefined}
@@ -105,7 +104,7 @@ export function Header() {
 
           <div className="flex items-center gap-2.5">
             <a
-              href={whatsappUrl()}
+              href={waHref}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200 transition-all hover:scale-110 hover:bg-emerald-100 sm:flex"
@@ -146,7 +145,7 @@ export function Header() {
             >
               <ul className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
                 {navItems.map((item) => (
-                  <li key={item.view}>
+                  <li key={item.id}>
                     <button
                       onClick={() => go(item.view)}
                       aria-current={view === item.view ? "page" : undefined}
@@ -169,7 +168,7 @@ export function Header() {
                     Contact for Admission
                   </Button>
                   <a
-                    href={whatsappUrl()}
+                    href={waHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-500 text-base font-bold text-white hover:bg-emerald-600"

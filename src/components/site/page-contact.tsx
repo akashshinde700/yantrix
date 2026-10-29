@@ -28,8 +28,9 @@ import { Reveal } from "@/components/site/reveal";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { useSiteStore } from "@/lib/store";
-import { courses } from "@/lib/data";
-import { siteConfig, whatsappUrl, phoneHref, emailHref } from "@/lib/site-config";
+import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { emailHref, fullAddress, phoneHref, whatsappUrl } from "@/lib/content/helpers";
+import type { Course, SimpleItem } from "@/lib/content/types";
 
 /* ── Validation schema (shared shape with the API route) ── */
 const contactFormSchema = z.object({
@@ -62,16 +63,26 @@ const contactFormSchema = z.object({
 
 type ContactFormValues = z.input<typeof contactFormSchema>;
 
-const courseOptions = [...courses.map((c) => c.title), "General Enquiry / Not Sure Yet"];
-
-const contactDetails = [
-  { icon: Phone, label: "Phone", value: siteConfig.contact.phone, href: phoneHref },
-  { icon: Mail, label: "Email", value: siteConfig.contact.email, href: emailHref },
-  { icon: MapPin, label: "Address", value: siteConfig.contact.address, href: null },
-  { icon: Clock, label: "Working Hours", value: siteConfig.contact.hours, href: null },
-];
-
 export function PageContact() {
+  const settings = useSettings();
+  const copy = useSiteContent().pages.contact;
+  const section = useSection("contactPage");
+  const courses = useCollection<Course>("courses");
+  const contactSteps = useCollection<SimpleItem>("contactSteps");
+  const waHref = whatsappUrl(settings);
+  const courseOptions = [...courses.map((c) => c.title), "General Enquiry / Not Sure Yet"];
+  const contactDetails = [
+    {
+      icon: Phone,
+      label: "Phone",
+      value: settings.contact.phone,
+      href: phoneHref(settings),
+    },
+    { icon: Mail, label: "Email", value: settings.contact.email, href: emailHref(settings) },
+    { icon: MapPin, label: "Address", value: fullAddress(settings.contact), href: settings.contact.mapLink || null },
+    { icon: Clock, label: "Working Hours", value: settings.contact.hours, href: null },
+  ];
+
   const preselectedCourse = useSiteStore((s) => s.preselectedCourse);
   const setPreselectedCourse = useSiteStore((s) => s.setPreselectedCourse);
   const [submitted, setSubmitted] = useState(false);
@@ -130,9 +141,9 @@ export function PageContact() {
           <SectionHeading
             dark
             align="left"
-            eyebrow="Contact Us"
-            title="Let's talk about your IT career"
-            description="Send an enquiry about courses, batches or admissions — we usually respond within 24 hours (Mon–Sat)."
+            eyebrow={section.eyebrow}
+            title={section.title}
+            description={section.description}
           />
         </div>
       </section>
@@ -147,14 +158,13 @@ export function PageContact() {
                   <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200">
                     <CheckCircle2 className="h-9 w-9" aria-hidden="true" />
                   </span>
-                  <h2 className="mt-5 text-2xl font-extrabold text-ink">Enquiry received!</h2>
+                  <h2 className="mt-5 text-2xl font-extrabold text-ink">{copy.successTitle}</h2>
                   <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                    Thank you for contacting {siteConfig.name}. Our team will get back to you
-                    within 24 hours (Mon–Sat). For a faster response, message us on WhatsApp.
+                    {copy.successText}
                   </p>
                   <div className="mt-6 flex flex-wrap justify-center gap-3">
                     <a
-                      href={whatsappUrl("Hello Yantrix Technology, I just submitted an enquiry on your website.")}
+                      href={whatsappUrl(settings, `Hello ${settings.name}, I just submitted an enquiry on your website.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex h-11 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-bold text-white transition-colors hover:bg-emerald-600"
@@ -173,12 +183,8 @@ export function PageContact() {
                 </div>
               ) : (
                 <>
-                  <h2 className="text-xl font-extrabold text-ink sm:text-2xl">
-                    Course Enquiry Form
-                  </h2>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    Fill in your details and we'll call or message you back.
-                  </p>
+                  <h2 className="text-xl font-extrabold text-ink sm:text-2xl">{copy.formTitle}</h2>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{copy.formSubtitle}</p>
 
                   <Form {...form}>
                     <form
@@ -339,7 +345,7 @@ export function PageContact() {
           <div className="space-y-6">
             <Reveal delay={0.1}>
               <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-7">
-                <h2 className="text-lg font-extrabold text-ink">Contact Information</h2>
+                <h2 className="text-lg font-extrabold text-ink">{copy.infoTitle}</h2>
                 <ul className="mt-5 space-y-4">
                   {contactDetails.map((detail) => (
                     <li key={detail.label} className="flex items-start gap-3.5">
@@ -374,19 +380,14 @@ export function PageContact() {
                 <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
                   <WhatsAppIcon className="h-6.5 w-6.5 text-white" />
                 </span>
-                <h2 className="mt-4 text-lg font-extrabold text-white">
-                  Fastest way to reach us — WhatsApp
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-emerald-50">
-                  Ask about courses, fees, batch timings or admission — chat with our counsellors
-                  directly.
-                </p>
+                <h2 className="mt-4 text-lg font-extrabold text-white">{copy.whatsappTitle}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-emerald-50">{copy.whatsappText}</p>
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold tracking-wide text-white ring-1 ring-white/20">
                   <WhatsAppIcon className="h-3.5 w-3.5" />
-                  {siteConfig.contact.phone}
+                  {settings.contact.phone}
                 </p>
                 <a
-                  href={whatsappUrl()}
+                  href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-emerald-700 shadow-md transition-all hover:-translate-y-0.5 hover:bg-emerald-50"
@@ -400,19 +401,15 @@ export function PageContact() {
             <Reveal delay={0.2}>
               <div className="rounded-3xl border border-brand-100 bg-brand-50/70 p-6">
                 <h2 className="text-sm font-extrabold uppercase tracking-wider text-brand-900">
-                  What happens after you enquire?
+                  {copy.afterTitle}
                 </h2>
                 <ol className="mt-4 space-y-3 text-sm text-brand-900/80">
-                  {[
-                    "We review your enquiry and goals",
-                    "A counsellor contacts you within 24 hours (Mon–Sat)",
-                    "We suggest the right course, mode and batch timing",
-                  ].map((step, i) => (
-                    <li key={step} className="flex items-start gap-2.5">
+                  {contactSteps.map((step, i) => (
+                    <li key={step.id} className="flex items-start gap-2.5">
                       <span className="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full bg-brand-700 text-[11px] font-black text-white">
                         {i + 1}
                       </span>
-                      {step}
+                      {step.label}
                     </li>
                   ))}
                 </ol>
