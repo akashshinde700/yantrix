@@ -1,20 +1,21 @@
 /**
- * File-backed data store for the website content, enquiries and admin users.
+ * MySQL-backed data store for the website content, enquiries and admin users.
  *
- * Why a JSON store instead of a database?
- *  - This site is a single small institute website; a JSON document is more
- *    than enough and needs zero infrastructure.
- *  - It works out of the box on any host / container, including read-only
- *    filesystems (the store then degrades to in-memory defaults).
+ * Tables (created automatically on first use):
+ *  - site_content : single row holding the whole SiteContent JSON document
+ *  - enquiries    : contact-form submissions
+ *  - admins       : admin panel accounts
+ *  - audit_log    : admin actions (capped at AUDIT_LIMIT rows)
  *
- * The store is designed to be swapped for Postgres/Supabase later: every
- * access goes through the small set of helpers exported here.
+ * Connection comes from DATABASE_URL, e.g.
+ *   mysql://root:root@localhost:3306/yantrix
  *
- * ⚠️ Server-only module (uses `node:fs`).
+ * Every access goes through the small set of helpers exported here.
+ *
+ * ⚠️ Server-only module.
  */
 
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import mysql, { type Pool, type RowDataPacket } from "mysql2/promise";
 import { randomUUID } from "node:crypto";
 import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 import type {
@@ -26,72 +27,89 @@ import type {
   SiteContent,
 } from "@/lib/content/types";
 
-const DATA_DIR = process.env.DATA_DIR
-  ? path.resolve(process.env.DATA_DIR)
-  : path.join(process.cwd(), "data");
+const DATABASE_URL =
+  process.env.DATABASE_URL ?? "mysql://root:root@localhost:3306/yantrix";
 
-const FILES = {
-  content: path.join(DATA_DIR, "site-content.json"),
-  enquiries: path.join(DATA_DIR, "enquiries.json"),
-  admins: path.join(DATA_DIR, "admins.json"),
-  audit: path.join(DATA_DIR, "audit-log.json"),
-} as const;
+/* ─────────────────────────── connection ─────────────────────────── */
 
-type FileKey = keyof typeof FILES;
+// Reuse the pool across hot reloads in dev.
+const globalForDb = globalThis as unknown as {
+  yantrixPool?: Pool;
+  yantrixSchema?: Promise<void>;
+};
 
-/** Serialises writes per file so concurrent admin actions cannot corrupt data. */
-const writeQueue = new Map<FileKey, Promise<unknown>>();
-
-const memoryCache = new Map<FileKey, unknown>();
-
-let dirReady = false;
-let storageWritable = true;
-
-async function ensureDir(): Promise<boolean> {
-  if (dirReady) return storageWritable;
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    storageWritable = true;
-  } catch {
-    storageWritable = false;
-    console.warn(
-      `[store] Data directory "${DATA_DIR}" is not writable — using in-memory storage for this process.`
-    );
-  }
-  dirReady = true;
-  return storageWritable;
-}
-
-async function readJson<T>(key: FileKey, fallback: T): Promise<T> {
-  const writable = await ensureDir();
-  if (!writable) {
-    return (memoryCache.get(key) as T | undefined) ?? fallback;
-  }
-  try {
-    const raw = await fs.readFile(FILES[key], "utf8");
-    const parsed = JSON.parse(raw) as T;
-    memoryCache.set(key, parsed);
-    return parsed;
-  } catch {
-    return (memoryCache.get(key) as T | undefined) ?? fallback;
-  }
-}
-
-async function writeJson<T>(key: FileKey, data: T): Promise<void> {
-  memoryCache.set(key, data);
-  const writable = await ensureDir();
-  if (!writable) return;
-
-  const previous = writeQueue.get(key) ?? Promise.resolve();
-  const next = previous
-    .catch(() => undefined)
-    .then(async () => {
-      const tmp = `${FILES[key]}.${process.pid}.${Date.now()}.tmp`;
-      await fs.writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
-      await fs.rename(tmp, FILES[key]);
+function pool(): Pool {
+  if (!globalForDb.yantrixPool) {
+    globalForDb.yantrixPool = mysql.createPool({
+      uri: DATABASE_URL,
+      connectionLimit: 10,
+      timezone: "Z",
+      dateStrings: false,
     });
-  writeQueue.set(key, next);
-  await next;
+  }
+  return globalForDb.yantrixPool;
+}
+
+const SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS site_content (
+     id TINYINT PRIMARY KEY,
+     data JSON NOT NULL,
+     updated_at DATETIME(3) NOT NULL
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS enquiries (
+     id VARCHAR(36) PRIMARY KEY,
+     name VARCHAR(255) NOT NULL,
+     email VARCHAR(255) NOT NULL,
+     mobile VARCHAR(50) NOT NULL,
+     course VARCHAR(255) NOT NULL,
+     message TEXT NULL,
+     status VARCHAR(20) NOT NULL DEFAULT 'new',
+     notes TEXT NOT NULL,
+     source VARCHAR(50) NOT NULL DEFAULT 'website',
+     created_at DATETIME(3) NOT NULL,
+     updated_at DATETIME(3) NOT NULL,
+     INDEX idx_enquiries_created (created_at)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS admins (
+     id VARCHAR(36) PRIMARY KEY,
+     name VARCHAR(255) NOT NULL,
+     email VARCHAR(255) NOT NULL UNIQUE,
+     password_hash VARCHAR(255) NOT NULL,
+     role VARCHAR(20) NOT NULL,
+     active TINYINT(1) NOT NULL DEFAULT 1,
+     created_at DATETIME(3) NOT NULL,
+     last_login_at DATETIME(3) NULL
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS audit_log (
+     id VARCHAR(36) PRIMARY KEY,
+     actor_email VARCHAR(255) NOT NULL,
+     action VARCHAR(100) NOT NULL,
+     target VARCHAR(255) NOT NULL,
+     created_at DATETIME(3) NOT NULL,
+     INDEX idx_audit_created (created_at)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+];
+
+async function db(): Promise<Pool> {
+  if (!globalForDb.yantrixSchema) {
+    globalForDb.yantrixSchema = (async () => {
+      for (const statement of SCHEMA) await pool().query(statement);
+    })().catch((error) => {
+      globalForDb.yantrixSchema = undefined;
+      throw error;
+    });
+  }
+  await globalForDb.yantrixSchema;
+  return pool();
+}
+
+/** ISO string → JS Date for DATETIME columns. */
+function toDate(value: string | null | undefined): Date | null {
+  return value ? new Date(value) : null;
+}
+
+function toIso(value: unknown): string {
+  return value instanceof Date ? value.toISOString() : String(value);
 }
 
 /* ─────────────────────────── content ─────────────────────────── */
@@ -143,16 +161,27 @@ function normaliseContent(raw: unknown): SiteContent {
   return merged;
 }
 
-export async function getContent(): Promise<SiteContent> {
-  const stored = await readJson<unknown>(  "content",
-    null
+async function writeContent(content: SiteContent): Promise<void> {
+  const conn = await db();
+  await conn.query(
+    `INSERT INTO site_content (id, data, updated_at) VALUES (1, ?, ?)
+     ON DUPLICATE KEY UPDATE data = VALUES(data), updated_at = VALUES(updated_at)`,
+    [JSON.stringify(content), new Date()]
   );
-  if (!stored) {
+}
+
+export async function getContent(): Promise<SiteContent> {
+  const conn = await db();
+  const [rows] = await conn.query<RowDataPacket[]>(
+    "SELECT data FROM site_content WHERE id = 1"
+  );
+  if (rows.length === 0) {
     const seeded = normaliseContent(DEFAULT_CONTENT);
-    await writeJson("content", seeded);
+    await writeContent(seeded);
     return seeded;
   }
-  return normaliseContent(stored);
+  const data = rows[0].data;
+  return normaliseContent(typeof data === "string" ? JSON.parse(data) : data);
 }
 
 export async function saveContent(content: SiteContent): Promise<SiteContent> {
@@ -161,7 +190,7 @@ export async function saveContent(content: SiteContent): Promise<SiteContent> {
     version: (content.version ?? 1) + 1,
     updatedAt: new Date().toISOString(),
   });
-  await writeJson("content", next);
+  await writeContent(next);
   return next;
 }
 
@@ -180,9 +209,28 @@ export async function resetContent(): Promise<SiteContent> {
 
 /* ─────────────────────────── enquiries ─────────────────────────── */
 
+function rowToEnquiry(row: RowDataPacket): Enquiry {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    mobile: row.mobile,
+    course: row.course,
+    message: row.message ?? null,
+    status: row.status,
+    notes: row.notes ?? "",
+    source: row.source,
+    createdAt: toIso(row.created_at),
+    updatedAt: toIso(row.updated_at),
+  };
+}
+
 export async function getEnquiries(): Promise<Enquiry[]> {
-  const list = await readJson<Enquiry[]>("enquiries", []);
-  return list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  const conn = await db();
+  const [rows] = await conn.query<RowDataPacket[]>(
+    "SELECT * FROM enquiries ORDER BY created_at DESC"
+  );
+  return rows.map(rowToEnquiry);
 }
 
 export async function addEnquiry(
@@ -204,9 +252,25 @@ export async function addEnquiry(
     createdAt: now,
     updatedAt: now,
   };
-  const list = await readJson<Enquiry[]>("enquiries", []);
-  list.unshift(enquiry);
-  await writeJson("enquiries", list);
+  const conn = await db();
+  await conn.query(
+    `INSERT INTO enquiries
+       (id, name, email, mobile, course, message, status, notes, source, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      enquiry.id,
+      enquiry.name,
+      enquiry.email,
+      enquiry.mobile,
+      enquiry.course,
+      enquiry.message,
+      enquiry.status,
+      enquiry.notes,
+      enquiry.source,
+      toDate(enquiry.createdAt),
+      toDate(enquiry.updatedAt),
+    ]
+  );
   return enquiry;
 }
 
@@ -214,30 +278,91 @@ export async function updateEnquiry(
   id: string,
   patch: Partial<Pick<Enquiry, "status" | "notes">>
 ): Promise<Enquiry | null> {
-  const list = await readJson<Enquiry[]>("enquiries", []);
-  const index = list.findIndex((e) => e.id === id);
-  if (index === -1) return null;
-  list[index] = { ...list[index], ...patch, updatedAt: new Date().toISOString() };
-  await writeJson("enquiries", list);
-  return list[index];
+  const conn = await db();
+  const [rows] = await conn.query<RowDataPacket[]>(
+    "SELECT * FROM enquiries WHERE id = ?",
+    [id]
+  );
+  if (rows.length === 0) return null;
+  const next: Enquiry = {
+    ...rowToEnquiry(rows[0]),
+    ...patch,
+    updatedAt: new Date().toISOString(),
+  };
+  await conn.query(
+    "UPDATE enquiries SET status = ?, notes = ?, updated_at = ? WHERE id = ?",
+    [next.status, next.notes, toDate(next.updatedAt), id]
+  );
+  return next;
 }
 
 export async function deleteEnquiry(id: string): Promise<boolean> {
-  const list = await readJson<Enquiry[]>("enquiries", []);
-  const next = list.filter((e) => e.id !== id);
-  if (next.length === list.length) return false;
-  await writeJson("enquiries", next);
-  return true;
+  const conn = await db();
+  const [result] = await conn.query<mysql.ResultSetHeader>(
+    "DELETE FROM enquiries WHERE id = ?",
+    [id]
+  );
+  return result.affectedRows > 0;
 }
 
 /* ─────────────────────────── admin users ─────────────────────────── */
 
 export async function getAdmins(): Promise<AdminAccount[]> {
-  return readJson<AdminAccount[]>("admins", []);
+  const conn = await db();
+  const [rows] = await conn.query<RowDataPacket[]>(
+    "SELECT * FROM admins ORDER BY created_at ASC"
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    passwordHash: row.password_hash,
+    role: row.role,
+    active: Boolean(row.active),
+    createdAt: toIso(row.created_at),
+    lastLoginAt: row.last_login_at ? toIso(row.last_login_at) : null,
+  }));
 }
 
+/** Replaces the full admin list (upserts given accounts, removes the rest). */
 export async function saveAdmins(admins: AdminAccount[]): Promise<void> {
-  await writeJson("admins", admins);
+  const conn = await (await db()).getConnection();
+  try {
+    await conn.beginTransaction();
+    const ids = admins.map((a) => a.id);
+    if (ids.length > 0) {
+      await conn.query("DELETE FROM admins WHERE id NOT IN (?)", [ids]);
+    } else {
+      await conn.query("DELETE FROM admins");
+    }
+    for (const a of admins) {
+      await conn.query(
+        `INSERT INTO admins
+           (id, name, email, password_hash, role, active, created_at, last_login_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           name = VALUES(name), email = VALUES(email),
+           password_hash = VALUES(password_hash), role = VALUES(role),
+           active = VALUES(active), last_login_at = VALUES(last_login_at)`,
+        [
+          a.id,
+          a.name,
+          a.email,
+          a.passwordHash,
+          a.role,
+          a.active ? 1 : 0,
+          toDate(a.createdAt),
+          toDate(a.lastLoginAt),
+        ]
+      );
+    }
+    await conn.commit();
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
 }
 
 /* ─────────────────────────── audit log ─────────────────────────── */
@@ -247,13 +372,32 @@ const AUDIT_LIMIT = 300;
 export async function addAuditEntry(
   entry: Omit<AdminAuditEntry, "id" | "createdAt">
 ): Promise<void> {
-  const log = await readJson<AdminAuditEntry[]>("audit", []);
-  log.unshift({ ...entry, id: randomUUID(), createdAt: new Date().toISOString() });
-  await writeJson("audit", log.slice(0, AUDIT_LIMIT));
+  const conn = await db();
+  await conn.query(
+    "INSERT INTO audit_log (id, actor_email, action, target, created_at) VALUES (?, ?, ?, ?, ?)",
+    [randomUUID(), entry.actorEmail, entry.action, entry.target, new Date()]
+  );
+  await conn.query(
+    `DELETE FROM audit_log WHERE id NOT IN (
+       SELECT id FROM (
+         SELECT id FROM audit_log ORDER BY created_at DESC LIMIT ?
+       ) AS keep
+     )`,
+    [AUDIT_LIMIT]
+  );
 }
 
 export async function getAuditLog(): Promise<AdminAuditEntry[]> {
-  return readJson<AdminAuditEntry[]>("audit", []);
+  const conn = await db();
+  const [rows] = await conn.query<RowDataPacket[]>(
+    "SELECT * FROM audit_log ORDER BY created_at DESC LIMIT ?",
+    [AUDIT_LIMIT]
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    actorEmail: row.actor_email,
+    action: row.action,
+    target: row.target,
+    createdAt: toIso(row.created_at),
+  }));
 }
-
-export { DATA_DIR };
