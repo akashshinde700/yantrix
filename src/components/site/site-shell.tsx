@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
+import { CosmicPopup } from "@/components/site/cosmic-popup";
+import { SpaceBackground } from "@/components/site/space-background";
 import { WhatsAppFloat } from "@/components/site/whatsapp-float";
 import { PageHome } from "@/components/site/page-home";
 import { PageCourses } from "@/components/site/page-courses";
@@ -81,8 +84,39 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
   /* Before hydration, trust the server-rendered view so crawlers see the right page. */
   const activeView = mounted ? view : initialView;
 
+  // Page transition variants (door/cinematic effect)
+  const pageVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.98 },
+    visible: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: -20, scale: 0.98 },
+  };
+
+  const pageTransition = {
+    type: "spring" as const,
+    stiffness: 300,
+    damping: 30,
+    mass: 1,
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      {/* ═══════════════════════════════════════════════════════════════
+         PERSISTENT SPACE BACKGROUND — always visible behind content
+         ═══════════════════════════════════════════════════════════════ */}
+      <SpaceBackground
+        className="fixed inset-0 z-0"
+        intensity={1.0}
+        showShootingStars
+        showNebula
+        showAurora
+      />
+
+      {/* Dark overlay for content readability */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-space/60 via-transparent to-space/40"
+        aria-hidden="true"
+      />
+
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-2 focus:text-white"
@@ -92,23 +126,58 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
       <ScrollProgress />
       <CursorGlow />
       <Header />
-      <main id="main-content" className="flex-1">
-        <div className="view-panel" hidden={activeView !== "home"}>
-          <PageHome />
-        </div>
-        <div className="view-panel" hidden={activeView !== "courses"}>
-          <PageCourses />
-        </div>
-        <div className="view-panel" hidden={activeView !== "about"}>
-          <PageAbout />
-        </div>
-        <div className="view-panel" hidden={activeView !== "contact"}>
-          <PageContact />
-        </div>
+
+      <main id="main-content" className="flex-1 relative z-10">
+        {/* ═══════════════════════════════════════════════════════════════
+           PAGE TRANSITION — animated view switching with door effect
+           ═══════════════════════════════════════════════════════════════ */}
+        <AnimatePresence mode="wait" custom={view}>
+          <motion.div
+            key={view}
+            custom={view}
+            variants={pageVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={pageTransition}
+            className="mx-auto min-w-full"
+          >
+            <div
+              className="view-panel"
+              hidden={activeView !== "home"}
+            >
+              <PageHome />
+            </div>
+            <div
+              className="view-panel"
+              hidden={activeView !== "courses"}
+            >
+              <PageCourses />
+            </div>
+            <div
+              className="view-panel"
+              hidden={activeView !== "about"}
+            >
+              <PageAbout />
+            </div>
+            <div
+              className="view-panel"
+              hidden={activeView !== "contact"}
+            >
+              <PageContact />
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </main>
+
       <Footer />
       <WhatsAppFloat />
       <BackToTop />
+
+      {/* ═══════════════════════════════════════════════════════════════
+         COSMIC POPUP — animated welcome modal on first visit
+         ═══════════════════════════════════════════════════════════════ */}
+      <CosmicPopup />
     </div>
   );
 }

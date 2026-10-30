@@ -9,6 +9,7 @@ import { CtaBand } from "@/components/site/cta-band";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
+import { StarFieldOverlay, NebulaSmoke } from "@/components/site/cosmic-effects";
 import { tiltHandlers } from "@/components/site/fx";
 import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
@@ -132,8 +133,10 @@ export function PageCourses() {
 
   return (
     <>
-      {/* Page hero band */}
+      {/* Page hero band — cosmic space */}
       <section className="relative overflow-hidden bg-space py-16 sm:py-20">
+        <StarFieldOverlay className="absolute inset-0 z-0" count={50} />
+        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <HeroDecor
           orbitClassName="-right-20 -top-24 h-80 w-80 text-brand-400/40"
           circuitClassName="absolute inset-x-0 bottom-0 h-40 w-full text-brand-400/25"
@@ -159,9 +162,11 @@ export function PageCourses() {
         </div>
       </section>
 
-      {/* Course grid */}
-      <section id="course-grid" className="scroll-mt-28 bg-slate-50 py-14 sm:py-16" aria-label="All courses">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      {/* Course grid — with star field */}
+      <section id="course-grid" className="scroll-mt-28 bg-slate-50 py-14 sm:py-16 relative overflow-hidden" aria-label="All courses">
+        <StarFieldOverlay className="absolute inset-0 z-0" count={35} />
+        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {courses.map((course, i) => (
               <CourseCard key={course.id} course={course} index={i} />
@@ -187,9 +192,11 @@ export function PageCourses() {
         </div>
       </section>
 
-      {/* Help choose section */}
-      <section className="bg-white py-14 sm:py-16" aria-labelledby="course-help-heading">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      {/* Help choose section — cosmic glow */}
+      <section className="bg-white py-14 sm:py-16 relative overflow-hidden" aria-labelledby="course-help-heading">
+        <NebulaSmoke className="absolute inset-0 z-0" />
+        <StarFieldOverlay className="absolute inset-0 z-0" count={20} />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid items-center gap-8 rounded-3xl border border-slate-100 bg-slate-50/80 p-8 sm:p-10 lg:grid-cols-[auto_1fr_auto]">
             <span className="hover-wiggle mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-lg shadow-cyber-500/30 lg:mx-0">
               <MessageCircleQuestion className="h-8 w-8" aria-hidden="true" />
