@@ -2,6 +2,7 @@
  * Full-site audit with Playwright (headless Chromium).
  *
  *   CHROMIUM_PATH=/path/to/chromium node scripts/audit.mjs
+ *   ADMIN_OTP=123456          # or ADMIN_OTP_LOG=dev.log to read the dev console code
  *   AUDIT_BASE=http://127.0.0.1:3000 CHROMIUM_PATH=... node scripts/audit.mjs
  *
  * Checks, for every public page and every admin screen:
@@ -18,6 +19,7 @@
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
 import { chromium as playwright } from "playwright-core";
 
 const BASE = process.env.AUDIT_BASE ?? "http://127.0.0.1:3000";
@@ -230,6 +232,29 @@ async function auditLinks(browser, pages) {
   await context.close();
 }
 
+/**
+ * Two-step admin sign-in: password first, then a one-time code.
+ *
+ * The code is only ever printed to the server log (dev) or emailed, so the
+ * audit reads it from ADMIN_OTP, or from the log file named by ADMIN_OTP_LOG
+ * (e.g. `dev.log`, which `npm run dev` tees). Without either, the flow stops
+ * after verifying that the OTP screen is reached.
+ */
+function readOtpFromLog() {
+  const file = process.env.ADMIN_OTP_LOG;
+  if (!file || !existsSync(file)) return null;
+  const text = readFileSync(file, "utf8");
+  const match = [...text.matchAll(/code\s*:\s*(\d{6})/g)].pop();
+  return match?.[1] ?? null;
+}
+
+let consumedOtp = null;
+function nextOtp() {
+  if (process.env.ADMIN_OTP) return process.env.ADMIN_OTP;
+  if (!consumedOtp) consumedOtp = readOtpFromLog();
+  return consumedOtp;
+}
+
 async function auditAdminFlow(browser) {
   console.log(`\n▶ admin end-to-end flow`);
   const { context, page, state } = await newPage(browser, {
@@ -247,9 +272,9 @@ async function auditAdminFlow(browser) {
   // Wait for hydration before interacting with the client-side form
   await page.waitForLoadState("networkidle");
 
-  await page.fill("#email", "admin@yantrixtechnology.com");
+  await page.fill("#email", process.env.ADMIN_EMAIL ?? "owner@example.com");
   await page.fill("#password", "wrong-password");
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.getByRole("button", { name: /continue/i }).click();
   await page.waitForTimeout(1200);
   if (!(await page.locator("[role=alert]").count()))
     issue("admin", "login", "wrong password was not rejected");
@@ -258,12 +283,38 @@ async function auditAdminFlow(browser) {
     issue("admin", "login", "credentials leaked into the URL");
 
   await page.fill("#password", process.env.ADMIN_PASSWORD ?? "Yantrix@2024");
-  await page.getByRole("button", { name: /sign in/i }).click();
-  await page
-    .waitForURL(/localhost:3000\/admin$|127\.0\.0\.1:3000\/admin$/, {
-      timeout: 20_000,
-    })
-    .catch(() => {});
+  await page.getByRole("button", { name: /continue/i }).click();
+  const otpField = page.locator("input[autocomplete=one-time-code]").first();
+  await otpField.waitFor({ timeout: 20_000 }).catch(() => {});
+  const onOtpStep = await otpField.count();
+  if (!onOtpStep) {
+    issue(
+      "admin",
+      "login",
+      `one-time-code step did not appear (${page.url()})`,
+    );
+    return;
+  }
+  ok("one-time-code step reached");
+
+  const otp = nextOtp();
+  if (!otp) {
+    console.log(
+      "  · no ADMIN_OTP / ADMIN_OTP_LOG provided — skipping the authenticated part",
+    );
+    return;
+  }
+  await otpField.fill(otp);
+  // Pasting all six digits auto-submits; the button is only needed when the
+  // boxes are filled one by one.
+  const onAdmin = /\/admin$/;
+  await page.waitForURL(onAdmin, { timeout: 8_000 }).catch(() => {});
+  if (!onAdmin.test(page.url())) {
+    const verify = page.getByRole("button", { name: /verify & sign in/i });
+    if (await verify.isEnabled().catch(() => false))
+      await verify.click().catch(() => {});
+  }
+  await page.waitForURL(onAdmin, { timeout: 20_000 }).catch(() => {});
   const onDashboard = /\/admin$/.test(page.url());
   if (!onDashboard)
     issue("admin", "login", `did not reach dashboard (${page.url()})`);

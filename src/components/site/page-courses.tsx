@@ -167,8 +167,16 @@ export function PageCourses() {
       </section>
 
       {/* Course grid — with star field */}
-      <section id="course-grid" className="scroll-mt-28 bg-slate-50 py-14 sm:py-16 relative overflow-hidden" aria-label="All courses">
+      <section
+        id="course-grid"
+        className="scroll-mt-28 bg-slate-50 py-14 sm:py-16 relative overflow-hidden"
+        aria-labelledby="course-grid-heading"
+      >
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
+          {/* The cards below are <h3>; this keeps the outline h1 → h2 → h3. */}
+          <h2 id="course-grid-heading" className="sr-only">
+            All courses
+          </h2>
           <div className="grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {courses.map((course, i) => (
               <CourseCard key={course.id} course={course} index={i} />

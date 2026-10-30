@@ -18,7 +18,7 @@ import type {
 const section = (
   eyebrow: string,
   title: string,
-  description: string
+  description: string,
 ): SectionCopy => ({ eyebrow, title, description, hidden: false });
 
 const sections: Record<SectionKey, SectionCopy> = {
@@ -26,63 +26,66 @@ const sections: Record<SectionKey, SectionCopy> = {
   why: section(
     "Why Choose Us",
     "Everything you need to go from beginner to job-ready",
-    "We focus on the things that actually move your career forward — practical skills, real projects and honest guidance."
+    "We focus on the things that actually move your career forward — practical skills, real projects and honest guidance.",
   ),
   modes: section(
     "Flexible Learning",
     "Online & offline training — pick what fits your life",
-    "Both modes follow the same practical curriculum with live projects and placement assistance."
+    "Both modes follow the same practical curriculum with live projects and placement assistance.",
   ),
   stats: section(
     "Yantrix in Numbers",
     "Small institute, serious standards",
-    "Real, verifiable facts — no inflated counts, no fake promises. Just focused, practical IT training."
+    "Real, verifiable facts — no inflated counts, no fake promises. Just focused, practical IT training.",
   ),
   about: section(
     "About Yantrix Technology",
     "An institute built around practical learning and career growth",
-    ""
+    "",
   ),
   placement: section(
     "Placement Assistance",
     "Placement assistance that works for you, step by step",
-    "We prepare you for the hiring process with structured, honest support — from your resume to your final interview rounds."
+    "We prepare you for the hiring process with structured, honest support — from your resume to your final interview rounds.",
   ),
   faq: section(
     "FAQ",
     "Frequently asked questions",
-    "Quick, direct answers about Yantrix Technology — our training modes, courses and placement support."
+    "Quick, direct answers about Yantrix Technology — our training modes, courses and placement support.",
   ),
   cta: section(
     "Get Started",
     "Start your IT journey with Yantrix Technology today",
-    "Not sure which course fits you? Talk to our team — we'll help you choose based on your goals and background."
+    "Not sure which course fits you? Talk to our team — we'll help you choose based on your goals and background.",
   ),
   trainers: section(
     "Our Trainers",
     "Learn from people who do this work every day",
-    "Our trainers are working professionals — they teach what the industry actually uses, from real projects they have shipped."
+    "Our trainers are working professionals — they teach what the industry actually uses, from real projects they have shipped.",
   ),
   placedStudents: section(
     "Placed Students",
     "Our students, now working in IT",
-    "Real learners who trained with us and moved into IT roles."
+    "Real learners who trained with us and moved into IT roles.",
   ),
   coursesPage: section(
     "Our Courses",
     "Career-oriented IT courses, taught the practical way",
-    "Choose from in-demand programs across development, data, design and marketing — with online and offline batches, live projects and placement assistance."
+    "Choose from in-demand programs across development, data, design and marketing — with online and offline batches, live projects and placement assistance.",
   ),
   aboutPage: section("About Us", "We train people for real IT careers", ""),
   contactPage: section(
     "Contact Us",
     "Let's talk about your IT career",
-    "Send an enquiry about courses, batches or admissions — we usually respond within 24 hours (Mon–Sat)."
+    "Send an enquiry about courses, batches or admissions — we usually respond within 24 hours (Mon–Sat).",
   ),
 };
 
 let autoId = 0;
-const item = (sortOrder: number, data: Record<string, unknown>): ContentItem => {
+const item = (
+  sortOrder: number,
+  data: Record<string, unknown>,
+): ContentItem => {
   autoId += 1;
   return {
     id: `seed-${autoId}`,
@@ -130,7 +133,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Beginner → Advanced",
       modes: ["Online", "Offline"],
-      highlights: ["HTML, CSS, JavaScript", "React & Node.js basics", "Databases & REST APIs", "Capstone live project"],
+      highlights: [
+        "HTML, CSS, JavaScript",
+        "React & Node.js basics",
+        "Databases & REST APIs",
+        "Capstone live project",
+      ],
       icon: "Layers",
     }),
     item(2, {
@@ -142,7 +150,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Beginner",
       modes: ["Online", "Offline"],
-      highlights: ["HTML5 & modern CSS", "JavaScript fundamentals", "Responsive layouts", "Portfolio website project"],
+      highlights: [
+        "HTML5 & modern CSS",
+        "JavaScript fundamentals",
+        "Responsive layouts",
+        "Portfolio website project",
+      ],
       icon: "Globe",
     }),
     item(3, {
@@ -154,7 +167,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Beginner",
       modes: ["Online", "Offline"],
-      highlights: ["Core Python & OOP", "File & error handling", "Automation scripts", "Hands-on mini projects"],
+      highlights: [
+        "Core Python & OOP",
+        "File & error handling",
+        "Automation scripts",
+        "Hands-on mini projects",
+      ],
       icon: "Braces",
     }),
     item(4, {
@@ -166,7 +184,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Beginner → Intermediate",
       modes: ["Online", "Offline"],
-      highlights: ["Core Java & OOP", "Collections & generics", "Exception handling", "Console & mini apps"],
+      highlights: [
+        "Core Java & OOP",
+        "Collections & generics",
+        "Exception handling",
+        "Console & mini apps",
+      ],
       icon: "MousePointerClick",
     }),
     item(5, {
@@ -178,7 +201,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Beginner",
       modes: ["Online", "Offline"],
-      highlights: ["Advanced Excel", "SQL queries & joins", "Power BI / dashboards", "Analytics mini project"],
+      highlights: [
+        "Advanced Excel",
+        "SQL queries & joins",
+        "Power BI / dashboards",
+        "Analytics mini project",
+      ],
       icon: "BarChart3",
     }),
     item(6, {
@@ -190,7 +218,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Beginner",
       modes: ["Online", "Offline"],
-      highlights: ["SEO fundamentals", "Social media marketing", "Google Ads basics", "Live campaign practice"],
+      highlights: [
+        "SEO fundamentals",
+        "Social media marketing",
+        "Google Ads basics",
+        "Live campaign practice",
+      ],
       icon: "Megaphone",
     }),
     item(7, {
@@ -202,7 +235,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Beginner",
       modes: ["Online", "Offline"],
-      highlights: ["Design thinking", "Wireframes & prototypes", "Figma hands-on", "Portfolio case study"],
+      highlights: [
+        "Design thinking",
+        "Wireframes & prototypes",
+        "Figma hands-on",
+        "Portfolio case study",
+      ],
       icon: "Palette",
     }),
     item(8, {
@@ -214,7 +252,12 @@ const collections: CollectionMap = {
       fee: "On request",
       level: "Absolute beginner",
       modes: ["Online", "Offline"],
-      highlights: ["Computer fundamentals", "MS Office suite", "Internet & email skills", "Practice tests"],
+      highlights: [
+        "Computer fundamentals",
+        "MS Office suite",
+        "Internet & email skills",
+        "Practice tests",
+      ],
       icon: "MousePointerClick",
     }),
   ],
@@ -294,12 +337,14 @@ const collections: CollectionMap = {
   badges: [
     item(1, {
       title: "Since 2024",
-      description: "A new-age IT training institute built around modern industry needs.",
+      description:
+        "A new-age IT training institute built around modern industry needs.",
       icon: "Users",
     }),
     item(2, {
       title: "Job-Ready Skills",
-      description: "A practical curriculum focused on exactly what employers expect.",
+      description:
+        "A practical curriculum focused on exactly what employers expect.",
       icon: "Target",
     }),
     item(3, {
@@ -368,48 +413,62 @@ const collections: CollectionMap = {
     item(1, {
       step: "01",
       title: "Learn the Fundamentals",
-      description: "Clear, structured sessions that build strong basics — no shortcuts, no confusion.",
+      description:
+        "Clear, structured sessions that build strong basics — no shortcuts, no confusion.",
     }),
     item(2, {
       step: "02",
       title: "Practice with Mentors",
-      description: "Assignments, lab sessions and doubt-solving with experienced trainers by your side.",
+      description:
+        "Assignments, lab sessions and doubt-solving with experienced trainers by your side.",
     }),
     item(3, {
       step: "03",
       title: "Build Live Projects",
-      description: "Apply your skills to real applications that go straight into your portfolio.",
+      description:
+        "Apply your skills to real applications that go straight into your portfolio.",
     }),
     item(4, {
       step: "04",
       title: "Career & Placement Support",
-      description: "Resume building, interview preparation and placement assistance until you're ready.",
+      description:
+        "Resume building, interview preparation and placement assistance until you're ready.",
     }),
   ],
 
   placementPoints: [
     item(1, {
       title: "Resume & Profile Building",
-      description: "Craft a clean, professional resume and LinkedIn profile that gets noticed.",
+      description:
+        "Craft a clean, professional resume and LinkedIn profile that gets noticed.",
     }),
     item(2, {
       title: "Interview Preparation",
-      description: "Technical questions, HR rounds and communication practice — covered end to end.",
+      description:
+        "Technical questions, HR rounds and communication practice — covered end to end.",
     }),
     item(3, {
       title: "Mock Interviews",
-      description: "Simulated interview rounds with feedback so you walk in prepared and confident.",
+      description:
+        "Simulated interview rounds with feedback so you walk in prepared and confident.",
     }),
     item(4, {
       title: "Job Search Guidance",
-      description: "Guidance on where to apply, how to follow up and how to present your projects.",
+      description:
+        "Guidance on where to apply, how to follow up and how to present your projects.",
     }),
   ],
 
   checklist: [
-    item(1, { label: "Practical-first curriculum designed around real industry work" }),
-    item(2, { label: "Live projects that turn learning into a working portfolio" }),
-    item(3, { label: "Placement assistance with interview and resume preparation" }),
+    item(1, {
+      label: "Practical-first curriculum designed around real industry work",
+    }),
+    item(2, {
+      label: "Live projects that turn learning into a working portfolio",
+    }),
+    item(3, {
+      label: "Placement assistance with interview and resume preparation",
+    }),
   ],
 
   trainingModes: [
@@ -455,12 +514,32 @@ const collections: CollectionMap = {
   ],
 
   quickFacts: [
-    item(1, { label: "Institute", value: "Yantrix Technology", icon: "Building2" }),
+    item(1, {
+      label: "Institute",
+      value: "Yantrix Technology",
+      icon: "Building2",
+    }),
     item(2, { label: "Founded", value: "2024", icon: "CalendarDays" }),
-    item(3, { label: "Focus", value: "Practical IT training & career growth", icon: "Laptop" }),
-    item(4, { label: "Training modes", value: "Online & Offline batches", icon: "MonitorSmartphone" }),
-    item(5, { label: "Placement support", value: "Assistance (not a guarantee)", icon: "Handshake" }),
-    item(6, { label: "Website", value: "YantrixTechnology.com", icon: "Globe" }),
+    item(3, {
+      label: "Focus",
+      value: "Practical IT training & career growth",
+      icon: "Laptop",
+    }),
+    item(4, {
+      label: "Training modes",
+      value: "Online & Offline batches",
+      icon: "MonitorSmartphone",
+    }),
+    item(5, {
+      label: "Placement support",
+      value: "Assistance (not a guarantee)",
+      icon: "Handshake",
+    }),
+    item(6, {
+      label: "Website",
+      value: "YantrixTechnology.com",
+      icon: "Globe",
+    }),
   ],
 
   contactSteps: [
@@ -547,8 +626,10 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     footer: {
       ctaTitle: "Ready to build your IT career?",
-      ctaText: "Talk to us about the right course for your goals — online or offline.",
-      disclaimer: "Placement assistance is provided — not a guarantee of employment.",
+      ctaText:
+        "Talk to us about the right course for your goals — online or offline.",
+      disclaimer:
+        "Placement assistance is provided — not a guarantee of employment.",
       copyright: "",
     },
     legal: {
@@ -599,31 +680,36 @@ export const DEFAULT_CONTENT: SiteContent = {
     pages: {
       home: {
         path: "/",
-        title:
-          "Yantrix Technology | IT Training Institute — Online & Offline Courses with Placement Assistance",
+        title: "Yantrix Technology | IT Training Institute in Pune",
         description:
-          "Yantrix Technology is an IT training institute offering online and offline courses in Full Stack Development, Web Development, Python, Java, Data Analytics and more — with live projects and placement assistance.",
-        keywords: ["IT training institute Pune", "IT courses with placement assistance"],
+          "Online & offline IT courses in Full Stack Development, Python, Java and Data Analytics — with live projects, expert trainers and placement assistance.",
+        keywords: [
+          "IT training institute Pune",
+          "IT courses with placement assistance",
+        ],
         ogImage: "/images/hero-1.png",
         noindex: false,
         priority: 1,
       },
       courses: {
         path: "/courses",
-        title:
-          "IT Courses — Full Stack, Web Development, Python, Java & More | Yantrix Technology",
+        title: "IT Courses in Pune — Full Stack, Python, Java",
         description:
-          "Explore career-oriented IT courses at Yantrix Technology: Full Stack Development, Web Development, Python, Java, Data Analytics, Digital Marketing, UI/UX Design and basic computer training. Online & offline batches with placement assistance.",
-        keywords: ["full stack course Pune", "python classes Pune", "data analytics course"],
+          "Career-oriented IT courses: Full Stack, Web Development, Python, Java, Data Analytics, Digital Marketing and UI/UX — online & offline batches.",
+        keywords: [
+          "full stack course Pune",
+          "python classes Pune",
+          "data analytics course",
+        ],
         ogImage: "/images/hero-2.png",
         noindex: false,
         priority: 0.9,
       },
       about: {
         path: "/about",
-        title: "About Yantrix Technology — Practical IT Training Institute Since 2024",
+        title: "About Yantrix Technology — IT Training Institute",
         description:
-          "Yantrix Technology, founded in 2024, is an IT training institute focused on practical learning, live projects and career growth. Learn about our mission, vision and training approach.",
+          "Founded in 2024, Yantrix Technology focuses on practical learning, live projects and career growth. Learn about our mission, vision and training approach.",
         keywords: ["about Yantrix Technology", "IT training institute Pune"],
         ogImage: "/images/about-institute.png",
         noindex: false,
@@ -631,7 +717,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       },
       contact: {
         path: "/contact",
-        title: "Contact Yantrix Technology — Enquire About IT Courses & Admission",
+        title: "Contact Us — Course Enquiry & Admission",
         description:
           "Contact Yantrix Technology for course enquiries and admissions. Fill in the enquiry form or reach us on WhatsApp — we usually respond within 24 hours.",
         keywords: ["contact Yantrix Technology", "IT course admission Pune"],
@@ -648,12 +734,31 @@ export const DEFAULT_CONTENT: SiteContent = {
         { label: "Institute", value: "Yantrix Technology" },
         { label: "Type", value: "IT training institute" },
         { label: "Founded", value: "2024" },
-        { label: "Location", value: "Laxmi Nagar, Dhanori, Pune, Maharashtra, India" },
-        { label: "Training modes", value: "Live online and in-person classroom batches" },
-        { label: "Courses", value: "Full Stack, Web Development, Python, Java, Data Analytics, Digital Marketing, UI/UX, MS-CIT" },
-        { label: "Placement", value: "Placement assistance (not a guaranteed placement)" },
-        { label: "Contact", value: "+91 88060 03000 · support@yantrixtechnology.com" },
-        { label: "Working hours", value: "Monday to Saturday, 9:00 AM – 7:00 PM" },
+        {
+          label: "Location",
+          value: "Laxmi Nagar, Dhanori, Pune, Maharashtra, India",
+        },
+        {
+          label: "Training modes",
+          value: "Live online and in-person classroom batches",
+        },
+        {
+          label: "Courses",
+          value:
+            "Full Stack, Web Development, Python, Java, Data Analytics, Digital Marketing, UI/UX, MS-CIT",
+        },
+        {
+          label: "Placement",
+          value: "Placement assistance (not a guaranteed placement)",
+        },
+        {
+          label: "Contact",
+          value: "+91 88060 03000 · support@yantrixtechnology.com",
+        },
+        {
+          label: "Working hours",
+          value: "Monday to Saturday, 9:00 AM – 7:00 PM",
+        },
       ],
       enableOrganizationSchema: true,
       enableWebsiteSchema: true,
@@ -673,13 +778,13 @@ export const DEFAULT_CONTENT: SiteContent = {
       heroSecondaryCta: "Contact for Admission",
       heroTrustChips: true,
       aboutImage: "/images/about-institute.png",
-      aboutImageAlt: "Modern training environment at Yantrix Technology institute",
+      aboutImageAlt:
+        "Modern training environment at Yantrix Technology institute",
       aboutBadgeTitle: "Established in 2024",
       aboutBadgeText: "A new-age IT training institute",
     },
     courses: {
-      note:
-        "* Durations shown are typical ranges and may vary by batch and track. Contact us for the current batch schedule and detailed syllabus.",
+      note: "* Durations shown are typical ranges and may vary by batch and track. Contact us for the current batch schedule and detailed syllabus.",
       helpTitle: "Not sure which course is right for you?",
       helpText:
         "Share your background and goals — our counsellors will suggest the best starting point, batch timing and mode of learning for you.",
@@ -693,8 +798,10 @@ export const DEFAULT_CONTENT: SiteContent = {
         "Whether you are a student starting your career, a graduate switching to IT, or a working professional upgrading your skills — you get the same commitment: honest guidance, practical training and support until you are job-ready.",
       ],
       image: "/images/about-institute.png",
-      imageAlt: "Yantrix Technology training centre — students working on live projects",
-      imageCaption: "Practical learning space — built for hands-on IT training.",
+      imageAlt:
+        "Yantrix Technology training centre — students working on live projects",
+      imageCaption:
+        "Practical learning space — built for hands-on IT training.",
       missionTitle: "Our Mission",
       missionText:
         "To make practical, career-oriented IT education accessible to every student and professional — teaching real skills through hands-on training, live projects and mentorship that translates directly into job readiness.",

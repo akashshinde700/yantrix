@@ -6,12 +6,28 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteStore } from "@/lib/store";
-import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
+import {
+  useCollection,
+  useSettings,
+  useSiteContent,
+} from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
 import type { HeroSlide, TrustChip } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
-import { CircuitLines, GridDots, HexRing, OrbitRings, Particles, PulseGrid, Aurora } from "@/components/site/svg-decor";
-import { DataStreams, HudStatusChip, NeuralCore } from "@/components/site/ai-decor";
+import {
+  CircuitLines,
+  GridDots,
+  HexRing,
+  OrbitRings,
+  Particles,
+  PulseGrid,
+  Aurora,
+} from "@/components/site/svg-decor";
+import {
+  DataStreams,
+  HudStatusChip,
+  NeuralCore,
+} from "@/components/site/ai-decor";
 import { Magnetic, ScrambleText, TerminalTyper } from "@/components/site/ai-fx";
 
 const AUTOPLAY_MS = 6000;
@@ -42,12 +58,15 @@ export function HeroSlider() {
       if (total < 1) return;
       setIndex((i) => (i + dir + total) % total);
     },
-    [total]
+    [total],
   );
 
   useEffect(() => {
     if (paused || total < 2) return;
-    timer.current = setInterval(() => setIndex((i) => (i + 1) % total), AUTOPLAY_MS);
+    timer.current = setInterval(
+      () => setIndex((i) => (i + 1) % total),
+      AUTOPLAY_MS,
+    );
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
@@ -86,7 +105,10 @@ export function HeroSlider() {
             className="absolute inset-0"
           >
             {/* Ken Burns slow zoom on the active image */}
-            <div key={`kb-${index}`} className="animate-kenburns absolute inset-0">
+            <div
+              key={`kb-${index}`}
+              className="animate-kenburns absolute inset-0"
+            >
               <Image
                 src={slide.image}
                 alt={slide.alt}
@@ -158,7 +180,10 @@ export function HeroSlider() {
                     {slide.description}
                   </motion.p>
 
-                  <motion.div variants={textItem} className="mt-1 flex flex-wrap items-center gap-3">
+                  <motion.div
+                    variants={textItem}
+                    className="mt-1 flex flex-wrap items-center gap-3"
+                  >
                     <Magnetic>
                       <Button
                         onClick={() => navigate("courses")}
@@ -197,8 +222,12 @@ export function HeroSlider() {
                         <ContentIcon name={chip.icon} className="h-5.5 w-5.5" />
                       </span>
                       <div>
-                        <p className="text-sm font-bold text-white">{chip.title}</p>
-                        <p className="text-xs text-slate-300">{chip.subtitle}</p>
+                        <p className="text-sm font-bold text-white">
+                          {chip.title}
+                        </p>
+                        <p className="text-xs text-slate-300">
+                          {chip.subtitle}
+                        </p>
                       </div>
                     </motion.div>
                   );
@@ -234,7 +263,8 @@ export function HeroSlider() {
             aria-hidden="true"
             className="font-mono text-[10px] font-bold tracking-[0.3em] text-cyber-300/70"
           >
-            {String(Math.min(index, total - 1) + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+            {String(Math.min(index, total - 1) + 1).padStart(2, "0")} /{" "}
+            {String(total).padStart(2, "0")}
           </span>
           <div className="flex gap-2.5">
             {heroSlides.map((_, i) => (
@@ -243,19 +273,27 @@ export function HeroSlider() {
                 onClick={() => setIndex(i)}
                 aria-label={`Go to slide ${i + 1}`}
                 aria-current={i === index ? "true" : undefined}
-                className={cn(
-                  "h-2.5 rounded-full transition-all duration-300",
-                  i === index
-                    ? "w-8 bg-cyber-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]"
-                    : "w-2.5 bg-white/35 hover:bg-white/65"
-                )}
-              />
+                /* the dot is 10px tall but the touch target must be ≥24x24 */
+                className="flex h-6 w-6 items-center justify-center"
+              >
+                <span
+                  className={cn(
+                    "block h-2.5 rounded-full transition-all duration-300",
+                    i === index
+                      ? "w-8 bg-cyber-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]"
+                      : "w-2.5 bg-white/35 hover:bg-white/65",
+                  )}
+                />
+              </button>
             ))}
           </div>
         </div>
 
         {/* Autoplay progress bar (synced with the 6s timer) */}
-        <div className="absolute inset-x-0 bottom-0 z-10 h-1 bg-white/10" aria-hidden="true">
+        <div
+          className="absolute inset-x-0 bottom-0 z-10 h-1 bg-white/10"
+          aria-hidden="true"
+        >
           {!paused ? (
             <motion.div
               key={`progress-${index}`}

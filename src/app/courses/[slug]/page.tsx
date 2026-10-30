@@ -16,7 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!course) return { title: "Course not found", robots: { index: false } };
 
   const headline = courseHeadline(content, course);
-  const title = `${headline} — Fees, Duration & Syllabus`;
+  /*
+   * `absolute` bypasses the root "%s | Yantrix Technology" template: with the
+   * brand suffix the tag ran to 90 characters and Google truncated the part
+   * that actually matters (course + fees + syllabus).
+   */
+  const title = { absolute: `${headline} — Fees & Syllabus` };
   const description = [
     course.description,
     course.duration && `Duration: ${course.duration}.`,
@@ -51,5 +56,11 @@ export default async function CoursePage({ params }: Props) {
   const course = findCourse(content, slug);
   if (!course) notFound();
 
-  return <SitePage view="courses" course={course} detail={<CourseDetail slug={slug} />} />;
+  return (
+    <SitePage
+      view="courses"
+      course={course}
+      detail={<CourseDetail slug={slug} />}
+    />
+  );
 }

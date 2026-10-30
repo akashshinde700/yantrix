@@ -8,7 +8,12 @@ import { CtaBand } from "@/components/site/cta-band";
 import { TrainersSection } from "@/components/site/trainers-section";
 import { PlacedStudents } from "@/components/site/placed-students";
 import { HeroDecor } from "@/components/site/svg-decor";
-import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import {
+  useCollection,
+  useSection,
+  useSettings,
+  useSiteContent,
+} from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
 import type { ApproachStep, QuickFact } from "@/lib/content/types";
 
@@ -45,7 +50,10 @@ export function PageAbout() {
       </section>
 
       {/* Story + quick facts — with star field */}
-      <section className="bg-white py-16 sm:py-20 relative overflow-hidden" aria-labelledby="about-story-heading">
+      <section
+        className="bg-white py-16 sm:py-20 relative overflow-hidden"
+        aria-labelledby="about-story-heading"
+      >
         <div className="relative z-10 mx-auto grid max-w-7xl items-start gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <div className="relative overflow-hidden rounded-3xl shadow-xl shadow-brand-950/10">
@@ -54,6 +62,8 @@ export function PageAbout() {
                 alt="Yantrix Technology training centre — students working on live projects"
                 width={1152}
                 height={864}
+                /* above the fold on /about and the LCP element */
+                loading="eager"
                 className="h-auto w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-950/50 to-transparent" />
@@ -83,12 +93,17 @@ export function PageAbout() {
               </h3>
               <dl className="mt-4 grid gap-3 sm:grid-cols-2">
                 {quickFacts.map((fact) => (
-                  <div key={fact.id} className="flex items-start gap-2.5">
-                    <ContentIcon name={fact.icon} className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
-                    <div>
-                      <dt className="text-xs font-semibold text-slate-500">{fact.label}</dt>
-                      <dd className="text-sm font-bold text-ink">{fact.value}</dd>
-                    </div>
+                  <div key={fact.id} className="min-w-0">
+                    <dt className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                      <ContentIcon
+                        name={fact.icon}
+                        className="h-4 w-4 shrink-0 text-brand-600"
+                      />
+                      {fact.label}
+                    </dt>
+                    <dd className="mt-1 pl-6 text-sm font-bold text-ink">
+                      {fact.value}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -98,7 +113,10 @@ export function PageAbout() {
       </section>
 
       {/* Mission & Vision — cosmic glow */}
-      <section className="bg-slate-50 py-16 sm:py-20 relative overflow-hidden" aria-labelledby="mission-vision-heading">
+      <section
+        className="bg-slate-50 py-16 sm:py-20 relative overflow-hidden"
+        aria-labelledby="mission-vision-heading"
+      >
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
             eyebrow="Mission & Vision"
@@ -110,7 +128,9 @@ export function PageAbout() {
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-lg shadow-cyber-500/30 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
                   <Flag className="h-7 w-7" aria-hidden="true" />
                 </span>
-                <h3 className="mt-5 text-xl font-extrabold text-ink">{copy.missionTitle}</h3>
+                <h3 className="mt-5 text-xl font-extrabold text-ink">
+                  {copy.missionTitle}
+                </h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
                   {copy.missionText}
                 </p>
@@ -121,7 +141,9 @@ export function PageAbout() {
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-cyber-300 shadow-lg shadow-ink/25 ring-1 ring-cyber-400/30 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_26px_-4px_rgba(34,211,238,0.55)]">
                   <Eye className="h-7 w-7" aria-hidden="true" />
                 </span>
-                <h3 className="mt-5 text-xl font-extrabold text-ink">{copy.visionTitle}</h3>
+                <h3 className="mt-5 text-xl font-extrabold text-ink">
+                  {copy.visionTitle}
+                </h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
                   {copy.visionText}
                 </p>
@@ -132,7 +154,10 @@ export function PageAbout() {
       </section>
 
       {/* Training approach — with star field */}
-      <section className="bg-white py-16 sm:py-20 relative overflow-hidden" aria-labelledby="approach-heading">
+      <section
+        className="bg-white py-16 sm:py-20 relative overflow-hidden"
+        aria-labelledby="approach-heading"
+      >
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
             eyebrow="Training Approach"
@@ -141,30 +166,37 @@ export function PageAbout() {
           />
           <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {approachSteps.map((step, i) => (
-              <Reveal key={step.id} delay={i * 0.08}>
-                <li className="group relative h-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:shadow-brand-900/[0.07]">
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-brand-500 via-cyber-400 to-brand-700 transition-transform duration-500 group-hover:scale-x-100"
-                  />
-                  <span
-                    aria-hidden="true"
-                    className="font-mono text-3xl font-black text-brand-200 transition-colors duration-300 group-hover:text-cyber-500"
-                  >
-                    {step.step}
-                  </span>
-                  <h3 className="mt-3 text-base font-extrabold text-ink">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {step.description}
-                  </p>
-                </li>
-              </Reveal>
+              <li key={step.id} className="h-full">
+                <Reveal delay={i * 0.08}>
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:shadow-brand-900/[0.07]">
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-brand-500 via-cyber-400 to-brand-700 transition-transform duration-500 group-hover:scale-x-100"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="font-mono text-3xl font-black text-brand-200 transition-colors duration-300 group-hover:text-cyber-500"
+                    >
+                      {step.step}
+                    </span>
+                    <h3 className="mt-3 text-base font-extrabold text-ink">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {step.description}
+                    </p>
+                  </div>
+                </Reveal>
+              </li>
             ))}
           </ol>
 
           <Reveal delay={0.2}>
             <p className="mx-auto mt-10 flex max-w-2xl items-center justify-center gap-2 rounded-xl bg-brand-50 px-5 py-4 text-center text-[13px] leading-relaxed text-brand-900 ring-1 ring-brand-100">
-              <GraduationCap className="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
+              <GraduationCap
+                className="h-4.5 w-4.5 shrink-0"
+                aria-hidden="true"
+              />
               {copy.disclaimer}
             </p>
           </Reveal>

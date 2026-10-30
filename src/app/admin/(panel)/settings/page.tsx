@@ -1,6 +1,9 @@
 import { PageHeader } from "@/components/admin/page-header";
 import { SchemaForm } from "@/components/admin/schema-form";
-import { ChangePasswordForm, ResetContentButton } from "@/components/admin/account-forms";
+import {
+  ChangePasswordForm,
+  ResetContentButton,
+} from "@/components/admin/account-forms";
 import { getSessionAdmin, isOwner } from "@/lib/admin/auth";
 import { getContent } from "@/lib/content/store";
 
@@ -24,17 +27,34 @@ export default async function SettingsAdminPage() {
             title: "Brand",
             fields: [
               { name: "name", label: "Business name" },
-              { name: "shortName", label: "Short name", help: "Used in the logo lockup." },
-              { name: "domain", label: "Displayed domain", placeholder: "YantrixTechnology.com" },
-              { name: "url", label: "Website URL", placeholder: "https://yantrixtechnology.com" },
+              {
+                name: "shortName",
+                label: "Short name",
+                help: "Used in the logo lockup.",
+              },
+              {
+                name: "domain",
+                label: "Displayed domain",
+                placeholder: "YantrixTechnology.com",
+              },
+              {
+                name: "url",
+                label: "Website URL",
+                placeholder: "https://yantrixtechnology.com",
+              },
               { name: "tagline", label: "Tagline" },
               { name: "foundedYear", label: "Founded year", type: "number" },
-              { name: "positioning", label: "Positioning statement", type: "textarea" },
+              {
+                name: "positioning",
+                label: "Positioning statement",
+                type: "textarea",
+              },
             ],
           },
           {
             title: "Contact details",
-            description: "Shown in the header, footer, contact page and organisation schema.",
+            description:
+              "Shown in the header, footer, contact page and organisation schema.",
             fields: [
               { name: "contact.phone", label: "Phone number" },
               { name: "contact.email", label: "Public email" },
@@ -44,7 +64,11 @@ export default async function SettingsAdminPage() {
               { name: "contact.city", label: "City" },
               { name: "contact.state", label: "State" },
               { name: "contact.postalCode", label: "PIN code" },
-              { name: "contact.country", label: "Country code", placeholder: "IN" },
+              {
+                name: "contact.country",
+                label: "Country code",
+                placeholder: "IN",
+              },
               { name: "contact.mapLink", label: "Google Maps link" },
               { name: "contact.mapEmbedUrl", label: "Map embed URL" },
             ],
@@ -67,14 +91,18 @@ export default async function SettingsAdminPage() {
           },
           {
             title: "Social profiles",
-            description: "Leave blank to hide. Links feed the schema.org sameAs property.",
+            description:
+              "Leave blank to hide. Links feed the schema.org sameAs property.",
             fields: [
               { name: "social.instagram", label: "Instagram URL" },
               { name: "social.facebook", label: "Facebook URL" },
               { name: "social.linkedin", label: "LinkedIn URL" },
               { name: "social.youtube", label: "YouTube URL" },
               { name: "social.twitter", label: "X / Twitter URL" },
-              { name: "social.googleBusiness", label: "Google Business Profile URL" },
+              {
+                name: "social.googleBusiness",
+                label: "Google Business Profile URL",
+              },
             ],
           },
           {
@@ -85,7 +113,11 @@ export default async function SettingsAdminPage() {
               { name: "topBar.extra", label: "Top bar extra text" },
               { name: "footer.ctaTitle", label: "Footer CTA heading" },
               { name: "footer.ctaText", label: "Footer CTA text" },
-              { name: "footer.disclaimer", label: "Placement disclaimer", type: "textarea" },
+              {
+                name: "footer.disclaimer",
+                label: "Placement disclaimer",
+                type: "textarea",
+              },
               { name: "footer.copyright", label: "Extra copyright text" },
             ],
           },
@@ -93,9 +125,17 @@ export default async function SettingsAdminPage() {
             title: "Legal pages",
             fields: [
               { name: "legal.privacyTitle", label: "Privacy policy heading" },
-              { name: "legal.privacyText", label: "Privacy policy text", type: "textarea" },
+              {
+                name: "legal.privacyText",
+                label: "Privacy policy text",
+                type: "textarea",
+              },
               { name: "legal.termsTitle", label: "Terms heading" },
-              { name: "legal.termsText", label: "Terms text", type: "textarea" },
+              {
+                name: "legal.termsText",
+                label: "Terms text",
+                type: "textarea",
+              },
             ],
           },
         ]}
@@ -111,9 +151,10 @@ export default async function SettingsAdminPage() {
 
       {isOwner(admin?.role) ? (
         <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
-          <h2 className="text-base font-bold text-destructive">Danger zone</h2>
-          <p className="mt-1 mb-4 text-sm text-destructive/80">
-            Restores the original website copy. Only use this if you want to start over.
+          <h2 className="text-base font-bold text-red-700">Danger zone</h2>
+          <p className="mt-1 mb-4 text-sm text-red-800">
+            Restores the original website copy. Only use this if you want to
+            start over.
           </p>
           <ResetContentButton />
         </section>

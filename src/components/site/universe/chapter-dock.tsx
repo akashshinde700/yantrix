@@ -50,13 +50,20 @@ export function ChapterDock() {
   }, []);
 
   const go = (i: number) => {
-    document.getElementById(CHAPTERS[i].id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document
+      .getElementById(CHAPTERS[i].id)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
     <nav
       aria-label="Page chapters"
-      className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2 sm:bottom-5"
+      /*
+        Sits one row above the floating WhatsApp button and the "Ask Yantra"
+        orb below 1024px — at those widths the three used to overlap each
+        other. From lg up there is room for everything on one line.
+      */
+      className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 lg:bottom-5"
     >
       <div className="relative flex items-center gap-1 overflow-hidden rounded-full border border-white/10 bg-[#050a1c]/70 p-1 pl-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8),0_0_30px_-12px_rgba(34,211,238,0.5)] backdrop-blur-xl">
         {/* overall progress */}
@@ -76,7 +83,9 @@ export function ChapterDock() {
                 aria-current={active === i ? "true" : undefined}
                 className={cn(
                   "relative rounded-full px-3.5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors",
-                  active === i ? "text-white" : "text-slate-400 hover:text-slate-100"
+                  active === i
+                    ? "text-white"
+                    : "text-slate-400 hover:text-slate-100",
                 )}
               >
                 {active === i && (
@@ -97,26 +106,42 @@ export function ChapterDock() {
           <span className="sr-only" aria-live="polite">
             {CHAPTERS[active].label}
           </span>
-          <ul className="flex items-center gap-1.5">
+          <ul className="flex items-center gap-1">
             {CHAPTERS.map((c, i) => (
               <li key={c.id}>
+                {/* 24px hit area around a 6px dot — WCAG 2.5.8 target size */}
                 <button
                   type="button"
                   onClick={() => go(i)}
                   aria-label={c.label}
                   aria-current={active === i ? "true" : undefined}
-                  className={cn(
-                    "block h-1.5 rounded-full transition-all",
-                    active === i ? "w-5 bg-cyan-300" : "w-1.5 bg-white/30"
-                  )}
-                />
+                  className="flex h-6 w-6 items-center justify-center"
+                >
+                  <span
+                    className={cn(
+                      "block h-1.5 rounded-full transition-all",
+                      active === i ? "w-5 bg-cyan-300" : "w-1.5 bg-white/30",
+                    )}
+                  />
+                </button>
               </li>
             ))}
           </ul>
         </div>
 
-        <span aria-hidden="true" className="mx-1 h-5 w-px bg-white/10" />
-        <SoundButton />
+        {/*
+          The dock used to carry a second sound toggle. On a phone that made it
+          263px wide, which pushed it into the floating WhatsApp button and the
+          "Ask Yantra" orb. The header already has a sound toggle, so the dock
+          keeps its own only where there is room.
+        */}
+        <span
+          aria-hidden="true"
+          className="mx-1 hidden h-5 w-px bg-white/10 md:block"
+        />
+        <div className="hidden md:block">
+          <SoundButton />
+        </div>
       </div>
     </nav>
   );

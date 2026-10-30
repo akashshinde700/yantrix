@@ -52,10 +52,17 @@ export function AdminsManager({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-    const data = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+    const data = (await response.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+    };
     setBusy(null);
     if (!response.ok || !data.ok) {
-      toast({ variant: "destructive", title: "Not created", description: data.error });
+      toast({
+        variant: "destructive",
+        title: "Not created",
+        description: data.error,
+      });
       return;
     }
     setOpen(false);
@@ -71,10 +78,17 @@ export function AdminsManager({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    const data = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+    const data = (await response.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+    };
     setBusy(null);
     if (!response.ok || !data.ok) {
-      toast({ variant: "destructive", title: "Not saved", description: data.error });
+      toast({
+        variant: "destructive",
+        title: "Not saved",
+        description: data.error,
+      });
       return;
     }
     toast({ title: "Account updated" });
@@ -84,7 +98,9 @@ export function AdminsManager({
   const remove = async (admin: PublicAdmin) => {
     if (!window.confirm(`Remove ${admin.email}?`)) return;
     setBusy(admin.id);
-    const response = await fetch(`/api/admin/admins/${admin.id}`, { method: "DELETE" });
+    const response = await fetch(`/api/admin/admins/${admin.id}`, {
+      method: "DELETE",
+    });
     setBusy(null);
     if (!response.ok) {
       toast({ variant: "destructive", title: "Could not remove account" });
@@ -98,7 +114,10 @@ export function AdminsManager({
     <div className="space-y-4">
       {isOwner ? (
         <div className="flex justify-end">
-          <Button onClick={() => setOpen(true)} className="h-9 rounded-lg font-bold">
+          <Button
+            onClick={() => setOpen(true)}
+            className="h-9 rounded-lg font-bold"
+          >
             <Plus className="mr-1.5 h-4 w-4" /> Add admin
           </Button>
         </div>
@@ -109,7 +128,9 @@ export function AdminsManager({
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-4 py-3 font-semibold">Account</th>
-              <th className="hidden px-4 py-3 font-semibold sm:table-cell">Last login</th>
+              <th className="hidden px-4 py-3 font-semibold sm:table-cell">
+                Last login
+              </th>
               <th className="px-4 py-3 font-semibold">Role</th>
               <th className="px-4 py-3 font-semibold">Access</th>
               <th className="px-4 py-3" />
@@ -130,15 +151,22 @@ export function AdminsManager({
                   <p className="text-xs text-slate-500">{admin.email}</p>
                 </td>
                 <td className="hidden px-4 py-3 text-xs text-slate-500 sm:table-cell">
-                  {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString() : "Never"}
+                  {admin.lastLoginAt
+                    ? new Date(admin.lastLoginAt).toLocaleString()
+                    : "Never"}
                 </td>
                 <td className="px-4 py-3">
                   {isOwner ? (
                     <Select
                       value={admin.role}
-                      onValueChange={(value) => patch(admin.id, { role: value })}
+                      onValueChange={(value) =>
+                        patch(admin.id, { role: value })
+                      }
                     >
-                      <SelectTrigger className="h-8 w-28 text-xs font-semibold capitalize">
+                      <SelectTrigger
+                        aria-label={`Role for ${admin.name}`}
+                        className="h-8 w-28 text-xs font-semibold capitalize"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -206,7 +234,9 @@ export function AdminsManager({
                 id="admin-name"
                 required
                 value={form.name}
-                onChange={(event) => setForm({ ...form, name: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, name: event.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -216,7 +246,9 @@ export function AdminsManager({
                 type="email"
                 required
                 value={form.email}
-                onChange={(event) => setForm({ ...form, email: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, email: event.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -227,16 +259,20 @@ export function AdminsManager({
                 required
                 minLength={8}
                 value={form.password}
-                onChange={(event) => setForm({ ...form, password: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, password: event.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label>Role</Label>
               <Select
                 value={form.role}
-                onValueChange={(value) => setForm({ ...form, role: value as AdminRole })}
+                onValueChange={(value) =>
+                  setForm({ ...form, role: value as AdminRole })
+                }
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Role for the new admin">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -246,8 +282,14 @@ export function AdminsManager({
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" disabled={busy === "new"} className="w-full font-bold">
-              {busy === "new" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <Button
+              type="submit"
+              disabled={busy === "new"}
+              className="w-full font-bold"
+            >
+              {busy === "new" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Create account
             </Button>
           </form>

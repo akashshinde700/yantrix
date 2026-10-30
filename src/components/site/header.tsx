@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, GraduationCap, MonitorSmartphone, Handshake, Phone } from "lucide-react";
+import {
+  Menu,
+  X,
+  GraduationCap,
+  MonitorSmartphone,
+  Handshake,
+  Phone,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
@@ -12,6 +19,14 @@ import { useCollection, useSettings } from "@/lib/content/provider";
 import { phoneHref, whatsappUrl } from "@/lib/content/helpers";
 import type { NavLink, SiteView } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
+
+/** Real URLs behind the client-side views — used for crawlable <a href> links. */
+const VIEW_PATHS: Record<SiteView, string> = {
+  home: "/",
+  courses: "/courses",
+  about: "/about",
+  contact: "/contact",
+};
 
 export function Header() {
   const view = useSiteStore((s) => s.view);
@@ -27,6 +42,28 @@ export function Header() {
     navigate(v);
   };
 
+  /**
+   * Navigation used to be <button onClick> only, so the primary menu was
+   * invisible to crawlers, could not be opened in a new tab and did nothing
+   * with JavaScript disabled. A real <a href> keeps the instant client-side
+   * transition (preventDefault) while restoring normal link behaviour.
+   */
+  const navLinkProps = (v: SiteView) => ({
+    href: VIEW_PATHS[v],
+    onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        event.button !== 0
+      )
+        return;
+      event.preventDefault();
+      go(v);
+    },
+  });
+
   return (
     <header className="sticky top-0 z-50">
       {/* Top utility bar */}
@@ -38,7 +75,10 @@ export function Header() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
             </span>
-            <MonitorSmartphone className="h-3.5 w-3.5 text-brand-300" aria-hidden="true" />
+            <MonitorSmartphone
+              className="h-3.5 w-3.5 text-brand-300"
+              aria-hidden="true"
+            />
             {settings.topBar.badge}
           </p>
           <div className="flex items-center gap-5">
@@ -55,7 +95,10 @@ export function Header() {
               className="group flex items-center gap-1.5 font-bold text-white transition-colors hover:text-cyber-200"
               aria-label={`Call us at ${settings.contact.phone}`}
             >
-              <Phone className="h-3.5 w-3.5 text-cyber-300 transition-transform duration-300 group-hover:rotate-12" aria-hidden="true" />
+              <Phone
+                className="h-3.5 w-3.5 text-cyber-300 transition-transform duration-300 group-hover:rotate-12"
+                aria-hidden="true"
+              />
               <span>{settings.contact.phone}</span>
             </a>
           </div>
@@ -68,26 +111,26 @@ export function Header() {
           className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-[72px]"
           aria-label="Main navigation"
         >
-          <button
-            onClick={() => go("home")}
+          <a
+            {...navLinkProps("home")}
             className="group rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
             aria-label={`${settings.name} — go to home page`}
           >
             <Logo height={48} className="max-sm:!h-10" />
-          </button>
+          </a>
 
           {/* Desktop nav */}
           <ul className="hidden items-center gap-1 lg:flex">
             {navItems.map((item) => (
               <li key={item.id}>
-                <button
-                  onClick={() => go(item.view)}
+                <a
+                  {...navLinkProps(item.view)}
                   aria-current={view === item.view ? "page" : undefined}
                   className={cn(
-                    "nav-link relative rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                    "nav-link relative inline-flex rounded-full px-4 py-2 text-sm font-semibold transition-colors",
                     view === item.view
                       ? "text-brand-700"
-                      : "text-slate-600 hover:bg-brand-50 hover:text-brand-700"
+                      : "text-slate-600 hover:bg-brand-50 hover:text-brand-700",
                   )}
                 >
                   {item.label}
@@ -95,10 +138,14 @@ export function Header() {
                     <motion.span
                       layoutId="nav-underline"
                       className="absolute inset-x-4 -bottom-[3px] h-[3px] rounded-full bg-brand-600"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
                     />
                   ) : null}
-                </button>
+                </a>
               </li>
             ))}
           </ul>
@@ -115,10 +162,10 @@ export function Header() {
               <WhatsAppIcon className="h-5 w-5" />
             </a>
             <Button
-              onClick={() => go("contact")}
+              asChild
               className="btn-futur btn-shine hidden h-10 rounded-full px-5 text-sm font-bold text-white sm:inline-flex"
             >
-              Contact for Admission
+              <a {...navLinkProps("contact")}>Contact for Admission</a>
             </Button>
 
             {/* Mobile hamburger */}
@@ -129,7 +176,11 @@ export function Header() {
               aria-controls="mobile-menu"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </nav>
@@ -148,26 +199,26 @@ export function Header() {
               <ul className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
                 {navItems.map((item) => (
                   <li key={item.id}>
-                    <button
-                      onClick={() => go(item.view)}
+                    <a
+                      {...navLinkProps(item.view)}
                       aria-current={view === item.view ? "page" : undefined}
                       className={cn(
-                        "w-full rounded-xl px-4 py-3 text-left text-base font-semibold transition-colors",
+                        "block w-full rounded-xl px-4 py-3 text-left text-base font-semibold transition-colors",
                         view === item.view
                           ? "bg-brand-50 text-brand-700"
-                          : "text-slate-700 hover:bg-slate-50"
+                          : "text-slate-700 hover:bg-slate-50",
                       )}
                     >
                       {item.label}
-                    </button>
+                    </a>
                   </li>
                 ))}
                 <li className="flex flex-col gap-2 pt-2">
                   <Button
-                    onClick={() => go("contact")}
+                    asChild
                     className="btn-futur h-12 rounded-xl text-base font-bold text-white"
                   >
-                    Contact for Admission
+                    <a {...navLinkProps("contact")}>Contact for Admission</a>
                   </Button>
                   <a
                     href={waHref}
