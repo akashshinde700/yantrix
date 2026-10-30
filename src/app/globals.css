@@ -1049,7 +1049,7 @@ html[data-entered] .door-intro {
 
 /* the button fills as the 10-second auto-open approaches */
 .door-auto-bar {
-  animation: door-auto 10s linear forwards;
+  animation: door-auto 3s linear forwards;
   transform: scaleX(0);
   opacity: 0.8;
 }

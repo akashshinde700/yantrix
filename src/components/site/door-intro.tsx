@@ -27,7 +27,7 @@ import { soundPreference, startAmbient } from "@/components/site/universe/ambien
 type Phase = "idle" | "unlocking" | "opening" | "gone";
 
 /** The door opens by itself after this long (a click or Enter opens it sooner). */
-const AUTO_OPEN_SECONDS = 10;
+const AUTO_OPEN_SECONDS = 3;
 const UNLOCK_MS = 1100;
 const OPEN_MS = 2000;
 
