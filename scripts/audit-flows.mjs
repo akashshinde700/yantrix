@@ -2,6 +2,7 @@
  * Interaction / permission audit (Playwright + API).
  *
  *   CHROMIUM_PATH=/path/to/chromium node scripts/audit-flows.mjs
+ *   ADMIN_OTP=123456          # or ADMIN_OTP_LOG=dev.log to read the dev console code
  *
  * Covers the journeys a real visitor and a real admin takes:
  *   • mobile menu opens, links navigate, layout stays inside the viewport
@@ -17,6 +18,8 @@ import { chromium as playwright } from "playwright-core";
 
 const BASE = process.env.AUDIT_BASE ?? "http://127.0.0.1:3000";
 const CHROMIUM = process.env.CHROMIUM_PATH ?? "/tmp/chromium";
+import { existsSync, readFileSync } from "node:fs";
+
 const LIBS = process.env.CHROMIUM_LIBS ?? "/tmp/nsslib";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@yantrixtechnology.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "Yantrix@2024";
@@ -28,12 +31,45 @@ const fail = (scope, message) => {
 };
 const pass = (message) => console.log(`  ✓ ${message}`);
 
+function readOtpFromLog() {
+  const file = process.env.ADMIN_OTP_LOG;
+  if (!file || !existsSync(file)) return null;
+  const match = [
+    ...readFileSync(file, "utf8").matchAll(/code\s*:\s*(\d{6})/g),
+  ].pop();
+  return match?.[1] ?? null;
+}
+
 async function login(page) {
   await page.goto(`${BASE}/admin/login`, { waitUntil: "load" });
   await page.waitForLoadState("networkidle");
+  // In dev the server compiles on first hit, so give React a moment to hydrate
+  // before typing — otherwise the submit button has no listener yet.
+  await page.waitForTimeout(900);
   await page.fill("#email", ADMIN_EMAIL);
   await page.fill("#password", ADMIN_PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.getByRole("button", { name: /continue/i }).click();
+  await page
+    .locator("input[autocomplete=one-time-code]")
+    .first()
+    .waitFor({ timeout: 20_000 });
+
+  // step 2: the one-time code (printed to the dev log, or supplied directly)
+  await page.waitForTimeout(400);
+  const otp = process.env.ADMIN_OTP ?? readOtpFromLog();
+  if (!otp)
+    throw new Error(
+      "Set ADMIN_OTP or ADMIN_OTP_LOG to complete the two-step sign-in.",
+    );
+  await page.locator("input[autocomplete=one-time-code]").first().fill(otp);
+  // Pasting all six digits auto-submits; the button is only needed when the
+  // boxes are filled one by one.
+  await page.waitForURL(/\/admin$/, { timeout: 8_000 }).catch(() => {});
+  if (!/\/admin$/.test(page.url())) {
+    const verify = page.getByRole("button", { name: /verify & sign in/i });
+    if (await verify.isEnabled().catch(() => false))
+      await verify.click().catch(() => {});
+  }
   await page.waitForURL(/\/admin$/, { timeout: 20_000 });
 }
 
@@ -56,7 +92,7 @@ async function mobileNavigation(browser) {
 
   await page
     .locator("#mobile-menu")
-    .getByRole("button", { name: "Courses" })
+    .getByRole("link", { name: "Courses" })
     .click();
   await page.waitForTimeout(900);
   const url = page.url();
@@ -231,18 +267,43 @@ async function permissions() {
   else pass("invalid enquiries are rejected with 422");
 }
 
+/**
+ * API sign-in with the session cookie, following the two-step flow:
+ * password → challenge cookie → one-time code → `yantrix_admin` cookie.
+ */
+async function apiLogin(email, password) {
+  const step1 = await fetch(`${BASE}/api/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!step1.ok) throw new Error(`password step failed (${step1.status})`);
+  const challenge = step1.headers.get("set-cookie")?.split(";")[0] ?? "";
+
+  // the code is printed to the dev console log a moment later
+  let otp = process.env.ADMIN_OTP ?? null;
+  for (let attempt = 0; attempt < 10 && !otp; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    otp = readOtpFromLog();
+  }
+  if (!otp) throw new Error("no one-time code available for the API sign-in");
+
+  const step2 = await fetch(`${BASE}/api/admin/login/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", cookie: challenge },
+    body: JSON.stringify({ code: otp }),
+  });
+  if (!step2.ok) throw new Error(`code step failed (${step2.status})`);
+  return step2.headers.get("set-cookie")?.split(";")[0] ?? "";
+}
+
 async function viewerRole(browser) {
   console.log("\n▶ read-only account");
   const email = `viewer-${Date.now()}@example.com`;
   const password = "Viewer@2024pass";
 
   // create a viewer with the owner account
-  const loginResponse = await fetch(`${BASE}/api/admin/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD }),
-  });
-  const cookie = loginResponse.headers.get("set-cookie")?.split(";")[0] ?? "";
+  const cookie = await apiLogin(ADMIN_EMAIL, ADMIN_PASSWORD);
   const created = await fetch(`${BASE}/api/admin/admins`, {
     method: "POST",
     headers: { "Content-Type": "application/json", cookie },
@@ -258,13 +319,7 @@ async function viewerRole(browser) {
     return;
   }
 
-  const viewerLogin = await fetch(`${BASE}/api/admin/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  const viewerCookie =
-    viewerLogin.headers.get("set-cookie")?.split(";")[0] ?? "";
+  const viewerCookie = await apiLogin(email, password);
 
   const read = await fetch(`${BASE}/api/admin/content`, {
     headers: { cookie: viewerCookie },

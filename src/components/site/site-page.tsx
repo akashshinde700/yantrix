@@ -15,19 +15,22 @@ export async function SitePage({
   view,
   course,
   detail,
+  jsonLd = true,
 }: {
   view: SiteView;
+  /** Set to false when the detail body emits its own structured data. */
+  jsonLd?: boolean;
   /** Set on course detail pages for course-specific structured data. */
   course?: Course;
   /** Page body that replaces the view (course detail pages). */
   detail?: ReactNode;
 }) {
   const content = await getContent();
-  const jsonLd = buildJsonLd(content, { view, course });
+  const schemas = jsonLd ? buildJsonLd(content, { view, course }) : [];
 
   return (
     <>
-      {jsonLd.map((schema, index) => (
+      {schemas.map((schema, index) => (
         <script
           key={`ld-${index}`}
           type="application/ld+json"

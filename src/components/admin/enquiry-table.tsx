@@ -23,7 +23,13 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type { Enquiry, EnquiryStatus } from "@/lib/content/types";
 
-const STATUSES: EnquiryStatus[] = ["new", "contacted", "enrolled", "closed", "spam"];
+const STATUSES: EnquiryStatus[] = [
+  "new",
+  "contacted",
+  "enrolled",
+  "closed",
+  "spam",
+];
 
 const STATUS_STYLES: Record<EnquiryStatus, string> = {
   new: "bg-brand-50 text-brand-700 ring-brand-100",
@@ -51,7 +57,6 @@ function csvCell(value: unknown): string {
   return `"${guarded.replace(/"/g, '""')}"`;
 }
 
-
 export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -64,10 +69,17 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return enquiries.filter((enquiry) => {
-      const matchesStatus = statusFilter === "all" || enquiry.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || enquiry.status === statusFilter;
       const matchesQuery =
         !q ||
-        [enquiry.name, enquiry.email, enquiry.mobile, enquiry.course, enquiry.message ?? ""]
+        [
+          enquiry.name,
+          enquiry.email,
+          enquiry.mobile,
+          enquiry.course,
+          enquiry.message ?? "",
+        ]
           .join(" ")
           .toLowerCase()
           .includes(q);
@@ -75,17 +87,28 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
     });
   }, [enquiries, query, statusFilter]);
 
-  const patch = async (id: string, body: Record<string, unknown>, message: string) => {
+  const patch = async (
+    id: string,
+    body: Record<string, unknown>,
+    message: string,
+  ) => {
     setBusyId(id);
     const response = await fetch(`/api/admin/enquiries/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    const data = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+    const data = (await response.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+    };
     setBusyId(null);
     if (!response.ok || !data.ok) {
-      toast({ variant: "destructive", title: "Not saved", description: data.error });
+      toast({
+        variant: "destructive",
+        title: "Not saved",
+        description: data.error,
+      });
       return false;
     }
     toast({ title: message });
@@ -96,7 +119,9 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
   const remove = async (enquiry: Enquiry) => {
     if (!window.confirm(`Delete the enquiry from ${enquiry.name}?`)) return;
     setBusyId(enquiry.id);
-    const response = await fetch(`/api/admin/enquiries/${enquiry.id}`, { method: "DELETE" });
+    const response = await fetch(`/api/admin/enquiries/${enquiry.id}`, {
+      method: "DELETE",
+    });
     setBusyId(null);
     if (!response.ok) {
       toast({ variant: "destructive", title: "Could not delete" });
@@ -106,7 +131,6 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
     setSelected(null);
     router.refresh();
   };
-
 
   const exportCsv = () => {
     const rows = [
@@ -148,7 +172,10 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="h-10 w-full sm:w-44">
+          <SelectTrigger
+            aria-label="Filter by status"
+            className="h-10 w-full sm:w-44"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -160,7 +187,11 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={exportCsv} className="h-10 rounded-lg font-semibold">
+        <Button
+          variant="outline"
+          onClick={exportCsv}
+          className="h-10 rounded-lg font-semibold"
+        >
           <Download className="mr-2 h-4 w-4" /> Export CSV
         </Button>
       </div>
@@ -175,8 +206,12 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-semibold">Student</th>
-                <th className="hidden px-4 py-3 font-semibold md:table-cell">Course</th>
-                <th className="hidden px-4 py-3 font-semibold sm:table-cell">Received</th>
+                <th className="hidden px-4 py-3 font-semibold md:table-cell">
+                  Course
+                </th>
+                <th className="hidden px-4 py-3 font-semibold sm:table-cell">
+                  Received
+                </th>
                 <th className="px-4 py-3 font-semibold">Status</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -197,7 +232,9 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
                     <p className="text-xs text-slate-500">{enquiry.mobile}</p>
                     <p className="text-xs text-slate-500">{enquiry.email}</p>
                   </td>
-                  <td className="hidden px-4 py-3 text-slate-600 md:table-cell">{enquiry.course}</td>
+                  <td className="hidden px-4 py-3 text-slate-600 md:table-cell">
+                    {enquiry.course}
+                  </td>
                   <td className="hidden px-4 py-3 text-xs text-slate-500 sm:table-cell">
                     {new Date(enquiry.createdAt).toLocaleDateString()}
                   </td>
@@ -209,13 +246,18 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
                       }
                     >
                       <SelectTrigger
+                        aria-label={`Status for ${enquiry.name}`}
                         className={`h-8 w-32 rounded-full text-xs font-bold capitalize ring-1 ${STATUS_STYLES[enquiry.status]}`}
                       >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {STATUSES.map((status) => (
-                          <SelectItem key={status} value={status} className="capitalize">
+                          <SelectItem
+                            key={status}
+                            value={status}
+                            className="capitalize"
+                          >
                             {status}
                           </SelectItem>
                         ))}
@@ -245,42 +287,61 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
         </div>
       )}
 
-      <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
+      <Dialog
+        open={selected !== null}
+        onOpenChange={(open) => !open && setSelected(null)}
+      >
         <DialogContent className="max-w-xl">
           {selected ? (
             <>
               <DialogHeader>
                 <DialogTitle>{selected.name}</DialogTitle>
                 <DialogDescription>
-                  {selected.course} · {new Date(selected.createdAt).toLocaleString()}
+                  {selected.course} ·{" "}
+                  {new Date(selected.createdAt).toLocaleString()}
                 </DialogDescription>
               </DialogHeader>
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
                 <div>
-                  <dt className="text-xs font-semibold uppercase text-slate-400">Mobile</dt>
+                  <dt className="text-xs font-semibold uppercase text-slate-400">
+                    Mobile
+                  </dt>
                   <dd>
-                    <a href={`tel:${selected.mobile}`} className="font-semibold text-brand-700">
+                    <a
+                      href={`tel:${selected.mobile}`}
+                      className="font-semibold text-brand-700"
+                    >
                       {selected.mobile}
                     </a>
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold uppercase text-slate-400">Email</dt>
+                  <dt className="text-xs font-semibold uppercase text-slate-400">
+                    Email
+                  </dt>
                   <dd>
-                    <a href={`mailto:${selected.email}`} className="break-all font-semibold text-brand-700">
+                    <a
+                      href={`mailto:${selected.email}`}
+                      className="break-all font-semibold text-brand-700"
+                    >
                       {selected.email}
                     </a>
                   </dd>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="text-xs font-semibold uppercase text-slate-400">Message</dt>
+                  <dt className="text-xs font-semibold uppercase text-slate-400">
+                    Message
+                  </dt>
                   <dd className="whitespace-pre-line text-slate-700">
                     {selected.message || "—"}
                   </dd>
                 </div>
               </dl>
               <div className="space-y-2">
-                <label htmlFor="notes" className="text-xs font-semibold uppercase text-slate-400">
+                <label
+                  htmlFor="notes"
+                  className="text-xs font-semibold uppercase text-slate-400"
+                >
                   Internal notes
                 </label>
                 <Textarea
@@ -297,7 +358,11 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
                 </Button>
                 <Button
                   onClick={async () => {
-                    const done = await patch(selected.id, { notes }, "Notes saved");
+                    const done = await patch(
+                      selected.id,
+                      { notes },
+                      "Notes saved",
+                    );
                     if (done) setSelected(null);
                   }}
                   className="font-bold"

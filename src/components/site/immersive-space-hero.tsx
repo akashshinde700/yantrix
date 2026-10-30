@@ -1,11 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  type Variants,
+} from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteStore } from "@/lib/store";
-import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
+import {
+  useCollection,
+  useSettings,
+  useSiteContent,
+} from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
 import { cn } from "@/lib/utils";
 import type { HeroSlide, Stat, TrustChip } from "@/lib/content/types";
@@ -40,13 +49,16 @@ export function ImmersiveSpaceHero() {
       if (total < 1) return;
       setIndex((i) => (i + dir + total) % total);
     },
-    [total]
+    [total],
   );
 
   const autoplay = !paused && !reducedMotion && total > 1;
   useEffect(() => {
     if (!autoplay) return;
-    timer.current = setInterval(() => setIndex((i) => (i + 1) % total), AUTOPLAY_MS);
+    timer.current = setInterval(
+      () => setIndex((i) => (i + 1) % total),
+      AUTOPLAY_MS,
+    );
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
@@ -96,12 +108,21 @@ export function ImmersiveSpaceHero() {
                   variants={textItem}
                   className="inline-flex items-center gap-2.5 rounded-full border border-cyber-400/25 bg-white/5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-cyber-200 backdrop-blur-sm"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyber-400" aria-hidden="true" />
+                  <span
+                    className="h-1.5 w-1.5 rounded-full bg-cyber-400"
+                    aria-hidden="true"
+                  />
                   {slide.eyebrow}
                 </motion.span>
 
                 <h1 className="text-[2.5rem] font-extrabold leading-[1.04] tracking-tight text-balance sm:text-6xl lg:text-[4.1rem]">
-                  <WordReveal text={slide.title} wordClassName="text-gradient-cyber" onMount delay={0.15} stagger={0.07} />
+                  <WordReveal
+                    text={slide.title}
+                    wordClassName="text-gradient-cyber"
+                    onMount
+                    delay={0.15}
+                    stagger={0.07}
+                  />
                 </h1>
 
                 <motion.p
@@ -111,7 +132,10 @@ export function ImmersiveSpaceHero() {
                   {slide.description}
                 </motion.p>
 
-                <motion.div variants={textItem} className="mt-1 flex flex-wrap items-center gap-3">
+                <motion.div
+                  variants={textItem}
+                  className="mt-1 flex flex-wrap items-center gap-3"
+                >
                   <Button
                     onClick={() => navigate("courses")}
                     className="btn-futur h-12 rounded-full px-7 text-base font-bold text-white"
@@ -139,7 +163,10 @@ export function ImmersiveSpaceHero() {
                       {stat.value}
                       <span className="text-cyber-300">{stat.suffix}</span>
                     </dd>
-                    <span aria-hidden="true" className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <span
+                      aria-hidden="true"
+                      className="text-xs font-semibold uppercase tracking-wider text-slate-400"
+                    >
                       {stat.label}
                     </span>
                   </div>
@@ -164,11 +191,18 @@ export function ImmersiveSpaceHero() {
                       onClick={() => setIndex(i)}
                       aria-label={`Go to slide ${i + 1}`}
                       aria-current={i === index ? "true" : undefined}
-                      className={cn(
-                        "h-2 rounded-full transition-all duration-300",
-                        i === index ? "w-8 bg-cyber-400" : "w-2 bg-white/30 hover:bg-white/60"
-                      )}
-                    />
+                      /* keeps a 24x24 touch target around the 8px dot */
+                      className="flex h-6 w-6 items-center justify-center"
+                    >
+                      <span
+                        className={cn(
+                          "block h-2 rounded-full transition-all duration-300",
+                          i === index
+                            ? "w-8 bg-cyber-400"
+                            : "w-2 bg-white/30 hover:bg-white/60",
+                        )}
+                      />
+                    </button>
                   ))}
                 </div>
                 <button
@@ -190,7 +224,11 @@ export function ImmersiveSpaceHero() {
                   key={chip.id}
                   initial={reducedMotion ? false : { opacity: 0, x: 24 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + i * 0.12, duration: 0.5, ease: "easeOut" }}
+                  transition={{
+                    delay: 0.4 + i * 0.12,
+                    duration: 0.5,
+                    ease: "easeOut",
+                  }}
                   className="flex items-center gap-3 rounded-2xl border border-white/10 bg-space/60 p-4 pr-6 backdrop-blur-md"
                 >
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30">
@@ -212,14 +250,19 @@ export function ImmersiveSpaceHero() {
         aria-hidden="true"
         className="pointer-events-none absolute bottom-20 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex"
       >
-        <span className="font-mono text-[10px] uppercase tracking-[0.35em] text-slate-400">Scroll to explore</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.35em] text-slate-400">
+          Scroll to explore
+        </span>
         <span className="relative h-9 w-5 rounded-full border border-white/25">
           <span className="scroll-cue-dot absolute left-1/2 top-1.5 h-2 w-0.5 -translate-x-1/2 rounded-full bg-cyber-300" />
         </span>
       </div>
 
       {/* Autoplay progress */}
-      <div className="absolute inset-x-0 bottom-0 h-px bg-white/10" aria-hidden="true">
+      <div
+        className="absolute inset-x-0 bottom-0 h-px bg-white/10"
+        aria-hidden="true"
+      >
         {autoplay && (
           <motion.div
             key={`progress-${index}`}

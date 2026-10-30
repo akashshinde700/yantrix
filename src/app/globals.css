@@ -89,10 +89,31 @@
   --color-flare-400: #fbbf24;
 }
 
+/*
+ * Metric-compatible fallback for Plus Jakarta Sans.
+ *
+ * The brand font is self-hosted with `font-display: swap`, so the first paint
+ * uses a system font and swaps a moment later. The two have different metrics
+ * (Plus Jakarta: x-height .536em, ascent 1.038, descent .222; Arial: .519em,
+ * .905, .212), so headlines re-wrapped when the real font arrived and pushed
+ * the whole hero up by a line — a 0.12 Cumulative Layout Shift.
+ *
+ * Size-adjust + the metric overrides make the fallback occupy exactly the same
+ * box as the web font, so the swap no longer moves anything.
+ */
+@font-face {
+  font-family: "Jakarta Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI");
+  size-adjust: 103.35%;
+  ascent-override: 100.44%;
+  descent-override: 21.48%;
+  line-gap-override: 0%;
+}
+
 :root {
   /* Self-hosted through @fontsource-variable (imported in app/layout.tsx). */
-  --font-jakarta: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-jakarta: "Plus Jakarta Sans Variable", "Jakarta Fallback", "Plus Jakarta Sans", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-geist-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
   --radius: 0.75rem;
@@ -909,7 +930,13 @@ html[data-motion="off"] [style*="scale("] {
 }
 .universe .text-brand-700,
 .universe .text-brand-800,
-.universe .text-brand-900:not(button) {
+.universe .text-brand-900:not(button),
+/* opacity-modifier variants (e.g. text-brand-900/80) are different classes and
+   kept their light-theme navy on the dark panels — 1.6:1 contrast */
+.universe .text-brand-900\/80,
+.universe .text-brand-900\/70,
+.universe .text-brand-900\/90,
+.universe .text-brand-800\/80 {
   color: #93c5fd;
 }
 .universe .text-brand-600 {

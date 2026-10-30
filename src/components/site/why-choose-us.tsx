@@ -17,30 +17,41 @@ export function BadgesStrip() {
   if (section.hidden || items.length === 0) return null;
 
   return (
-    <section className="relative z-10 bg-white pb-4" aria-label={section.eyebrow || "Key highlights"}>
+    <section
+      className="relative z-10 bg-white pb-4"
+      aria-label={section.eyebrow || "Key highlights"}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid -translate-y-12 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
           {items.map((badge, i) => {
             return (
-            <motion.div
-              key={badge.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.1, duration: 0.5, ease: "easeOut" }}
-              className="card-glow group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-brand-950/[0.06] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-900/10"
-            >
-              <HudCorners />
-              <ScanSweep />
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 via-brand-700 to-cyber-600 text-white shadow-md shadow-brand-700/25 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.6)]">
-                <ContentIcon name={badge.icon} className="h-6 w-6" />
-              </span>
-              <div>
-                <h3 className="text-base font-extrabold text-ink">{badge.title}</h3>
-                <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                  {badge.description}
-                </p>
-              </div>
-            </motion.div>
+              <motion.div
+                key={badge.id}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: 0.15 + i * 0.1,
+                  duration: 0.5,
+                  ease: "easeOut",
+                }}
+                className="card-glow group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-brand-950/[0.06] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-900/10"
+              >
+                <HudCorners />
+                <ScanSweep />
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 via-brand-700 to-cyber-600 text-white shadow-md shadow-brand-700/25 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.6)]">
+                  <ContentIcon name={badge.icon} className="h-6 w-6" />
+                </span>
+                <div>
+                  {/* Not a heading: these cards orbit the hero between <h1> and the
+                    first <h2>, so an <h3> here breaks the heading order. */}
+                  <p className="text-base font-extrabold text-ink">
+                    {badge.title}
+                  </p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                    {badge.description}
+                  </p>
+                </div>
+              </motion.div>
             );
           })}
         </div>
@@ -55,7 +66,10 @@ export function WhyChooseUs() {
   if (section.hidden || items.length === 0) return null;
 
   return (
-    <section className="bg-slate-50 py-16 sm:py-20" aria-labelledby="why-choose-heading">
+    <section
+      className="bg-slate-50 py-16 sm:py-20"
+      aria-labelledby="why-choose-heading"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           eyebrow={section.eyebrow}
@@ -65,52 +79,58 @@ export function WhyChooseUs() {
         <div className="mt-12 grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3">
           {items.map((feature, i) => {
             return (
-            <motion.article
-              key={feature.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: "easeOut" }}
-              {...tiltHandlers(4)}
-              className="tilt-card spotlight-card card-glow group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/[0.08]"
-            >
-              {/* animated corner glow */}
-              <span
-                aria-hidden="true"
-                className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-brand-100/0 blur-2xl transition-all duration-500 group-hover:bg-cyber-300/40"
-              />
-              <HudCorners />
-              <ScanSweep />
-
-              {/* Icon with dash-flow ring + wiggle on hover */}
-              <span className="relative z-10 flex h-13 w-13 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-brand-600 group-hover:to-cyber-500 group-hover:text-white group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.65)]">
-                <svg
-                  viewBox="0 0 100 100"
-                  fill="none"
+              <motion.article
+                key={feature.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{
+                  duration: 0.5,
+                  delay: (i % 3) * 0.08,
+                  ease: "easeOut",
+                }}
+                {...tiltHandlers(4)}
+                className="tilt-card spotlight-card card-glow group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/[0.08]"
+              >
+                {/* animated corner glow */}
+                <span
                   aria-hidden="true"
-                  className="absolute -inset-2 h-[calc(100%+16px)] w-[calc(100%+16px)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                >
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="47"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    className="dash-flow text-cyber-400"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <ContentIcon
-                  name={feature.icon}
-                  className="h-6.5 w-6.5 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                  className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-brand-100/0 blur-2xl transition-all duration-500 group-hover:bg-cyber-300/40"
                 />
-              </span>
+                <HudCorners />
+                <ScanSweep />
 
-              <h3 className="relative z-10 mt-5 text-lg font-extrabold text-ink">{feature.title}</h3>
-              <p className="relative z-10 mt-2 text-sm leading-relaxed text-muted-foreground">
-                {feature.description}
-              </p>
-            </motion.article>
+                {/* Icon with dash-flow ring + wiggle on hover */}
+                <span className="relative z-10 flex h-13 w-13 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-brand-600 group-hover:to-cyber-500 group-hover:text-white group-hover:shadow-[0_0_24px_-4px_rgba(34,211,238,0.65)]">
+                  <svg
+                    viewBox="0 0 100 100"
+                    fill="none"
+                    aria-hidden="true"
+                    className="absolute -inset-2 h-[calc(100%+16px)] w-[calc(100%+16px)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  >
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="47"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      className="dash-flow text-cyber-400"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <ContentIcon
+                    name={feature.icon}
+                    className="h-6.5 w-6.5 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                  />
+                </span>
+
+                <h3 className="relative z-10 mt-5 text-lg font-extrabold text-ink">
+                  {feature.title}
+                </h3>
+                <p className="relative z-10 mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {feature.description}
+                </p>
+              </motion.article>
             );
           })}
         </div>
@@ -125,7 +145,10 @@ export function TrainingModes() {
   if (section.hidden || modes.length === 0) return null;
 
   return (
-    <section className="bg-white py-16 sm:py-20" aria-labelledby="training-modes-heading">
+    <section
+      className="bg-white py-16 sm:py-20"
+      aria-labelledby="training-modes-heading"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           eyebrow={section.eyebrow}
@@ -173,7 +196,13 @@ export function TrainingModes() {
                 >
                   {mode.name}
                 </h3>
-                <p className={mode.style === "dark" ? "mt-1 text-sm text-brand-200" : "mt-1 text-sm text-brand-700"}>
+                <p
+                  className={
+                    mode.style === "dark"
+                      ? "mt-1 text-sm text-brand-200"
+                      : "mt-1 text-sm text-brand-700"
+                  }
+                >
                   {mode.tagline}
                 </p>
                 <ul className="mt-5 flex-1 space-y-3">
