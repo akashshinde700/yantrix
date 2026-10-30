@@ -27,20 +27,28 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PublicAdmin } from "@/lib/content/types";
 
-const NAV = [
+import { canWrite, isOwner } from "@/lib/admin/permissions";
+import { AdminRoleProvider } from "@/components/admin/role-context";
+
+/**
+ * `write` entries are the only screens a read-only viewer has any business in;
+ * everything else is hidden for them instead of rendering buttons the API will
+ * reject with 403.
+ */
+const NAV: { href: string; label: string; icon: typeof LayoutDashboard; write?: boolean; owner?: boolean }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/hero", label: "Hero slides", icon: Sparkles },
-  { href: "/admin/courses", label: "Courses", icon: BookOpen },
-  { href: "/admin/faqs", label: "FAQs", icon: HelpCircle },
-  { href: "/admin/trainers", label: "Trainers", icon: UserRound },
-  { href: "/admin/placed-students", label: "Placed students", icon: Award },
-  { href: "/admin/sections", label: "Page sections", icon: Layers },
-  { href: "/admin/pages", label: "Pages & navigation", icon: BarChart3 },
-  { href: "/admin/seo", label: "SEO · AEO · GEO", icon: Search },
+  { href: "/admin/hero", write: true, label: "Hero slides", icon: Sparkles },
+  { href: "/admin/courses", write: true, label: "Courses", icon: BookOpen },
+  { href: "/admin/faqs", write: true, label: "FAQs", icon: HelpCircle },
+  { href: "/admin/trainers", write: true, label: "Trainers", icon: UserRound },
+  { href: "/admin/placed-students", write: true, label: "Placed students", icon: Award },
+  { href: "/admin/sections", write: true, label: "Page sections", icon: Layers },
+  { href: "/admin/pages", write: true, label: "Pages & navigation", icon: BarChart3 },
+  { href: "/admin/seo", write: true, label: "SEO · AEO · GEO", icon: Search },
   { href: "/admin/enquiries", label: "Enquiries", icon: Mail },
-  { href: "/admin/email", label: "Email notifications", icon: Send },
-  { href: "/admin/admins", label: "Admin users", icon: Users },
-  { href: "/admin/settings", label: "Site settings", icon: Settings },
+  { href: "/admin/email", write: true, label: "Email notifications", icon: Send },
+  { href: "/admin/admins", label: "Admin users", icon: Users, owner: true },
+  { href: "/admin/settings", write: true, label: "Site settings", icon: Settings },
 ];
 
 export function AdminShell({
@@ -62,7 +70,7 @@ export function AdminShell({
 
   const nav = (
     <nav className="space-y-1">
-      {NAV.map((item) => {
+      {NAV.filter((item) => (item.owner ? isOwner(admin.role) : item.write ? canWrite(admin.role) : true)).map((item) => {
         const active = item.href === "/admin" ? pathname === item.href : pathname.startsWith(item.href);
         return (
           <Link
@@ -162,7 +170,9 @@ export function AdminShell({
           </Button>
           <span className="text-sm font-extrabold text-ink">Yantrix Admin</span>
         </header>
-        <main className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">
+          <AdminRoleProvider role={admin.role}>{children}</AdminRoleProvider>
+        </main>
       </div>
     </div>
   );

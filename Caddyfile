@@ -1,10 +1,26 @@
 :81 {
-	@transform_port_query {
-		query XTransformPort=*
+	# Dev-preview helper: forwards ?XTransformPort=<port> to a local process.
+	# The port is NOT taken from the query string — a wildcard there turns this
+	# origin into an unauthenticated proxy for every service on the host
+	# (MySQL on 3306, the Node inspector, anything admin-only). List the ports
+	# that should be reachable through the preview, or delete this block.
+	@transform_port_3001 {
+		query XTransformPort=3001
+	}
+	handle @transform_port_3001 {
+		reverse_proxy localhost:3001 {
+			header_up Host {host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+		}
 	}
 
-	handle @transform_port_query {
-		reverse_proxy localhost:{query.XTransformPort} {
+	@transform_port_5173 {
+		query XTransformPort=5173
+	}
+	handle @transform_port_5173 {
+		reverse_proxy localhost:5173 {
 			header_up Host {host}
 			header_up X-Forwarded-For {remote_host}
 			header_up X-Forwarded-Proto {scheme}
@@ -15,6 +31,8 @@
 	handle {
 		reverse_proxy localhost:3000 {
 			header_up Host {host}
+			# Replaces (rather than appends to) the client header, so the app sees
+			# exactly one address — the real peer.
 			header_up X-Forwarded-For {remote_host}
 			header_up X-Forwarded-Proto {scheme}
 			header_up X-Real-IP {remote_host}

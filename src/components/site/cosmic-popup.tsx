@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { X, Star, Zap, Users, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,52 +55,54 @@ const backdropVariants = {
   exit: { opacity: 0, transition: { duration: 0.3 } },
 };
 
+type Star = { x: number; y: number; size: number; delay: number };
+
+/** Star burst for the open animation — regenerated inside the `isOpen` event handlers. */
+function makeStarBurst(): Star[] {
+  return Array.from({ length: 30 }, () => ({
+    x: 30 + Math.random() * 40, // centre of the screen, roughly
+    y: 30 + Math.random() * 40,
+    size: 2 + Math.random() * 4,
+    delay: Math.random() * 0.3,
+  }));
+}
+
+/** Closed already in this visit? Safe during SSR (no `sessionStorage` on the server). */
+function readDismissed(): boolean {
+  try {
+    return sessionStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
 export function CosmicPopup() {
+  const router = useRouter();
   const settings = useSettings();
   const [isOpen, setIsOpen] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  // Read the session flag while initialising state instead of in an effect, so the
+  // popup never renders once just to be dismissed (set-state-in-effect).
+  const [dismissed, setDismissed] = useState(readDismissed);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [starBurst, setStarBurst] = useState<Array<{ x: number; y: number; size: number; delay: number }>>([]);
+  const [starBurst, setStarBurst] = useState<Star[]>([]);
 
-  // Closed already in this visit? (per session — it greets every new visit)
-  useEffect(() => {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
-    if (stored === "true") {
-      setDismissed(true);
-    }
-  }, []);
-
-  // Generate star burst for open animation
-  useEffect(() => {
-    if (isOpen) {
-      const stars: Array<{ x: number; y: number; size: number; delay: number }> = [];
-      for (let i = 0; i < 30; i++) {
-        stars.push({
-          x: 30 + Math.random() * 40, // center of screen roughly
-          y: 30 + Math.random() * 40,
-          size: 2 + Math.random() * 4,
-          delay: Math.random() * 0.3,
-        });
-      }
-      setStarBurst(stars);
-    } else {
-      setStarBurst([]);
-    }
-  }, [isOpen]);
+  const closePopup = () => {
+    setIsOpen(false);
+    setStarBurst([]);
+  };
 
   // Open popup a moment after the visitor has come through the entrance door
   useEffect(() => {
     if (dismissed) return;
+    const show = () => {
+      setStarBurst(makeStarBurst());
+      setIsOpen(true);
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = setTimeout(() => setIsOpen(false), AUTO_CLOSE_DELAY);
+    };
     const schedule = () => {
-      timerRef.current = setTimeout(() => {
-        setIsOpen(true);
-
-        // Auto-close timer
-        autoCloseTimerRef.current = setTimeout(() => {
-          setIsOpen(false);
-        }, AUTO_CLOSE_DELAY);
-      }, POPUP_DELAY);
+      timerRef.current = setTimeout(show, POPUP_DELAY);
     };
     if (document.documentElement.hasAttribute("data-entered")) schedule();
     else window.addEventListener(ENTERED_EVENT, schedule, { once: true });
@@ -111,23 +114,14 @@ export function CosmicPopup() {
     };
   }, [dismissed]);
 
-  // Handle opening (for manual triggers)
-  const openPopup = () => {
-    setIsOpen(true);
-    autoCloseTimerRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, AUTO_CLOSE_DELAY);
-  };
-
-  // Handle closing
-  const closePopup = () => {
-    setIsOpen(false);
-  };
-
   // Handle dismiss (not again during this visit)
   const handleDismiss = () => {
-    setIsOpen(false);
-    sessionStorage.setItem(STORAGE_KEY, "true");
+    closePopup();
+    try {
+      sessionStorage.setItem(STORAGE_KEY, "true");
+    } catch {
+      /* private mode — the popup simply greets the next page load too */
+    }
     setDismissed(true);
   };
 
@@ -136,7 +130,11 @@ export function CosmicPopup() {
   // Esc closes the popup
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setIsOpen(false);
+      setStarBurst([]);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen]);
@@ -304,7 +302,10 @@ export function CosmicPopup() {
                   transition={{ duration: 0.4, delay: 0.7, ease: "easeOut" }}
                 >
                   <Button
-                    onClick={() => (window.location.href = "/courses")}
+                    onClick={() => {
+                      closePopup();
+                      router.push("/courses");
+                    }}
                     variant="outline"
                     className="h-11 w-full rounded-xl border-white/20 bg-white/5 px-6 text-base font-semibold text-white transition-all hover:bg-white/10 hover:border-white/40"
                   >

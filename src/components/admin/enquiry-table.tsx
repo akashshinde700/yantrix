@@ -33,6 +33,25 @@ const STATUS_STYLES: Record<EnquiryStatus, string> = {
   spam: "bg-destructive/10 text-destructive ring-destructive/20",
 };
 
+/**
+ * One CSV cell, quoted for a spreadsheet.
+ *
+ * Quoting alone does not stop formula injection: Excel and Sheets strip the
+ * quotes and evaluate anything starting with `=`, `+`, `-`, `@`, a tab or a CR.
+ * Enquiry names and messages come straight from the public contact form, so a
+ * submission like `=HYPERLINK("http://evil","click")` would become a live
+ * formula in the owner's spreadsheet. Prefixing a single quote forces the cell
+ * to be treated as text.
+ */
+const FORMULA_PREFIX = /^[=+\-@\t\r]/;
+
+function csvCell(value: unknown): string {
+  const text = String(value ?? "");
+  const guarded = FORMULA_PREFIX.test(text) ? `'${text}` : text;
+  return `"${guarded.replace(/"/g, '""')}"`;
+}
+
+
 export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -88,6 +107,7 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
     router.refresh();
   };
 
+
   const exportCsv = () => {
     const rows = [
       ["Name", "Email", "Mobile", "Course", "Status", "Message", "Created"],
@@ -101,16 +121,18 @@ export function EnquiryTable({ enquiries }: { enquiries: Enquiry[] }) {
         new Date(enquiry.createdAt).toLocaleString(),
       ]),
     ];
-    const csv = rows
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
+    const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = `yantrix-enquiries-${new Date().toISOString().slice(0, 10)}.csv`;
+    // The anchor must be in the document for Safari, and the object URL has to
+    // outlive the click or Firefox cancels the download.
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   return (

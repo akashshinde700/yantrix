@@ -20,14 +20,25 @@ npm run dev               # http://localhost:3000
 - Website → `http://localhost:3000`
 - Admin panel → `http://localhost:3000/admin`
 
-**First login** (created automatically on the first login attempt):
+**Admin sign-in** is two-step: email + password, then a 6-digit code. The first
+owner account is created on the first login attempt.
 
-| Email                         | Password       |
-| ----------------------------- | -------------- |
-| `admin@yantrixtechnology.com` | `Yantrix@2024` |
+| Environment | First owner account |
+| --- | --- |
+| `NODE_ENV=production` | **Requires** `ADMIN_EMAIL` + `ADMIN_PASSWORD`. Without them sign-in fails with a clear error — no account is created. |
+| development | Falls back to `admin@yantrixtechnology.com` / `Yantrix@2024` and logs a warning. |
 
-> ⚠️ Change the password right away in **Admin → Site settings → Your sign-in password**,
-> or set `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` before the first login.
+```bash
+# production bootstrap
+openssl rand -base64 48          # → ADMIN_SESSION_SECRET
+# .env → ADMIN_EMAIL you@yourdomain.com  ADMIN_PASSWORD 'a-long-password'
+```
+
+> ⚠️ In production, `ADMIN_SESSION_SECRET` and SMTP are both **required**:
+> without a secret the app refuses to sign sessions (it never falls back to a
+> published value), and without SMTP the one-time code cannot be delivered, so
+> sign-in fails instead of silently skipping the second factor.
+> Change the password after the first sign-in via **Admin → Admin users**.
 
 Production build:
 
@@ -94,7 +105,7 @@ mysql -e 'CREATE DATABASE IF NOT EXISTS yantrix'
 
 | `CONTENT_STORE`  | Behaviour                                                                                                                                                                                                                 |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `auto` (default) | MySQL, falling back to the JSON file store in `./data` when the database cannot be reached (fresh checkout, CI, `next build` without a database, offline preview). The fallback is logged once and lasts for the process. |
+| `auto` (default) | MySQL, falling back to the JSON file store in `./data` when the database cannot be reached (fresh checkout, CI, `next build` without a database, offline preview). The fallback is logged once and re-tested on later calls, so a database that comes up later is used again. |
 | `mysql`          | MySQL only — connection problems are fatal. Use this in production so a misconfigured database never silently writes to local files.                                                                                      |
 | `json`           | JSON files only, no database needed.                                                                                                                                                                                      |
 
@@ -145,6 +156,6 @@ AUDIT_BASE=https://yantrixtechnology.com node scripts/audit-seo.mjs
 
 `scripts/audit.mjs` writes `audit-output/report.json` plus desktop/mobile
 screenshots of every page audited (the folder is git-ignored). Both browser
-scripts read the admin credentials from `ADMIN_EMAIL` / `ADMIN_PASSWORD` and
-fall back to the seeded defaults. Every script exits non-zero when an issue is
-found, so they can run in CI.
+scripts read the admin credentials from `ADMIN_EMAIL` / `ADMIN_PASSWORD`. Every
+script exits non-zero when an issue is found, so they can run in CI. (The
+documented default password only exists in development — see **Quick start**.)

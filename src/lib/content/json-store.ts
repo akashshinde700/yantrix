@@ -20,12 +20,19 @@ import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 import type {
   AdminAccount,
   AdminAuditEntry,
+  AdminPatch,
   CollectionKey,
   ContentItem,
   Enquiry,
   SiteContent,
 } from "@/lib/content/types";
 
+/**
+ * Where the JSON documents live. `DATA_DIR` may point outside the project, so
+ * the bundler cannot scope these reads statically and would otherwise trace the
+ * whole repository into `.next/standalone`. The `turbopackIgnore` markers on the
+ * fs calls below opt out of that; `public/` is copied by the build script.
+ */
 const DATA_DIR = process.env.DATA_DIR
   ? path.resolve(process.env.DATA_DIR)
   : path.join(process.cwd(), "data");
@@ -62,18 +69,36 @@ async function ensureDir(): Promise<boolean> {
   return storageWritable;
 }
 
+/**
+ * Read one file. A missing file is normal (fresh checkout) and yields the
+ * fallback; a corrupt or unreadable file is NOT — it must surface, otherwise the
+ * next write silently persists the defaults over real data.
+ */
 async function readJson<T>(key: FileKey, fallback: T): Promise<T> {
   const writable = await ensureDir();
   if (!writable) {
     return (memoryCache.get(key) as T | undefined) ?? fallback;
   }
+  let raw: string;
   try {
-    const raw = await fs.readFile(FILES[key], "utf8");
+    raw = await fs.readFile(/* turbopackIgnore: true */ FILES[key], "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return (memoryCache.get(key) as T | undefined) ?? fallback;
+    }
+    console.error(`[store] cannot read ${FILES[key]}:`, error);
+    throw error;
+  }
+  try {
     const parsed = JSON.parse(raw) as T;
     memoryCache.set(key, parsed);
     return parsed;
-  } catch {
-    return (memoryCache.get(key) as T | undefined) ?? fallback;
+  } catch (error) {
+    console.error(
+      `[store] ${FILES[key]} is not valid JSON — refusing to overwrite it with defaults:`,
+      error
+    );
+    throw error;
   }
 }
 
@@ -82,16 +107,32 @@ async function writeJson<T>(key: FileKey, data: T): Promise<void> {
   const writable = await ensureDir();
   if (!writable) return;
 
+  const tmp = `${FILES[key]}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(/* turbopackIgnore: true */ tmp, JSON.stringify(data, null, 2), "utf8");
+  await fs.rename(/* turbopackIgnore: true */ tmp, FILES[key]);
+}
+
+/**
+ * Read → mutate → write, serialised per file. Reads happen *inside* the queue:
+ * doing them outside let two concurrent mutations start from the same snapshot
+ * and silently drop one of the writes.
+ */
+async function mutateJson<T>(
+  key: FileKey,
+  fallback: T,
+  mutate: (current: T) => T | Promise<T>
+): Promise<T> {
   const previous = writeQueue.get(key) ?? Promise.resolve();
-  const next = previous
+  const run = previous
     .catch(() => undefined)
     .then(async () => {
-      const tmp = `${FILES[key]}.${process.pid}.${Date.now()}.tmp`;
-      await fs.writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
-      await fs.rename(tmp, FILES[key]);
+      const current = await readJson<T>(key, fallback);
+      const next = await mutate(current);
+      await writeJson(key, next);
+      return next;
     });
-  writeQueue.set(key, next);
-  await next;
+  writeQueue.set(key, run);
+  return run;
 }
 
 /* ─────────────────────────── content ─────────────────────────── */
@@ -143,24 +184,26 @@ function normaliseContent(raw: unknown): SiteContent {
   return merged;
 }
 
+function withVersion(content: SiteContent): SiteContent {
+  return normaliseContent({
+    ...content,
+    version: (content.version ?? 1) + 1,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
 export async function getContent(): Promise<SiteContent> {
-  const stored = await readJson<unknown>(  "content",
-    null
-  );
+  const stored = await readJson<unknown>("content", null);
   if (!stored) {
     const seeded = normaliseContent(DEFAULT_CONTENT);
-    await writeJson("content", seeded);
+    await mutateJson<SiteContent | null>("content", null, (current) => current ?? seeded);
     return seeded;
   }
   return normaliseContent(stored);
 }
 
 export async function saveContent(content: SiteContent): Promise<SiteContent> {
-  const next = normaliseContent({
-    ...content,
-    version: (content.version ?? 1) + 1,
-    updatedAt: new Date().toISOString(),
-  });
+  const next = withVersion(content);
   await writeJson("content", next);
   return next;
 }
@@ -168,9 +211,12 @@ export async function saveContent(content: SiteContent): Promise<SiteContent> {
 export async function updateContent(
   mutator: (current: SiteContent) => SiteContent | Promise<SiteContent>
 ): Promise<SiteContent> {
-  const current = await getContent();
-  const next = await mutator(structuredClone(current));
-  return saveContent(next);
+  // Read inside the queue: two admins saving different sections at the same
+  // moment must not start from the same snapshot and lose one of the edits.
+  return mutateJson<SiteContent | null>("content", null, async (stored) => {
+    const current = stored ? normaliseContent(stored) : normaliseContent(DEFAULT_CONTENT);
+    return withVersion(await mutator(structuredClone(current)));
+  }) as Promise<SiteContent>;
 }
 
 export async function resetContent(): Promise<SiteContent> {
@@ -182,7 +228,8 @@ export async function resetContent(): Promise<SiteContent> {
 
 export async function getEnquiries(): Promise<Enquiry[]> {
   const list = await readJson<Enquiry[]>("enquiries", []);
-  return list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  // Copy before sorting: the cached array is shared and must not be reordered in place.
+  return [...list].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
 export async function addEnquiry(
@@ -204,9 +251,7 @@ export async function addEnquiry(
     createdAt: now,
     updatedAt: now,
   };
-  const list = await readJson<Enquiry[]>("enquiries", []);
-  list.unshift(enquiry);
-  await writeJson("enquiries", list);
+  await mutateJson<Enquiry[]>("enquiries", [], (list) => [enquiry, ...list]);
   return enquiry;
 }
 
@@ -214,20 +259,24 @@ export async function updateEnquiry(
   id: string,
   patch: Partial<Pick<Enquiry, "status" | "notes">>
 ): Promise<Enquiry | null> {
-  const list = await readJson<Enquiry[]>("enquiries", []);
-  const index = list.findIndex((e) => e.id === id);
-  if (index === -1) return null;
-  list[index] = { ...list[index], ...patch, updatedAt: new Date().toISOString() };
-  await writeJson("enquiries", list);
-  return list[index];
+  let updated: Enquiry | null = null;
+  await mutateJson<Enquiry[]>("enquiries", [], (list) => {
+    const index = list.findIndex((e) => e.id === id);
+    if (index === -1) return list;
+    updated = { ...list[index], ...patch, updatedAt: new Date().toISOString() };
+    return list.map((entry, i) => (i === index ? updated! : entry));
+  });
+  return updated;
 }
 
 export async function deleteEnquiry(id: string): Promise<boolean> {
-  const list = await readJson<Enquiry[]>("enquiries", []);
-  const next = list.filter((e) => e.id !== id);
-  if (next.length === list.length) return false;
-  await writeJson("enquiries", next);
-  return true;
+  let removed = false;
+  await mutateJson<Enquiry[]>("enquiries", [], (list) => {
+    const next = list.filter((e) => e.id !== id);
+    removed = next.length !== list.length;
+    return removed ? next : list;
+  });
+  return removed;
 }
 
 /* ─────────────────────────── admin users ─────────────────────────── */
@@ -237,14 +286,17 @@ export async function deleteEnquiry(id: string): Promise<boolean> {
 export async function saveMedia(id: string, mime: string, data: Buffer): Promise<void> {
   const dir = path.join(DATA_DIR, "media");
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, id), data);
-  await fs.writeFile(path.join(dir, `${id}.type`), mime, "utf8");
+  await fs.writeFile(/* turbopackIgnore: true */ path.join(dir, id), data);
+  await fs.writeFile(/* turbopackIgnore: true */ path.join(dir, `${id}.type`), mime, "utf8");
 }
 
 export async function getMedia(id: string): Promise<{ mime: string; data: Buffer } | null> {
   const dir = path.join(DATA_DIR, "media");
   try {
-    const [data, mime] = await Promise.all([fs.readFile(path.join(dir, id)), fs.readFile(path.join(dir, `${id}.type`), "utf8")]);
+    const [data, mime] = await Promise.all([
+      fs.readFile(/* turbopackIgnore: true */ path.join(dir, id)),
+      fs.readFile(/* turbopackIgnore: true */ path.join(dir, `${id}.type`), "utf8"),
+    ]);
     return { mime, data };
   } catch {
     return null;
@@ -255,8 +307,39 @@ export async function getAdmins(): Promise<AdminAccount[]> {
   return readJson<AdminAccount[]>("admins", []);
 }
 
-export async function saveAdmins(admins: AdminAccount[]): Promise<void> {
-  await writeJson("admins", admins);
+/** Insert one account. Returns false when the email is already taken. */
+export async function createAdmin(admin: AdminAccount): Promise<boolean> {
+  let created = false;
+  await mutateJson<AdminAccount[]>("admins", [], (list) => {
+    const email = admin.email.toLowerCase();
+    if (list.some((account) => account.email.toLowerCase() === email)) return list;
+    created = true;
+    return [...list, { ...admin, sessionVersion: admin.sessionVersion ?? 0 }];
+  });
+  return created;
+}
+
+/** Update only the fields present in the patch. */
+export async function updateAdmin(id: string, patch: AdminPatch): Promise<AdminAccount | null> {
+  let updated: AdminAccount | null = null;
+  await mutateJson<AdminAccount[]>("admins", [], (list) =>
+    list.map((account) => {
+      if (account.id !== id) return account;
+      updated = { ...account, ...patch };
+      return updated;
+    })
+  );
+  return updated;
+}
+
+export async function deleteAdmin(id: string): Promise<boolean> {
+  let removed = false;
+  await mutateJson<AdminAccount[]>("admins", [], (list) => {
+    const next = list.filter((account) => account.id !== id);
+    removed = next.length !== list.length;
+    return removed ? next : list;
+  });
+  return removed;
 }
 
 /* ─────────────────────────── audit log ─────────────────────────── */
@@ -266,9 +349,9 @@ const AUDIT_LIMIT = 300;
 export async function addAuditEntry(
   entry: Omit<AdminAuditEntry, "id" | "createdAt">
 ): Promise<void> {
-  const log = await readJson<AdminAuditEntry[]>("audit", []);
-  log.unshift({ ...entry, id: randomUUID(), createdAt: new Date().toISOString() });
-  await writeJson("audit", log.slice(0, AUDIT_LIMIT));
+  await mutateJson<AdminAuditEntry[]>("audit", [], (log) =>
+    [{ ...entry, id: randomUUID(), createdAt: new Date().toISOString() }, ...log].slice(0, AUDIT_LIMIT)
+  );
 }
 
 export async function getAuditLog(): Promise<AdminAuditEntry[]> {

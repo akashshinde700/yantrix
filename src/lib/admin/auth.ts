@@ -11,7 +11,7 @@
 
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import { getAdmins, saveAdmins } from "@/lib/content/store";
+import { createAdmin, getAdmins, updateAdmin } from "@/lib/content/store";
 import type { AdminAccount, PublicAdmin } from "@/lib/content/types";
 
 export const SESSION_COOKIE = "yantrix_admin";
@@ -20,9 +20,34 @@ const SESSION_TTL_MS = 1000 * 60 * 60 * 8; // 8 hours
 export const DEFAULT_ADMIN_EMAIL = "admin@yantrixtechnology.com";
 export const DEFAULT_ADMIN_PASSWORD = "Yantrix@2024";
 
-const SECRET =
-  process.env.ADMIN_SESSION_SECRET ??
-  "yantrix-dev-only-session-secret-change-me-in-production";
+const DEV_FALLBACK_SECRET = "yantrix-dev-only-session-secret-change-me-in-production";
+
+let warned = false;
+
+/**
+ * The cookie signing key.
+ *
+ * Resolved lazily so `next build` does not need the runtime secret, but it still
+ * fails closed: in production a missing secret throws on the first sign/verify
+ * instead of quietly signing with a value that is published in this repository
+ * (which would let anyone forge an admin session).
+ */
+function secret(): string {
+  const configured = process.env.ADMIN_SESSION_SECRET;
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "ADMIN_SESSION_SECRET is not set. Generate one with `openssl rand -base64 48` and set it in the environment."
+    );
+  }
+  if (!warned) {
+    warned = true;
+    console.warn(
+      "[auth] ADMIN_SESSION_SECRET is not set — using the development-only fallback. Do NOT deploy like this."
+    );
+  }
+  return DEV_FALLBACK_SECRET;
+}
 
 /* ───────────────────────── passwords ───────────────────────── */
 
@@ -51,8 +76,26 @@ export async function ensureDefaultAdmin(): Promise<void> {
   const admins = await getAdmins();
   if (admins.length > 0) return;
 
-  const email = (process.env.ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL).toLowerCase();
-  const password = process.env.ADMIN_PASSWORD ?? DEFAULT_ADMIN_PASSWORD;
+  const configuredEmail = process.env.ADMIN_EMAIL;
+  const configuredPassword = process.env.ADMIN_PASSWORD;
+
+  // Production must bootstrap from the environment. Seeding the documented default
+  // password into a production database would hand out an owner account to anyone
+  // who has read this repository.
+  if (process.env.NODE_ENV === "production" && (!configuredEmail || !configuredPassword)) {
+    throw new Error(
+      "No admin account exists. Set ADMIN_EMAIL and ADMIN_PASSWORD (and ADMIN_NAME) to create the first owner."
+    );
+  }
+  if (!configuredEmail || !configuredPassword) {
+    console.warn(
+      `[auth] No admin account exists — creating the development default ${DEFAULT_ADMIN_EMAIL}. ` +
+        "Set ADMIN_EMAIL / ADMIN_PASSWORD before deploying."
+    );
+  }
+
+  const email = (configuredEmail ?? DEFAULT_ADMIN_EMAIL).toLowerCase();
+  const password = configuredPassword ?? DEFAULT_ADMIN_PASSWORD;
   const now = new Date().toISOString();
   const owner: AdminAccount = {
     id: randomBytes(8).toString("hex"),
@@ -63,8 +106,11 @@ export async function ensureDefaultAdmin(): Promise<void> {
     active: true,
     createdAt: now,
     lastLoginAt: null,
+    sessionVersion: 0,
   };
-  await saveAdmins([owner]);
+  // Insert-if-absent: a concurrent first request loses the race harmlessly
+  // instead of replacing the account the winner just created.
+  await createAdmin(owner);
 }
 
 /* ───────────────────────── sessions ───────────────────────── */
@@ -74,11 +120,13 @@ interface SessionPayload {
   email: string;
   name: string;
   role: AdminAccount["role"];
+  /** Admin's session generation — bumping it invalidates every issued token. */
+  ver: number;
   exp: number;
 }
 
 function sign(value: string): string {
-  return createHmac("sha256", SECRET).update(value).digest("base64url");
+  return createHmac("sha256", secret()).update(value).digest("base64url");
 }
 
 export function createSessionToken(admin: AdminAccount): string {
@@ -87,6 +135,7 @@ export function createSessionToken(admin: AdminAccount): string {
     email: admin.email,
     name: admin.name,
     role: admin.role,
+    ver: admin.sessionVersion ?? 0,
     exp: Date.now() + SESSION_TTL_MS,
   };
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -120,6 +169,9 @@ export async function getSessionAdmin(): Promise<PublicAdmin | null> {
   const admins = await getAdmins();
   const admin = admins.find((a) => a.id === payload.sub && a.active);
   if (!admin) return null;
+  // A password change (or an explicit "sign out everywhere") bumps sessionVersion,
+  // so tokens minted before it stop working immediately instead of at expiry.
+  if ((admin.sessionVersion ?? 0) !== (payload.ver ?? 0)) return null;
   return publicAdmin(admin);
 }
 
@@ -128,14 +180,8 @@ export function publicAdmin(admin: AdminAccount): PublicAdmin {
   return rest;
 }
 
-/** Roles allowed to make changes. */
-export function canWrite(role: PublicAdmin["role"] | undefined): boolean {
-  return role === "owner" || role === "editor";
-}
-
-export function isOwner(role: PublicAdmin["role"] | undefined): boolean {
-  return role === "owner";
-}
+/* Role rules live in ./permissions so the client-side panel can share them. */
+export { canWrite, isOwner } from "@/lib/admin/permissions";
 
 /**
  * Step 1 of the login: checks email + password only. Does NOT sign in —
@@ -157,12 +203,18 @@ export async function getActiveAdminById(id: string): Promise<AdminAccount | nul
 
 /** Step 2 succeeded: record the login time. */
 export async function recordLogin(id: string): Promise<AdminAccount | null> {
+  return updateAdmin(id, { lastLoginAt: new Date().toISOString() });
+}
+
+/**
+ * Invalidate every session token ever issued for this account by moving its
+ * session generation. Used on password change and account deactivation.
+ */
+export async function bumpSessionVersion(id: string): Promise<AdminAccount | null> {
   const admins = await getAdmins();
   const admin = admins.find((a) => a.id === id);
   if (!admin) return null;
-  const updated: AdminAccount = { ...admin, lastLoginAt: new Date().toISOString() };
-  await saveAdmins(admins.map((a) => (a.id === id ? updated : a)));
-  return updated;
+  return updateAdmin(id, { sessionVersion: (admin.sessionVersion ?? 0) + 1 });
 }
 
 /** HMAC with the session secret — used to hash one-time codes at rest. */

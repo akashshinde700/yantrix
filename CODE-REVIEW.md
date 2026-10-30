@@ -1247,3 +1247,61 @@ ocr delegate rule --format json $(cat <reviewable files>)
 *Review produced with [alibaba/open-code-review](https://github.com/alibaba/open-code-review) v1.13.3
 in delegation mode. Every finding above is anchored to a file and line in commit `e4e5200`; the static
 check results are reproducible with the commands in the last section.*
+
+---
+
+## Appendix — Resolution log
+
+Every finding above has been fixed on this branch. Verified with `npx tsc --noEmit`
+(0 errors), `npx eslint .` (0 problems), `npx next build` (0 warnings) and a live
+smoke test of the production build plus the full two-step admin login.
+
+| # | Fix | Where |
+|---|---|---|
+| 1.1 | Secret resolved lazily and **throws in production** when unset; dev falls back with a warning. Verified: a cookie forged with the old published value gets `401`. | `lib/admin/auth.ts` |
+| 1.2 | Production requires `ADMIN_EMAIL`/`ADMIN_PASSWORD`; no default account is created without them. | `lib/admin/auth.ts` |
+| 1.3 | `otpDeliveryMethod()` returns `"unavailable"` in production without SMTP; login answers `503` instead of issuing an undeliverable challenge. Verified live. | `lib/mail/otp-email.ts`, `api/admin/login/route.ts` |
+| 1.4 | `sessionVersion` on `AdminAccount`, embedded in the token and re-checked per request. Bumped on password change and on deactivation; the caller who changes their own password gets a fresh cookie. Verified live (`ver 0 → 1`, old cookie `401`, new cookie `200`). | `types.ts`, `admin/auth.ts`, `api/admin/admins/[id]/route.ts` |
+| 1.5 | One shared limiter (`lib/rate-limit.ts`) for login + contact, counting on `globalThis`. `clientIp()` now takes the **rightmost** XFF hop; `TRUST_PROXY_HEADERS=false` disables header trust. Contact responses include `Retry-After`. | `lib/rate-limit.ts`, `lib/admin/login-guard.ts`, `api/contact/route.ts` |
+| 2.1 | `backend` + probe moved onto `globalThis` beside the cache; only a positive probe is cached, so a recovered database is picked up again. | `lib/content/store.ts` |
+| 2.2 | `saveAdmins(list)` deleted. Per-row `createAdmin` / `updateAdmin(id, patch)` / `deleteAdmin(id)`; `recordLogin` is a single `UPDATE`. Duplicate email → `409` via `ON DUPLICATE KEY`. Verified live. | `mysql-store.ts`, `json-store.ts`, `store.ts`, admin routes |
+| 2.3 | Seeding is insert-if-absent, so a lost race is harmless instead of deleting the winner's account. | `auth.ts` + `createAdmin` |
+| 2.4 | JSON `updateContent` mutates inside the per-file queue. MySQL keeps its transaction; `version` is now the documented hook for optimistic concurrency. | `json-store.ts` |
+| 2.5 | Generation counter: a read that began before a write no longer repopulates the cache. | `store.ts` |
+| 2.6 | `ENOENT` → fallback; corrupt/unreadable → logged and thrown, never overwritten. Verified live (corrupt file → `500`, file untouched, recovery → `200`). | `json-store.ts` |
+| 2.7 | Enquiries and audit log go through `mutateJson` (read inside the queue); `getEnquiries` copies before sorting. | `json-store.ts` |
+| 3.1 | `serializeJsonLd()` escapes `< > & U+2028 U+2029`; used by both JSON-LD sites. | `lib/seo.ts`, `site-page.tsx`, `legal-page.tsx` |
+| 3.2 | `safeMeasurementId()` / `safeClarityId()` allow-lists at render, plus `pattern` validation in the admin form so bad IDs are rejected at entry. | `lib/seo.ts`, `layout.tsx`, `schema-form.tsx`, `admin/seo/page.tsx` |
+| 3.3 | `csvCell()` prefixes `'` on `= + - @ TAB CR`; CRLF line endings; anchor appended before click, object URL revoked on the next tick. | `admin/enquiry-table.tsx` |
+| 3.4 | `Caddyfile` no longer proxies to `{query.XTransformPort}` — explicit port blocks only. | `Caddyfile` |
+| 4.1 | Structural sanitiser keeps nested objects/arrays up to depth 4 instead of dropping them. Verified live (nested object round-trips). | `api/admin/content/route.ts` |
+| 4.2 | Unreachable condition replaced by a comment stating the real policy. | `api/admin/enquiries/route.ts` |
+| 4.3 | `AdminRoleProvider` + `canWrite`/`isOwner` in a client-safe `lib/admin/permissions.ts`; nav, collection editor and schema form hide/disable what a viewer cannot do. | `role-context.tsx`, `admin-shell.tsx`, `collection-editor.tsx`, `schema-form.tsx` |
+| 4.4 | 500s carry a short reference id that also appears in the server log. | `api/admin/content/route.ts` |
+| 5.1 | `ignoreBuildErrors: false`, `reactStrictMode: true`. | `next.config.ts` |
+| 5.2 | `turbopackIgnore` markers on the JSON/media fs calls — build warning gone. | `json-store.ts` |
+| 5.3 | `examples/websocket/` deleted; `tsc` has no errors left to ignore. | deleted |
+| 5.4 | The five `.mp4` files are untracked (still on disk, still gitignored). | `git rm --cached` |
+| 5.5 | `@fontsource-variable/*` self-hosted fonts replace `next/font/google` — the build no longer needs network access. | `package.json`, `layout.tsx`, `globals.css` |
+| 5.6 | `db/schema.sql` regenerated from the runtime `SCHEMA`, `media` included, migration note appended. | `db/schema.sql` |
+| 6.1 | `setDismissed`/`setStarBurst` moved out of effects into state initialisers and event handlers. | `cosmic-popup.tsx` |
+| 6.2 | Fixed by deleting `premium-effects.tsx` (unreferenced). | deleted |
+| 6.3 | `/api/route.ts` deleted; package renamed `yantrix-technology`. | deleted, `package.json` |
+| 6.4 | 17 unreferenced effect components deleted (5,085 lines) — this is what took `eslint` to zero. | deleted |
+
+New files introduced by the fixes:
+
+- `src/lib/rate-limit.ts` — shared limiter + IP resolution
+- `src/lib/admin/permissions.ts` — role rules usable from client and server
+- `src/components/admin/role-context.tsx` — role available to the panel UI
+
+Behaviour changes worth knowing before deploying:
+
+1. `ADMIN_SESSION_SECRET` and SMTP are now **required in production**. Both fail
+   closed rather than degrading.
+2. The first admin must be bootstrapped with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+3. Changing a password (or deactivating an account) signs that account out of
+   every other browser.
+4. `.gitignore`'s `*.mp4` rule now actually applies to the five video files.
+5. `git rm --cached` removed the videos from the working tree's index only; the
+   blobs remain in history. A history rewrite is the only way to shrink `.git`.

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import { addEnquiry } from "@/lib/content/store";
 import { sendEnquiryEmails } from "@/lib/mail/enquiry-emails";
+import { clientIp, createRateLimiter } from "@/lib/rate-limit";
 
 /* ── Validation (mirrors the client-side schema) ── */
 const enquirySchema = z.object({
@@ -16,39 +17,21 @@ const enquirySchema = z.object({
   message: z.string().trim().max(1000).optional().nullable(),
 });
 
-/* ── Lightweight in-memory rate limiting (max 5 submissions / 10 min / IP) ── */
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 5;
-const hits = new Map<string, number[]>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  if (recent.length >= RATE_LIMIT_MAX) {
-    return true;
-  }
-  recent.push(now);
-  hits.set(ip, recent);
-  if (hits.size > 5000) {
-    // Keep the map bounded
-    for (const [key, times] of hits) {
-      if (times.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) hits.delete(key);
-    }
-  }
-  return false;
-}
+/* ── Shared in-memory rate limiting (max 5 submissions / 10 min / IP) ── */
+const contactLimiter = createRateLimiter({
+  name: "contact-form",
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      request.headers.get("x-real-ip") ??
-      "unknown";
-
-    if (isRateLimited(ip)) {
+    const ip = clientIp(request);
+    const limit = contactLimiter.hit(ip);
+    if (!limit.allowed) {
       return NextResponse.json(
         { ok: false, error: "Too many enquiries from this device. Please try again later." },
-        { status: 429 }
+        { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
       );
     }
 

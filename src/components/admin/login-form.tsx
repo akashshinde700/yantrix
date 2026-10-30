@@ -23,7 +23,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
   const [sentTo, setSentTo] = useState("");
-  const [delivery, setDelivery] = useState<"email" | "console">("email");
+  const [delivery, setDelivery] = useState<"email" | "console" | "unavailable">("email");
   const [expiresAt, setExpiresAt] = useState(0);
   const [resendAt, setResendAt] = useState(0);
   const [now, setNow] = useState(() => Date.now());
@@ -62,7 +62,7 @@ export function LoginForm() {
       ok?: boolean;
       error?: string;
       sentTo?: string;
-      delivery?: "email" | "console";
+      delivery?: "email" | "console" | "unavailable";
       expiresInSeconds?: number;
     };
     setLoading(false);

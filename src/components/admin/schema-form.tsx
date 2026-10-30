@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { adminPost } from "@/components/admin/api";
+import { useAdminRole } from "@/components/admin/role-context";
 import { ImageField } from "@/components/admin/image-field";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,14 @@ export interface AdminField {
   options?: { label: string; value: string }[];
   /** grid span on large screens */
   span?: 1 | 2;
+  /**
+   * Optional format check (source string, compiled once). An empty value is
+   * always allowed — the pattern only rejects malformed input, so a field can
+   * still be cleared. Saving is blocked while any visible field fails.
+   */
+  pattern?: string;
+  /** Shown when `pattern` does not match, e.g. "Should look like G-XXXXXXXX". */
+  patternMessage?: string;
 }
 
 export interface AdminGroup {
@@ -94,6 +103,7 @@ export function SchemaForm({
 }) {
   const [values, setValues] = useState<Values>(initial);
   const [saving, setSaving] = useState(false);
+  const { canWrite } = useAdminRole();
   const [dirty, setDirty] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -103,8 +113,43 @@ export function SchemaForm({
     setDirty(true);
   };
 
+/**
+ * Fields whose current value does not match their `pattern`. Rendered inline and
+ * used to block the save, so malformed values never reach the API — where they
+ * would otherwise be silently dropped at render time.
+ */
+  const invalidFields = useMemo(() => {
+    const bad = new Set<string>();
+    for (const group of groups) {
+      for (const field of group.fields) {
+        if (!field.pattern) continue;
+        const raw = getPath(values, field.name);
+        const text = typeof raw === "string" ? raw.trim() : "";
+        if (!text) continue; // empty is allowed
+        try {
+          if (!new RegExp(field.pattern).test(text)) bad.add(field.name);
+        } catch {
+          /* a broken pattern must not break the panel */
+        }
+      }
+    }
+    return bad;
+  }, [groups, values]);
+
   const save = async () => {
     if (!onSubmit && !op) return;
+    if (!canWrite) {
+      toast({ variant: "destructive", title: "Read-only account", description: "Your account can view this page but not change it." });
+      return;
+    }
+    if (invalidFields.size > 0) {
+      toast({
+        variant: "destructive",
+        title: "Check the highlighted fields",
+        description: "Some values are not in the expected format.",
+      });
+      return;
+    }
     setSaving(true);
     const result = onSubmit
       ? await onSubmit(values)
@@ -230,6 +275,9 @@ export function SchemaForm({
                       id={field.name}
                       type={field.type === "number" ? "number" : "text"}
                       placeholder={field.placeholder}
+                      aria-invalid={invalidFields.has(field.name) || undefined}
+                      aria-describedby={invalidFields.has(field.name) ? `${field.name}-error` : undefined}
+                      className={invalidFields.has(field.name) ? "border-destructive focus-visible:ring-destructive/30" : undefined}
                       value={value === undefined || value === null ? "" : String(value)}
                       onChange={(event) =>
                         update(
@@ -240,7 +288,11 @@ export function SchemaForm({
                     />
                   )}
 
-                  {field.help ? (
+                  {invalidFields.has(field.name) ? (
+                    <p id={`${field.name}-error`} className="text-xs font-semibold text-destructive">
+                      {field.patternMessage ?? "This value is not in the expected format."}
+                    </p>
+                  ) : field.help ? (
                     <p className="text-xs text-muted-foreground">{field.help}</p>
                   ) : null}
                 </div>
@@ -249,7 +301,7 @@ export function SchemaForm({
           </div>
         </section>
       )),
-    [groups, values]
+    [groups, values, invalidFields]
   );
 
   return (
@@ -275,7 +327,8 @@ export function SchemaForm({
         ) : null}
         <Button
           onClick={save}
-          disabled={saving}
+          disabled={saving || !canWrite}
+          title={canWrite ? undefined : "Your account has read-only access"}
           className="btn-futur h-10 rounded-xl font-bold text-white"
         >
           {saving ? (

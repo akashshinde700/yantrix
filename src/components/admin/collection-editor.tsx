@@ -23,6 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { adminPost } from "@/components/admin/api";
+import { useAdminRole } from "@/components/admin/role-context";
 import { SchemaForm, type AdminField } from "@/components/admin/schema-form";
 import type { BaseItem, CollectionKey } from "@/lib/content/types";
 
@@ -55,6 +56,8 @@ export function CollectionEditor({
 }: CollectionEditorProps) {
   const router = useRouter();
   const { toast } = useToast();
+  // Read-only accounts see the list but none of the controls that would 403.
+  const { canWrite } = useAdminRole();
   const [editing, setEditing] = useState<BaseItem | "new" | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -113,12 +116,14 @@ export function CollectionEditor({
             <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           ) : null}
         </div>
-        <Button
-          onClick={() => setEditing("new")}
-          className="btn-futur h-9 rounded-lg px-4 text-sm font-bold text-white"
-        >
-          <Plus className="mr-1.5 h-4 w-4" /> {addLabel}
-        </Button>
+        {canWrite ? (
+          <Button
+            onClick={() => setEditing("new")}
+            className="btn-futur h-9 rounded-lg px-4 text-sm font-bold text-white"
+          >
+            <Plus className="mr-1.5 h-4 w-4" /> {addLabel}
+          </Button>
+        ) : null}
       </header>
 
       {sorted.length === 0 ? (
@@ -153,97 +158,99 @@ export function CollectionEditor({
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    disabled={index === 0 || busyId !== null}
-                    title="Move up"
-                    onClick={async () => {
-                      setBusyId(item.id);
-                      await run(
-                        { op: "moveItem", collection, id: item.id, direction: "up" },
-                        "Order updated"
-                      );
-                      setBusyId(null);
-                    }}
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    disabled={index === sorted.length - 1 || busyId !== null}
-                    title="Move down"
-                    onClick={async () => {
-                      setBusyId(item.id);
-                      await run(
-                        { op: "moveItem", collection, id: item.id, direction: "down" },
-                        "Order updated"
-                      );
-                      setBusyId(null);
-                    }}
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    title={inactive ? "Show on website" : "Hide from website"}
-                    onClick={() =>
-                      run(
-                        {
-                          op: "updateItem",
-                          collection,
-                          id: item.id,
-                          item: { ...record, active: inactive },
-                        },
-                        inactive ? "Item published" : "Item hidden"
-                      )
-                    }
-                  >
-                    {inactive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    title="Edit"
-                    onClick={() => setEditing(item)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    title="Delete"
-                    onClick={async () => {
-                      if (
-                        !window.confirm(
-                          `Delete "${primary || "this item"}"? This cannot be undone.`
+                {canWrite ? (
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={index === 0 || busyId !== null}
+                      title="Move up"
+                      onClick={async () => {
+                        setBusyId(item.id);
+                        await run(
+                          { op: "moveItem", collection, id: item.id, direction: "up" },
+                          "Order updated"
+                        );
+                        setBusyId(null);
+                      }}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={index === sorted.length - 1 || busyId !== null}
+                      title="Move down"
+                      onClick={async () => {
+                        setBusyId(item.id);
+                        await run(
+                          { op: "moveItem", collection, id: item.id, direction: "down" },
+                          "Order updated"
+                        );
+                        setBusyId(null);
+                      }}
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title={inactive ? "Show on website" : "Hide from website"}
+                      onClick={() =>
+                        run(
+                          {
+                            op: "updateItem",
+                            collection,
+                            id: item.id,
+                            item: { ...record, active: inactive },
+                          },
+                          inactive ? "Item published" : "Item hidden"
                         )
-                      ) {
-                        return;
                       }
-                      setBusyId(item.id);
-                      await run(
-                        { op: "deleteItem", collection, id: item.id },
-                        "Item deleted"
-                      );
-                      setBusyId(null);
-                    }}
-                  >
-                    {busyId === item.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
+                    >
+                      {inactive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title="Edit"
+                      onClick={() => setEditing(item)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      title="Delete"
+                      onClick={async () => {
+                        if (
+                          !window.confirm(
+                            `Delete "${primary || "this item"}"? This cannot be undone.`
+                          )
+                        ) {
+                          return;
+                        }
+                        setBusyId(item.id);
+                        await run(
+                          { op: "deleteItem", collection, id: item.id },
+                          "Item deleted"
+                        );
+                        setBusyId(null);
+                      }}
+                    >
+                      {busyId === item.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                ) : null}
               </li>
             );
           })}

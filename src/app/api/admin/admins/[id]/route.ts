@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getSessionAdmin, hashPassword, isOwner, publicAdmin } from "@/lib/admin/auth";
-import { addAuditEntry, getAdmins, saveAdmins } from "@/lib/content/store";
+import {
+  createSessionToken,
+  getSessionAdmin,
+  hashPassword,
+  isOwner,
+  publicAdmin,
+  SESSION_COOKIE,
+  SESSION_MAX_AGE_SECONDS,
+} from "@/lib/admin/auth";
+import { addAuditEntry, deleteAdmin, getAdmins, updateAdmin } from "@/lib/content/store";
+import type { AdminPatch } from "@/lib/content/types";
 
 const patchSchema = z.object({
   name: z.string().trim().min(2).max(60).optional(),
@@ -33,36 +42,47 @@ export async function PATCH(
     );
   }
 
-  const admins = await getAdmins();
-  const target = admins.find((a) => a.id === id);
+  const target = (await getAdmins()).find((a) => a.id === id);
   if (!target) {
     return NextResponse.json({ ok: false, error: "Account not found." }, { status: 404 });
   }
 
-  const patch = parsed.data;
-  if (!isOwner(admin.role)) {
-    // Non-owners may only change their own name/password
-    patch.role = undefined;
-    patch.active = undefined;
+  const input = parsed.data;
+  const patch: AdminPatch = {
+    name: input.name ?? target.name,
+    // Non-owners may only change their own name/password.
+    role: isOwner(admin.role) ? (input.role ?? target.role) : target.role,
+    active: isOwner(admin.role) ? (input.active ?? target.active) : target.active,
+    passwordHash: input.password ? hashPassword(input.password) : target.passwordHash,
+  };
+
+  // Changing the password or deactivating the account must invalidate tokens
+  // already issued for it — otherwise a stolen session outlives the reset.
+  const credentialsChanged =
+    Boolean(input.password) || (patch.active === false && target.active === true);
+  if (credentialsChanged) patch.sessionVersion = (target.sessionVersion ?? 0) + 1;
+
+  const updated = await updateAdmin(id, patch);
+  if (!updated) {
+    return NextResponse.json({ ok: false, error: "Account not found." }, { status: 404 });
   }
 
-  const updated = admins.map((account) =>
-    account.id === id
-      ? {
-          ...account,
-          name: patch.name ?? account.name,
-          role: patch.role ?? account.role,
-          active: patch.active ?? account.active,
-          passwordHash: patch.password ? hashPassword(patch.password) : account.passwordHash,
-        }
-      : account
-  );
-  await saveAdmins(updated);
   await addAuditEntry({ actorEmail: admin.email, action: "updateAdmin", target: target.email });
-  return NextResponse.json({
-    ok: true,
-    admin: publicAdmin(updated.find((a) => a.id === id)!),
-  });
+
+  const response = NextResponse.json({ ok: true, admin: publicAdmin(updated) });
+
+  // If you changed your own password, hand back a fresh cookie so you are not
+  // signed out of the tab you are using.
+  if (credentialsChanged && admin.id === id && updated.active) {
+    response.cookies.set(SESSION_COOKIE, createSessionToken(updated), {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: SESSION_MAX_AGE_SECONDS,
+    });
+  }
+  return response;
 }
 
 export async function DELETE(
@@ -78,12 +98,11 @@ export async function DELETE(
   if (id === admin.id) {
     return NextResponse.json({ ok: false, error: "You cannot delete your own account." }, { status: 400 });
   }
-  const admins = await getAdmins();
-  const target = admins.find((a) => a.id === id);
+  const target = (await getAdmins()).find((a) => a.id === id);
   if (!target) {
     return NextResponse.json({ ok: false, error: "Account not found." }, { status: 404 });
   }
-  await saveAdmins(admins.filter((a) => a.id !== id));
+  await deleteAdmin(id);
   await addAuditEntry({ actorEmail: admin.email, action: "deleteAdmin", target: target.email });
   return NextResponse.json({ ok: true });
 }
