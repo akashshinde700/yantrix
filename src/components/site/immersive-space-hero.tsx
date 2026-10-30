@@ -8,6 +8,7 @@ import { useSiteStore } from "@/lib/store";
 import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
 import { cn } from "@/lib/utils";
+import { ThreeGlobe } from "@/components/site/three-globe";
 import { Magnetic, ScrambleText } from "@/components/site/ai-fx";
 import type { HeroSlide, TrustChip } from "@/lib/content/types";
 import { SpaceBackground } from "@/components/site/space-background";
@@ -186,6 +187,13 @@ export function ImmersiveSpaceHero() {
           style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
         />
       </motion.div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+         3D INTERACTIVE GLOBE — premium space element
+         ═══════════════════════════════════════════════════════════════ */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 hidden xl:block">
+        <ThreeGlobe size={400} rotationSpeed={0.002} showStars showAtmosphere autoRotate />
+      </div>
 
       {/* ═══════════════════════════════════════════════════════════════
          CONTENT: Slide text with staggered entrance
