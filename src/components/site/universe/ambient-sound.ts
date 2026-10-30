@@ -73,8 +73,27 @@ function chime(c: AudioContext, into: AudioNode) {
   o2.stop(now + 3.4);
 }
 
-/** `delay` (seconds) lets the door chime finish before the ambience swells in. */
-export function startAmbient({ delay = 0 }: { delay?: number } = {}): void {
+/**
+ * `delay` (seconds) lets the door chime finish before the ambience swells in.
+ * Never throws: if the browser refuses audio (privacy extensions, no output
+ * device, policies) the sound simply stays off.
+ */
+export function startAmbient(options: { delay?: number } = {}): void {
+  try {
+    startAmbientUnsafe(options);
+  } catch (error) {
+    console.warn("[sound] could not start ambience:", error);
+    const c = ctx;
+    if (chimeTimer) clearTimeout(chimeTimer);
+    ctx = null;
+    master = null;
+    sources = [];
+    void c?.close().catch(() => {});
+    notify();
+  }
+}
+
+function startAmbientUnsafe({ delay = 0 }: { delay?: number }): void {
   if (isAmbientPlaying()) return;
   const AC =
     window.AudioContext ||

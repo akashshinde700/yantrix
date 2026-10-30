@@ -294,6 +294,8 @@ export function DoorIntro() {
   }, []);
 
   useEffect(() => {
+    // tells the <head> safety-net script the door is interactive (otherwise it hides the door after a few seconds)
+    document.documentElement.setAttribute("data-door-ready", "");
     // Already entered this session (or a search/bot visit): CSS keeps the door hidden.
     if (document.documentElement.hasAttribute("data-entered")) return;
     document.body.style.overflow = "hidden";
@@ -311,12 +313,17 @@ export function DoorIntro() {
       finish();
       return;
     }
-    playDoorSound();
-    // the click is the visitor's permission for audio: the space ambience swells in as the doors open
-    if (soundPreference() !== "off") startAmbient({ delay: 2.6 });
+    // open the door FIRST — nothing (audio, extensions, browser quirks) may ever block entering the site
     setPhase("unlocking");
     timers.current.push(setTimeout(() => setPhase("opening"), UNLOCK_MS));
     timers.current.push(setTimeout(finish, UNLOCK_MS + OPEN_MS));
+    // the click is the visitor's permission for audio: the space ambience swells in as the doors open
+    try {
+      playDoorSound();
+      if (soundPreference() !== "off") startAmbient({ delay: 2.6 });
+    } catch (error) {
+      console.warn("[door] sound unavailable:", error);
+    }
   }, [phase, finish]);
 
   if (!visible) return null;

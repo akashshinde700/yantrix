@@ -137,7 +137,11 @@ export default async function RootLayout({
               'if(sessionStorage.getItem("yantrix_entered")' +
               '||/bot|crawl|spider|slurp|lighthouse|pagespeed|headless|preview|inspect/i.test(navigator.userAgent)' +
               '||/(google|bing|yahoo|duckduckgo|yandex|baidu|ecosia|perplexity|chatgpt|openai|claude|gemini|copilot)\\./i.test(document.referrer))' +
-              'd.setAttribute("data-entered","")}catch(e){}})();',
+              'd.setAttribute("data-entered","");' +
+              // safety net: if the door never became interactive (JS failed / blocked), hide it so the site is usable
+              'setTimeout(function(){if(!d.hasAttribute("data-door-ready")){d.setAttribute("data-entered","");' +
+              'var x=document.querySelector(".door-intro");if(x)x.style.display="none";document.body&&(document.body.style.overflow="")}},6000)' +
+              '}catch(e){}})();',
           }}
         />
         <noscript>
