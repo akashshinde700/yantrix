@@ -36,6 +36,8 @@ const DATABASE_URL =
 const globalForDb = globalThis as unknown as {
   yantrixPool?: Pool;
   yantrixSchema?: Promise<void>;
+  /** which SCHEMA the cached promise ran — a changed schema re-runs (new tables appear without a restart) */
+  yantrixSchemaKey?: string;
 };
 
 function pool(): Pool {
@@ -97,9 +99,21 @@ const SCHEMA = [
      created_at DATETIME(3) NOT NULL,
      INDEX idx_audit_created (created_at)
    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS media (
+     id VARCHAR(36) PRIMARY KEY,
+     mime VARCHAR(60) NOT NULL,
+     data MEDIUMBLOB NOT NULL,
+     created_at DATETIME(3) NOT NULL
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
 ];
 
+const SCHEMA_KEY = `${SCHEMA.length}:${SCHEMA.join("").length}`;
+
 async function db(): Promise<Pool> {
+  if (globalForDb.yantrixSchemaKey !== SCHEMA_KEY) {
+    globalForDb.yantrixSchema = undefined;
+    globalForDb.yantrixSchemaKey = SCHEMA_KEY;
+  }
   if (!globalForDb.yantrixSchema) {
     globalForDb.yantrixSchema = (async () => {
       for (const statement of SCHEMA) await pool().query(statement);
@@ -312,6 +326,19 @@ export async function deleteEnquiry(id: string): Promise<boolean> {
     [id]
   );
   return result.affectedRows > 0;
+}
+
+/* ─────────────────────────── media (uploaded images) ─────────────────────────── */
+
+export async function saveMedia(id: string, mime: string, data: Buffer): Promise<void> {
+  const conn = await db();
+  await conn.query("INSERT INTO media (id, mime, data, created_at) VALUES (?, ?, ?, ?)", [id, mime, data, new Date()]);
+}
+
+export async function getMedia(id: string): Promise<{ mime: string; data: Buffer } | null> {
+  const conn = await db();
+  const [rows] = await conn.query<RowDataPacket[]>("SELECT mime, data FROM media WHERE id = ?", [id]);
+  return rows.length ? { mime: rows[0].mime as string, data: rows[0].data as Buffer } : null;
 }
 
 /* ─────────────────────────── admin users ─────────────────────────── */

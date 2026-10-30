@@ -114,28 +114,61 @@ async function run<T>(onMysql: () => Promise<T>, onJson: () => Promise<T>): Prom
 
 /* ─────────────────────────── content ─────────────────────────── */
 
+/*
+ * Site content is read by the layout, the page, metadata, sitemap… several
+ * times per request and changes only when an admin saves. Keep it in memory
+ * for a short time (and share in-flight reads); every write refreshes it, so
+ * admin edits still show up immediately.
+ */
+const CONTENT_TTL_MS = 30_000;
+
+// One cache per server process, on globalThis: Next bundles API routes and
+// pages as separate module instances, so a module-level cache would let an
+// admin save refresh only the API's copy while pages kept serving stale content.
+const shared = globalThis as unknown as {
+  yantrixContentCache?: { value: SiteContent; at: number } | null;
+  yantrixContentPending?: Promise<SiteContent> | null;
+};
+
+function remember(value: SiteContent): SiteContent {
+  shared.yantrixContentCache = { value, at: Date.now() };
+  return value;
+}
+
 export function getContent(): Promise<SiteContent> {
-  return run(mysqlStore.getContent, jsonStore.getContent);
+  const cached = shared.yantrixContentCache;
+  if (cached && Date.now() - cached.at < CONTENT_TTL_MS) {
+    return Promise.resolve(cached.value);
+  }
+  shared.yantrixContentPending ??= run(mysqlStore.getContent, jsonStore.getContent)
+    .then(remember)
+    .finally(() => {
+      shared.yantrixContentPending = null;
+    });
+  return shared.yantrixContentPending;
 }
 
 export function saveContent(content: SiteContent): Promise<SiteContent> {
+  shared.yantrixContentCache = null;
   return run(
     () => mysqlStore.saveContent(content),
     () => jsonStore.saveContent(content)
-  );
+  ).then(remember);
 }
 
 export function updateContent(
   mutator: (current: SiteContent) => SiteContent | Promise<SiteContent>
 ): Promise<SiteContent> {
+  shared.yantrixContentCache = null;
   return run(
     () => mysqlStore.updateContent(mutator),
     () => jsonStore.updateContent(mutator)
-  );
+  ).then(remember);
 }
 
 export function resetContent(): Promise<SiteContent> {
-  return run(mysqlStore.resetContent, jsonStore.resetContent);
+  shared.yantrixContentCache = null;
+  return run(mysqlStore.resetContent, jsonStore.resetContent).then(remember);
 }
 
 /* ─────────────────────────── enquiries ─────────────────────────── */
@@ -169,6 +202,22 @@ export function deleteEnquiry(id: string): Promise<boolean> {
   return run(
     () => mysqlStore.deleteEnquiry(id),
     () => jsonStore.deleteEnquiry(id)
+  );
+}
+
+/* ─────────────────────────── media ─────────────────────────── */
+
+export function saveMedia(id: string, mime: string, data: Buffer): Promise<void> {
+  return run(
+    () => mysqlStore.saveMedia(id, mime, data),
+    () => jsonStore.saveMedia(id, mime, data)
+  );
+}
+
+export function getMedia(id: string): Promise<{ mime: string; data: Buffer } | null> {
+  return run(
+    () => mysqlStore.getMedia(id),
+    () => jsonStore.getMedia(id)
   );
 }
 

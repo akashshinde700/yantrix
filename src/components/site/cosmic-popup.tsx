@@ -6,22 +6,23 @@ import { X, Star, Zap, Users, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSettings } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
+import { ENTERED_EVENT } from "@/components/site/universe/chapters";
 
 /* ═══════════════════════════════════════════════════════════════════════
    COSMIC POPUP — animated modal that appears when user visits the site.
    Similar to skillected.com popup but with immersive space animations.
    ═══════════════════════════════════════════════════════════════════════
    Features:
-   • Opens after 3 seconds (configurable delay)
+   • Opens shortly after the visitor comes through the entrance door
    • Star field burst on open
    • Nebula glow behind modal
    • Sliding glass-morphism panel
    • Animated close with star particles
    • Auto-close after 30 seconds or on interaction
-   • Remembers if dismissed (localStorage)
+   • Shows on every new visit; closing hides it for the rest of that visit (sessionStorage)
    ═══════════════════════════════════════════════════════════════════════ */
 
-const POPUP_DELAY = 3000; // Show popup after 3 seconds
+const POPUP_DELAY = 1600; // Show popup this long after the door opens
 const AUTO_CLOSE_DELAY = 25000; // Auto-close after 25 seconds
 const STORAGE_KEY = "yantrix_cosmic_popup_dismissed";
 
@@ -61,9 +62,9 @@ export function CosmicPopup() {
   const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [starBurst, setStarBurst] = useState<Array<{ x: number; y: number; size: number; delay: number }>>([]);
 
-  // Check if already dismissed
+  // Closed already in this visit? (per session — it greets every new visit)
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = sessionStorage.getItem(STORAGE_KEY);
     if (stored === "true") {
       setDismissed(true);
     }
@@ -87,19 +88,24 @@ export function CosmicPopup() {
     }
   }, [isOpen]);
 
-  // Open popup after delay
+  // Open popup a moment after the visitor has come through the entrance door
   useEffect(() => {
     if (dismissed) return;
-    timerRef.current = setTimeout(() => {
-      setIsOpen(true);
+    const schedule = () => {
+      timerRef.current = setTimeout(() => {
+        setIsOpen(true);
 
-      // Auto-close timer
-      autoCloseTimerRef.current = setTimeout(() => {
-        setIsOpen(false);
-      }, AUTO_CLOSE_DELAY);
-    }, POPUP_DELAY);
+        // Auto-close timer
+        autoCloseTimerRef.current = setTimeout(() => {
+          setIsOpen(false);
+        }, AUTO_CLOSE_DELAY);
+      }, POPUP_DELAY);
+    };
+    if (document.documentElement.hasAttribute("data-entered")) schedule();
+    else window.addEventListener(ENTERED_EVENT, schedule, { once: true });
 
     return () => {
+      window.removeEventListener(ENTERED_EVENT, schedule);
       if (timerRef.current) clearTimeout(timerRef.current);
       if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
     };
@@ -118,19 +124,31 @@ export function CosmicPopup() {
     setIsOpen(false);
   };
 
-  // Handle dismiss (don't show again)
+  // Handle dismiss (not again during this visit)
   const handleDismiss = () => {
     setIsOpen(false);
-    localStorage.setItem(STORAGE_KEY, "true");
+    sessionStorage.setItem(STORAGE_KEY, "true");
     setDismissed(true);
   };
 
   const waHref = whatsappUrl(settings);
 
+  // Esc closes the popup
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Welcome to ${settings.name}`}
+          data-lenis-prevent
           className="fixed inset-0 z-50 flex items-center justify-center bg-space/80 backdrop-blur-sm p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -226,6 +244,7 @@ export function CosmicPopup() {
               {/* Close button with hover animation */}
               <motion.button
                 onClick={handleDismiss}
+                aria-label="Close welcome message"
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-slate-400 transition-all hover:bg-white/20 hover:text-white hover:scale-110"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}

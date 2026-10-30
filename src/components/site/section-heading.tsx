@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { WordReveal } from "@/components/site/word-reveal";
 
 interface SectionHeadingProps {
   eyebrow?: string;
@@ -6,6 +7,8 @@ interface SectionHeadingProps {
   description?: string;
   align?: "left" | "center";
   dark?: boolean;
+  /** Use "h1" for the main heading of a page. */
+  as?: "h1" | "h2";
 }
 
 export function SectionHeading({
@@ -14,6 +17,7 @@ export function SectionHeading({
   description,
   align = "center",
   dark = false,
+  as: Heading = "h2",
 }: SectionHeadingProps) {
   return (
     <div
@@ -40,14 +44,14 @@ export function SectionHeading({
           {eyebrow}
         </span>
       ) : null}
-      <h2
+      <Heading
         className={cn(
           "text-3xl font-extrabold tracking-tight text-balance sm:text-4xl",
           dark ? "text-white" : "text-ink"
         )}
       >
-        {title}
-      </h2>
+        <WordReveal text={title} />
+      </Heading>
       {description ? (
         <p
           className={cn(

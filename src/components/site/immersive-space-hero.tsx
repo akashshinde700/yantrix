@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { useSiteStore } from "@/lib/store";
 import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
-import { HeroField } from "@/components/site/hero-field";
 import { cn } from "@/lib/utils";
-import type { HeroSlide, TrustChip } from "@/lib/content/types";
+import type { HeroSlide, Stat, TrustChip } from "@/lib/content/types";
+import { WordReveal } from "@/components/site/word-reveal";
 
 const AUTOPLAY_MS = 6500;
 
@@ -27,6 +27,7 @@ export function ImmersiveSpaceHero() {
   const settings = useSettings();
   const heroSlides = useCollection<HeroSlide>("heroSlides");
   const trustChips = useCollection<TrustChip>("trustChips");
+  const stats = useCollection<Stat>("stats");
   const home = useSiteContent().pages.home;
   const reducedMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
@@ -65,31 +66,19 @@ export function ImmersiveSpaceHero() {
 
   return (
     <section
+      id="home-hero"
       aria-roledescription="carousel"
       aria-label={`${settings.name} — highlights`}
-      className="relative isolate flex min-h-[560px] items-center overflow-hidden bg-space text-white lg:min-h-[calc(100svh-7rem)]"
+      className="relative isolate flex min-h-[600px] items-center overflow-hidden text-white lg:min-h-[calc(100svh-7rem)]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      {/* Base glow — also the fallback when WebGL is unavailable */}
+      {/* The 3D universe (site shell) shows through; keep the copy side readable */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_80%_60%_at_70%_75%,rgba(37,99,235,0.35),transparent_70%),radial-gradient(ellipse_50%_40%_at_85%_30%,rgba(34,211,238,0.14),transparent_70%)]"
-      />
-
-      {/* The one interactive moment */}
-      <HeroField className="absolute inset-0 -z-10" />
-
-      {/* Readability: keep the copy side calm, let the field show on the right */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-space via-space/80 to-space/10 lg:via-space/60 lg:to-transparent"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b from-space to-transparent"
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#02040c]/90 via-[#02040c]/55 to-transparent max-lg:bg-gradient-to-b max-lg:from-[#02040c]/30 max-lg:via-[#02040c]/70 max-lg:to-[#02040c]/90"
       />
 
       <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
@@ -111,12 +100,9 @@ export function ImmersiveSpaceHero() {
                   {slide.eyebrow}
                 </motion.span>
 
-                <motion.h1
-                  variants={textItem}
-                  className="text-4xl font-extrabold leading-[1.08] tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]"
-                >
-                  <span className="text-gradient-cyber">{slide.title}</span>
-                </motion.h1>
+                <h1 className="text-[2.5rem] font-extrabold leading-[1.04] tracking-tight text-balance sm:text-6xl lg:text-[4.1rem]">
+                  <WordReveal text={slide.title} wordClassName="text-gradient-cyber" onMount delay={0.15} stagger={0.07} />
+                </h1>
 
                 <motion.p
                   variants={textItem}
@@ -142,6 +128,24 @@ export function ImmersiveSpaceHero() {
                 </motion.div>
               </motion.div>
             </AnimatePresence>
+
+            {/* Trust row — real figures from the stats collection */}
+            {stats.length > 0 && (
+              <dl className="mt-9 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-6">
+                {stats.slice(0, 3).map((stat) => (
+                  <div key={stat.id} className="flex items-baseline gap-2">
+                    <dt className="sr-only">{stat.label}</dt>
+                    <dd className="text-2xl font-extrabold tracking-tight text-white">
+                      {stat.value}
+                      <span className="text-cyber-300">{stat.suffix}</span>
+                    </dd>
+                    <span aria-hidden="true" className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      {stat.label}
+                    </span>
+                  </div>
+                ))}
+              </dl>
+            )}
 
             {/* Slide controls */}
             {total > 1 && (
@@ -201,6 +205,17 @@ export function ImmersiveSpaceHero() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Scroll cue */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-20 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex"
+      >
+        <span className="font-mono text-[10px] uppercase tracking-[0.35em] text-slate-400">Scroll to explore</span>
+        <span className="relative h-9 w-5 rounded-full border border-white/25">
+          <span className="scroll-cue-dot absolute left-1/2 top-1.5 h-2 w-0.5 -translate-x-1/2 rounded-full bg-cyber-300" />
+        </span>
       </div>
 
       {/* Autoplay progress */}

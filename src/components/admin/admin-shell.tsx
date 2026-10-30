@@ -19,6 +19,8 @@ import {
   Sparkles,
   Users,
   X,
+  UserRound,
+  Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,6 +31,8 @@ const NAV = [
   { href: "/admin/hero", label: "Hero slides", icon: Sparkles },
   { href: "/admin/courses", label: "Courses", icon: BookOpen },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle },
+  { href: "/admin/trainers", label: "Trainers", icon: UserRound },
+  { href: "/admin/placed-students", label: "Placed students", icon: Award },
   { href: "/admin/sections", label: "Page sections", icon: Layers },
   { href: "/admin/pages", label: "Pages & navigation", icon: BarChart3 },
   { href: "/admin/seo", label: "SEO · AEO · GEO", icon: Search },

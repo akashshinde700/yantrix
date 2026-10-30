@@ -10,7 +10,7 @@
  *   • sitemap.xml, robots.txt, llms.txt and web app manifest
  */
 
-import type { SiteContent, SiteView, Course, Faq, HeroSlide } from "@/lib/content/types";
+import type { SiteContent, SiteView, Course, Faq, HeroSlide, Trainer } from "@/lib/content/types";
 import { fullAddress } from "@/lib/content/helpers";
 
 const active = <T extends { active: boolean; sortOrder: number }>(items: T[]): T[] =>
@@ -34,13 +34,91 @@ export function pageDescription(content: SiteContent, view: SiteView): string {
   return content.seo.pages[view].description || content.seo.global.defaultDescription;
 }
 
+/* ─────────────────────────── courses ─────────────────────────── */
+
+export function activeCourses(content: SiteContent): Course[] {
+  return active(content.collections.courses) as unknown as Course[];
+}
+
+export function findCourse(content: SiteContent, slug: string): Course | undefined {
+  return activeCourses(content).find((course) => course.slug === slug);
+}
+
+export function coursePath(course: Pick<Course, "slug">): string {
+  return `/courses/${course.slug}`;
+}
+
+/** Search-friendly course title, e.g. "Python Programming Course in Pune". */
+export function courseHeadline(content: SiteContent, course: Course): string {
+  const city = content.settings.contact.city;
+  const base = /\b(course|training|program)\b/i.test(course.title) ? course.title : `${course.title} Course`;
+  return city ? `${base} in ${city}` : base;
+}
+
+/**
+ * Question/answer pairs for a course page, built only from the course's own
+ * fields (no invented claims). Shown on the page and used as FAQPage schema —
+ * the "answer-first" format answer engines quote.
+ */
+export function courseFaqs(content: SiteContent, course: Course): { question: string; answer: string }[] {
+  const { settings } = content;
+  const city = settings.contact.city;
+  const modes = (course.modes ?? []).join(" and ");
+  const list: { question: string; answer: string }[] = [
+    {
+      question: `What is the ${course.title} course at ${settings.name}?`,
+      answer: `${course.description}${course.highlights?.length ? ` You will cover ${course.highlights.slice(0, 4).join(", ")}.` : ""}`,
+    },
+  ];
+  if (course.duration) {
+    list.push({
+      question: `How long is the ${course.title} course?`,
+      answer: `The ${course.title} course runs for ${course.duration}. Exact batch timings are shared when you enquire.`,
+    });
+  }
+  list.push({
+    question: `What is the fee for the ${course.title} course${city ? ` in ${city}` : ""}?`,
+    answer: course.fee && !/request|enquir/i.test(course.fee)
+      ? `The fee for ${course.title} is ${course.fee}. Contact ${settings.name} for current offers.`
+      : `The fee depends on the batch and mode. Call ${settings.contact.phone} or message on WhatsApp for the current fee and any offers.`,
+  });
+  if (modes) {
+    list.push({
+      question: `Is the ${course.title} course available online or offline?`,
+      answer: `${course.title} is available ${modes === "Online and Offline" || modes === "Offline and Online" ? "both online and offline (classroom)" : modes.toLowerCase()}${city ? ` — classroom batches are held in ${city}` : ""}.`,
+    });
+  }
+  if (course.level) {
+    list.push({
+      question: `Who can join the ${course.title} course?`,
+      answer: `The course is designed for the ${course.level.toLowerCase()} level. ${settings.name} helps you check whether it fits your background before you enrol.`,
+    });
+  }
+  return list;
+}
+
 /* ─────────────────────────── JSON-LD ─────────────────────────── */
 
-export function buildJsonLd(content: SiteContent) {
+const VIEW_LABEL: Record<SiteView, string> = {
+  home: "Home",
+  courses: "Courses",
+  about: "About Us",
+  contact: "Contact Us",
+};
+
+/**
+ * Structured data for one page. Site-wide entities (organisation, local
+ * business, website) are always included; page-specific ones only where the
+ * matching content is visible, as Google requires.
+ */
+export function buildJsonLd(
+  content: SiteContent,
+  { view = "home", course }: { view?: SiteView; course?: Course } = {}
+) {
   const { settings, seo } = content;
   const { global, aeo } = seo;
   const url = settings.url.replace(/\/$/, "");
-  const courses = active(content.collections.courses) as unknown as Course[];
+  const courses = activeCourses(content);
   const faqs = active(content.collections.faqs) as unknown as Faq[];
   const orgId = `${url}/#organization`;
   const siteId = `${url}/#website`;
@@ -129,47 +207,80 @@ export function buildJsonLd(content: SiteContent) {
     });
   }
 
-  if (aeo.enableCourseSchema && courses.length > 0) {
+  const courseSchema = (c: Course) => ({
+    "@type": "Course",
+    "@id": `${absoluteUrl(content, coursePath(c))}#course`,
+    name: c.title,
+    description: c.description,
+    url: absoluteUrl(content, coursePath(c)),
+    inLanguage: global.locale?.replace("_", "-") ?? "en-IN",
+    educationalLevel: c.level || undefined,
+    teaches: c.highlights?.length ? c.highlights : undefined,
+    timeRequired: c.duration || undefined,
+    provider: { "@id": orgId, "@type": "EducationalOrganization", name: settings.name, url: `${url}/` },
+    offers: {
+      "@type": "Offer",
+      category: c.fee && !/request|enquir/i.test(c.fee) ? "Paid" : "Paid — fee on enquiry",
+      description: c.fee || undefined,
+      availability: "https://schema.org/InStock",
+      url: absoluteUrl(content, coursePath(c)),
+    },
+    hasCourseInstance: (c.modes?.length ? c.modes : ["Online", "Offline"]).map((mode) => ({
+      "@type": "CourseInstance",
+      courseMode: /online/i.test(mode) ? "Online" : "Onsite",
+      courseWorkload: c.duration || undefined,
+      location: /online/i.test(mode) ? undefined : address,
+    })),
+  });
+
+  if (aeo.enableCourseSchema && courses.length > 0 && !course && (view === "home" || view === "courses")) {
     graphs.push({
       "@context": "https://schema.org",
       "@type": "ItemList",
       name: `IT Courses at ${settings.name}`,
-      itemListElement: courses.map((course, index) => ({
+      itemListElement: courses.map((c, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        item: {
-          "@type": "Course",
-          name: course.title,
-          description: course.description,
-          url: absoluteUrl(content, `${content.seo.pages.courses.path}#course-grid`),
-          provider: {
-            "@type": "EducationalOrganization",
-            name: settings.name,
-            url: `${url}/`,
-          },
-          offers: course.fee
-            ? {
-                "@type": "Offer",
-                category: course.fee,
-                availability: "https://schema.org/InStock",
-                url: absoluteUrl(content, content.seo.pages.contact.path),
-              }
-            : undefined,
-          hasCourseInstance: (course.modes ?? []).map((mode) => ({
-            "@type": "CourseInstance",
-            courseMode: mode === "Online" ? "Online" : "Onsite",
-            courseWorkload: course.duration || undefined,
-          })),
-        },
+        url: absoluteUrl(content, coursePath(c)),
+        item: courseSchema(c),
       })),
     });
   }
 
-  if (aeo.enableFaqSchema && faqs.length > 0) {
+  if (course && aeo.enableCourseSchema) {
+    graphs.push({ "@context": "https://schema.org", ...courseSchema(course) });
+  }
+
+  // Trainers as Person entities (expertise signals) where the trainer section is shown
+  const trainers = active(content.collections.trainers ?? []) as unknown as Trainer[];
+  if (!course && (view === "home" || view === "about") && !content.sections.trainers?.hidden && trainers.length > 0) {
+    graphs.push({
+      "@context": "https://schema.org",
+      "@graph": trainers.map((t) => ({
+        "@type": "Person",
+        name: t.name,
+        jobTitle: t.designation || undefined,
+        description: t.bio || undefined,
+        image: t.photo ? absoluteUrl(content, t.photo) : undefined,
+        knowsAbout: [...(t.skills ?? []), ...(t.industryExperience ?? [])].filter(Boolean),
+        hasCredential: (t.education ?? []).filter(Boolean).map((e) => ({ "@type": "EducationalOccupationalCredential", name: e })),
+        sameAs: t.linkedin ? [t.linkedin] : undefined,
+        worksFor: { "@id": orgId },
+      })),
+    });
+  }
+
+  // FAQ markup only where the questions are visible: home FAQ section, or a course page's Q&A
+  const pageFaqs = course
+    ? courseFaqs(content, course)
+    : view === "home"
+      ? faqs.map((f) => ({ question: f.question, answer: f.answer }))
+      : [];
+  if (aeo.enableFaqSchema && pageFaqs.length > 0) {
     graphs.push({
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: faqs.map((faq) => ({
+      mainEntity: pageFaqs.map((faq) => ({
         "@type": "Question",
         name: faq.question,
         acceptedAnswer: { "@type": "Answer", text: faq.answer },
@@ -177,19 +288,34 @@ export function buildJsonLd(content: SiteContent) {
     });
   }
 
-  if (aeo.enableBreadcrumbSchema) {
-    const views: SiteView[] = ["home", "courses", "about", "contact"];
+  // WebPage with speakable parts (voice assistants read the title + answer-first summary)
+  const pagePath = course ? coursePath(course) : content.seo.pages[view].path;
+  graphs.push({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${absoluteUrl(content, pagePath)}#webpage`,
+    url: absoluteUrl(content, pagePath),
+    name: course ? courseHeadline(content, course) : pageTitle(content, view),
+    description: course ? course.description : pageDescription(content, view),
+    isPartOf: { "@id": siteId },
+    about: { "@id": orgId },
+    inLanguage: global.locale?.replace("_", "-") ?? "en-IN",
+    dateModified: content.updatedAt,
+    speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", "[data-speakable]"] },
+  });
+
+  if (aeo.enableBreadcrumbSchema && (view !== "home" || course)) {
+    const trail = [{ name: "Home", path: "/" }];
+    if (view !== "home") trail.push({ name: VIEW_LABEL[view], path: content.seo.pages[view].path });
+    if (course) trail.push({ name: course.title, path: coursePath(course) });
     graphs.push({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      itemListElement: views.map((view, index) => ({
+      itemListElement: trail.map((step, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        name:
-          view === "home"
-            ? "Home"
-            : content.seo.pages[view].title.split(/[—|·-]/)[0].trim(),
-        item: absoluteUrl(content, content.seo.pages[view].path),
+        name: step.name,
+        item: absoluteUrl(content, step.path),
       })),
     });
   }
@@ -199,10 +325,14 @@ export function buildJsonLd(content: SiteContent) {
 
 /* ─────────────────────────── llms.txt (AEO / GEO) ─────────────────────────── */
 
-export function buildLlmsTxt(content: SiteContent): string {
+/**
+ * llms.txt (summary) or llms-full.txt (`full: true`, adds every course's
+ * syllabus highlights and Q&A) for AI assistants and answer engines.
+ */
+export function buildLlmsTxt(content: SiteContent, { full = false }: { full?: boolean } = {}): string {
   const { settings, seo } = content;
   const { aeo, global, pages } = seo;
-  const courses = active(content.collections.courses) as unknown as Course[];
+  const courses = activeCourses(content);
   const faqs = active(content.collections.faqs) as unknown as Faq[];
   const slides = active(content.collections.heroSlides) as unknown as HeroSlide[];
   const views: SiteView[] = ["home", "courses", "about", "contact"];
@@ -233,14 +363,29 @@ export function buildLlmsTxt(content: SiteContent): string {
     lines.push("");
     for (const course of courses) {
       const modes = (course.modes ?? []).join(" & ");
-      lines.push(`- **${course.title}** — ${course.description}`);
+      lines.push(`- [${courseHeadline(content, course)}](${absoluteUrl(content, coursePath(course))}) — ${course.description}`);
       lines.push(
         `  Duration: ${course.duration || "on enquiry"} · Mode: ${modes || "Online & Offline"}${
           course.level ? ` · Level: ${course.level}` : ""
-        }`
+        }${course.fee ? ` · Fee: ${course.fee}` : ""}`
       );
+      if (full && course.highlights?.length) {
+        lines.push(`  Topics: ${course.highlights.join("; ")}`);
+      }
     }
     lines.push("");
+  }
+
+  if (full) {
+    for (const course of courses) {
+      lines.push(`## ${courseHeadline(content, course)}`);
+      lines.push("");
+      for (const qa of courseFaqs(content, course)) {
+        lines.push(`### ${qa.question}`);
+        lines.push(qa.answer);
+        lines.push("");
+      }
+    }
   }
 
   if (faqs.length > 0) {
@@ -257,6 +402,9 @@ export function buildLlmsTxt(content: SiteContent): string {
   lines.push("");
   for (const view of views) {
     lines.push(`- [${pages[view].title}](${absoluteUrl(content, pages[view].path)}): ${pageDescription(content, view)}`);
+  }
+  if (!full && aeo.llmsTxtEnabled) {
+    lines.push(`- [Full details for AI assistants](${absoluteUrl(content, "/llms-full.txt")}): every course with topics and Q&A`);
   }
   lines.push("");
 

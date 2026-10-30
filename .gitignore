@@ -61,3 +61,8 @@ db/*.db
 
 # audit artefacts (screenshots + reports)
 /audit-output/
+
+# Source files for imported content — personal data / large media, keep out of git
+student_photos/
+*.xlsx
+*.mp4

@@ -27,7 +27,6 @@ import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
-import { StarFieldOverlay, NebulaSmoke } from "@/components/site/cosmic-effects";
 import { useSiteStore } from "@/lib/store";
 import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { emailHref, fullAddress, phoneHref, whatsappUrl } from "@/lib/content/helpers";
@@ -134,14 +133,13 @@ export function PageContact() {
     <>
       {/* Page hero band — cosmic space */}
       <section className="relative overflow-hidden bg-space py-16 sm:py-20">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={55} />
-        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <HeroDecor
           orbitClassName="-left-24 -top-20 h-72 w-72 text-brand-400/35"
           circuitClassName="absolute inset-x-0 bottom-0 h-36 w-full text-brand-400/25"
         />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
+            as="h1"
             dark
             align="left"
             eyebrow={section.eyebrow}
@@ -152,8 +150,6 @@ export function PageContact() {
       </section>
 
       <section className="bg-slate-50 py-14 sm:py-16 relative overflow-hidden" aria-label="Contact form and details">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={25} />
-        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <div className="relative z-10 mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1.5fr_1fr]">
           {/* ── Form card ── */}
           <Reveal>

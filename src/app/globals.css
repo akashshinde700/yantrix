@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -44,7 +43,18 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Yantrix Technology brand palette — deep blue / white / black + cyber-cyan futuristic accent */
+/*
+  Yantrix "Cosmic" palette (contrast-checked against WCAG 2.1 AA)
+  ──────────────────────────────────────────────────────────────────────
+  Surfaces   void #02040c (page) · deep #070d22 · nebula #0b1230 (cards)
+  Text       starlight #f1f5f9 (18.7:1) · haze #a3b1cc (8.5:1 on cards)
+  Primary    brand-600 #2563eb → brand-700 #1d4ed8 (buttons, white text 5.2–6.7:1)
+  Accent     cyber-400 #22d3ee (highlights, focus, 11.3:1 on void)
+  Secondary  plasma-400 #a78bfa (7.5:1) — gradients, the 3D universe only
+  Warm       flare-400 #fbbf24 — tiny highlights / the sun, never body text
+  WhatsApp   #128c7e → #075e54 (official teal greens, white text ≥ 4.1:1)
+  Rule: one accent per component; cyan leads, violet supports, amber is rare.
+*/
 @theme {
   --color-brand-50: #eff5ff;
   --color-brand-100: #dbe8fe;
@@ -65,16 +75,25 @@
   --color-cyber-400: #22d3ee;
   --color-cyber-500: #06b6d4;
   --color-cyber-600: #0891b2;
-  --color-whatsapp: #25d366;
-  --color-whatsapp-dark: #1eb85a;
+  --color-whatsapp: #128c7e;
+  --color-whatsapp-dark: #075e54;
+  --color-void: #02040c;
+  --color-deep: #070d22;
+  --color-nebula: #0b1230;
+  --color-starlight: #f1f5f9;
+  --color-haze: #a3b1cc;
+  --color-plasma-300: #c4b5fd;
+  --color-plasma-400: #a78bfa;
+  --color-plasma-500: #8b5cf6;
+  --color-flare-300: #fcd34d;
+  --color-flare-400: #fbbf24;
 }
 
 :root {
-  /* Fonts are loaded from Google Fonts via <link> in app/layout.tsx
-     (self-hosted / blocked-network safe: these stacks are the fallbacks). */
-  --font-jakarta: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+  /* self-hosted via next/font (app/layout.tsx); names below are fallbacks */
+  --font-jakarta: var(--font-jakarta-face), "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-geist-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+  --font-geist-mono: var(--font-mono-face), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
   --radius: 0.75rem;
   --background: #ffffff;
@@ -623,7 +642,8 @@
 
 /* ── Futuristic primary button: blue→cyan gradient with glow ── */
 .btn-futur {
-  background-image: linear-gradient(100deg, #2563eb, #0891b2 90%);
+  /* ends on cyan-700 so white label text keeps >= 4.5:1 across the whole button */
+  background-image: linear-gradient(100deg, #2563eb, #0e7490 90%);
   box-shadow:
     0 10px 34px -8px rgba(34, 211, 238, 0.55),
     0 4px 14px -4px rgba(37, 99, 235, 0.5);
@@ -827,5 +847,622 @@ html[data-motion="off"] [style*="scale("] {
   [style*="translateY"],
   [style*="translateX"] {
     transform: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UNIVERSE THEME
+   The whole public site sits on the 3D universe (universe-scene.tsx).
+   Sections were designed light; inside `.universe` they become dark glass
+   panels so the space behind them shows through. Unlayered on purpose so
+   these rules win over Tailwind utilities.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.universe-backdrop {
+  background:
+    radial-gradient(ellipse 60% 50% at 75% 30%, rgba(37, 99, 235, 0.18), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 15% 80%, rgba(124, 58, 237, 0.14), transparent 70%),
+    #02040c;
+}
+
+/* section backgrounds → transparent */
+.universe main section.bg-white,
+.universe main section.bg-slate-50,
+.universe main section.bg-space,
+.universe main section.bg-background {
+  background: transparent;
+}
+
+/* light cards & panels → dark glass */
+.universe .bg-white:not(section):not(button):not(a):not(input):not(textarea):not(select),
+.universe .bg-card {
+  background-color: rgba(8, 14, 36, 0.8);
+}
+.universe .bg-slate-50:not(section),
+.universe .bg-muted {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+.universe .bg-brand-50,
+.universe .bg-emerald-50 {
+  background-color: rgba(59, 130, 246, 0.12);
+}
+.universe .bg-white\/90,
+.universe .bg-white\/80,
+.universe .bg-white\/95 {
+  background-color: rgba(5, 10, 28, 0.72);
+}
+
+/* text */
+.universe .text-ink,
+.universe .text-foreground,
+.universe .text-slate-900,
+.universe .text-slate-800 {
+  color: #f1f5f9;
+}
+.universe .text-slate-700,
+.universe .text-slate-600 {
+  color: #cbd5e1;
+}
+.universe .text-muted-foreground,
+.universe .text-slate-500 {
+  color: #a3b1cc;
+}
+.universe .text-brand-700,
+.universe .text-brand-800,
+.universe .text-brand-900:not(button) {
+  color: #93c5fd;
+}
+.universe .text-brand-600 {
+  color: #7dd3fc;
+}
+
+/* borders & rings */
+.universe .border-slate-100,
+.universe .border-slate-200,
+.universe .border-brand-100,
+.universe .border-brand-200,
+.universe .border-border {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.universe .ring-brand-100,
+.universe .ring-slate-200 {
+  --tw-ring-color: rgba(255, 255, 255, 0.12);
+}
+.universe .border-brand-700 {
+  border-color: rgba(125, 211, 252, 0.6);
+}
+
+/* form fields */
+.universe main input:not([type="checkbox"]):not([type="radio"]),
+.universe main textarea,
+.universe main select,
+.universe main [role="combobox"] {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #f1f5f9;
+}
+.universe main input::placeholder,
+.universe main textarea::placeholder {
+  color: #64748b;
+}
+
+/* soft shadows read as dirt on dark — swap for a faint glow */
+.universe main .shadow-sm,
+.universe main .shadow-lg,
+.universe main .shadow-xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ═══════════════════════════════ ENTRANCE DOOR ═══════════════════════════
+   Palette: obsidian-sapphire metal · champagne-gold trim (#c9a25e / #e8cf98)
+   · cyan energy (#22d3ee → #e0f2fe) · violet fringe (#8b5cf6)
+   ═════════════════════════════════════════════════════════════════════════ */
+
+html[data-entered] .door-intro {
+  display: none;
+}
+
+.door-intro {
+  --emblem: 280px;
+}
+@media (max-width: 640px) {
+  .door-intro {
+    --emblem: 210px;
+  }
+}
+.door-emblem {
+  top: 44%;
+  width: var(--emblem);
+  height: var(--emblem);
+}
+
+/* light behind the doors */
+.door-light {
+  background:
+    radial-gradient(ellipse 9% 55% at 50% 50%, #ffffff 0%, rgba(207, 250, 254, 0.9) 30%, transparent 75%),
+    radial-gradient(ellipse 30% 70% at 50% 50%, rgba(56, 189, 248, 0.55), transparent 70%),
+    radial-gradient(ellipse 60% 80% at 50% 50%, rgba(99, 102, 241, 0.35), transparent 75%),
+    #010208;
+  transition: transform 2s cubic-bezier(0.7, 0, 0.2, 1), filter 2s ease;
+}
+.door-intro[data-phase="opening"] .door-light {
+  transform: scale(1.8);
+  filter: brightness(1.6);
+}
+
+/* volumetric rays */
+.door-rays {
+  background: repeating-conic-gradient(from 0deg, rgba(186, 230, 253, 0.16) 0deg 3deg, transparent 3deg 14deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 55%);
+  mask-image: radial-gradient(circle, #000 0%, transparent 55%);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+  transition: opacity 1.2s ease, transform 2.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.door-intro[data-phase="unlocking"] .door-rays {
+  opacity: 0.35;
+  transform: translate(-50%, -50%) scale(0.6) rotate(8deg);
+}
+.door-intro[data-phase="opening"] .door-rays {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.25) rotate(24deg);
+}
+
+/* doors */
+.door-panel {
+  transition: transform 2s cubic-bezier(0.7, 0, 0.2, 1), filter 2s ease;
+  will-change: transform;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.65);
+}
+.door-open-left {
+  transform: translateX(-104%) rotateY(32deg);
+  filter: brightness(0.6);
+}
+.door-open-right {
+  transform: translateX(104%) rotateY(-32deg);
+  filter: brightness(0.6);
+}
+.door-recess {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.25));
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.75),
+    inset 0 -1px 0 rgba(232, 207, 152, 0.18),
+    0 1px 0 rgba(232, 207, 152, 0.12);
+  border: 1px solid rgba(201, 162, 94, 0.18);
+}
+.door-handle {
+  background: linear-gradient(180deg, #e8cf98 0 6%, #0b1230 6% 94%, #e8cf98 94%);
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 207, 152, 0.5),
+    0 0 14px rgba(34, 211, 238, 0.25);
+  transition: box-shadow 0.6s ease;
+}
+.door-handle::after {
+  content: "";
+  position: absolute;
+  inset: 10% 30%;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #22d3ee, #8b5cf6);
+  opacity: 0.6;
+  transition: opacity 0.6s ease;
+}
+.door-handle-lit {
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 207, 152, 0.8),
+    0 0 26px rgba(103, 232, 249, 0.8);
+}
+.door-handle-lit::after {
+  opacity: 1;
+}
+
+/* lock bolts */
+.door-bolt {
+  background: linear-gradient(180deg, #f6e3b4, #b88a44 55%, #6d5226);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.7),
+    0 0 18px rgba(232, 207, 152, 0.25);
+  transition: transform 0.35s cubic-bezier(0.6, -0.4, 0.4, 1.4), opacity 0.35s ease;
+  transform-origin: right center;
+}
+.door-bolt-open {
+  transform: translateX(110%) scaleX(0.2);
+  opacity: 0;
+}
+
+/* light leaking under the doors */
+.door-floor {
+  background: radial-gradient(ellipse 22% 100% at 50% 100%, rgba(103, 232, 249, 0.35), transparent 70%);
+  transition: opacity 0.8s ease;
+  opacity: 0.6;
+}
+.door-intro[data-phase="unlocking"] .door-floor {
+  opacity: 1;
+}
+
+/* subtle mechanical shake while unlocking */
+.door-shake .door-panel {
+  animation: door-shake 0.22s ease-in-out 3;
+}
+@keyframes door-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 1.5px;
+  }
+}
+
+.door-intro-fade {
+  animation: door-fade 2s ease-in forwards;
+}
+@keyframes door-fade {
+  0%,
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* energy traces */
+.door-trace {
+  stroke-dasharray: 9 91;
+  stroke-dashoffset: 100;
+  animation: door-trace 3.4s linear infinite;
+  filter: drop-shadow(0 0 3px #22d3ee);
+}
+.door-trace-fast {
+  animation-duration: 0.6s;
+}
+@keyframes door-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.emblem-spin {
+  animation: emblem-spin 40s linear infinite;
+}
+.emblem-spin-rev {
+  animation: emblem-spin 24s linear infinite reverse;
+}
+.emblem-spin-fast {
+  animation-duration: 1s;
+}
+@keyframes emblem-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* CTA: dark pill with a travelling gold → cyan → violet border */
+@property --cta-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.door-cta {
+  background:
+    linear-gradient(#060b1e, #060b1e) padding-box,
+    conic-gradient(from var(--cta-angle, 0deg), #c9a25e, #22d3ee, #8b5cf6, #c9a25e) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 0 40px -8px rgba(34, 211, 238, 0.55);
+  animation: cta-spin 4s linear infinite;
+}
+@keyframes cta-spin {
+  to {
+    --cta-angle: 360deg;
+  }
+}
+
+.door-title-glow {
+  filter: drop-shadow(0 0 18px rgba(103, 232, 249, 0.35));
+}
+
+.door-dust {
+  opacity: 0;
+  animation: door-dust 11s ease-in-out infinite;
+}
+@keyframes door-dust {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  30% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(14px, -60px, 0);
+  }
+}
+
+/* ═══════════════════════════════ GUIDE ORB ═══════════════════════════════ */
+
+.yantra-orb {
+  background:
+    radial-gradient(circle at 35% 30%, #e0f2fe 0%, rgba(224, 242, 254, 0) 35%),
+    conic-gradient(from 0deg, #22d3ee, #6366f1, #a855f7, #22d3ee);
+  box-shadow:
+    0 0 18px -2px rgba(34, 211, 238, 0.7),
+    inset 0 0 10px rgba(255, 255, 255, 0.35);
+  animation: emblem-spin 6s linear infinite;
+}
+.yantra-orb::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1px solid rgba(103, 232, 249, 0.45);
+  animation: orb-pulse 2.4s ease-out infinite;
+}
+@keyframes orb-pulse {
+  from {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .door-trace,
+  .emblem-spin,
+  .emblem-spin-rev,
+  .door-dust,
+  .door-cta,
+  .door-shake .door-panel,
+  .yantra-orb,
+  .yantra-orb::after {
+    animation: none;
+  }
+  .door-panel,
+  .door-rays,
+  .door-light,
+  .door-bolt {
+    transition: none;
+  }
+}
+
+/* header & mobile menu on the universe */
+.universe .bg-white\/85 {
+  background-color: rgba(4, 8, 24, 0.66);
+}
+.universe .border-slate-200\/70 {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.universe .hover\:bg-slate-50:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* more light tints → glass */
+.universe .bg-slate-50\/60,
+.universe .bg-emerald-50\/60,
+.universe .bg-brand-50\/50 {
+  background-color: rgba(10, 18, 44, 0.8);
+}
+.universe .data-\[state\=open\]\:bg-brand-50\/50[data-state="open"] {
+  background-color: rgba(30, 64, 175, 0.28);
+}
+.universe .border-slate-200\/90,
+.universe .border-emerald-100 {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.universe .text-emerald-900 {
+  color: #a7f3d0;
+}
+.universe .text-emerald-800 {
+  color: #6ee7b7;
+}
+/* white CTAs keep dark text */
+.universe :is(a, button).bg-white {
+  color: #1e3a8a;
+}
+
+/* copy stays legible when a planet drifts behind it */
+.universe main :is(h1, h2, h3, p, li) {
+  text-shadow: 0 1px 2px rgba(2, 4, 12, 0.6), 0 4px 24px rgba(2, 4, 12, 0.85);
+}
+.universe main :is(.bg-white, .bg-card, [class*="bg-slate-50"]) :is(h2, h3, p, li) {
+  text-shadow: none;
+}
+.universe main :is(h1, .text-gradient-cyber, .text-transparent, [class*="bg-clip-text"]),
+.universe main :is(h1, h2, h3) :is(.text-gradient-cyber, .text-transparent, [class*="bg-clip-text"]) {
+  text-shadow: none;
+}
+.universe .bg-slate-50\/80,
+.universe .bg-slate-50\/70,
+.universe .bg-brand-50\/70,
+.universe .bg-brand-50\/60,
+.universe .bg-slate-100 {
+  background-color: rgba(10, 18, 44, 0.8);
+}
+
+/* ═════════════════════════ COSMIC PALETTE — components ═════════════════════════ */
+
+/* shadcn tokens for the public site, including portalled UI (selects, toasts, dialogs) */
+html:has(.universe) {
+  color-scheme: dark;
+  scrollbar-color: #1e3a8a #02040c;
+  background-color: #02040c;
+  --background: #02040c;
+  --foreground: #f1f5f9;
+  --card: #0b1230;
+  --card-foreground: #f1f5f9;
+  --popover: #0b1230;
+  --popover-foreground: #f1f5f9;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #121c40;
+  --secondary-foreground: #e2e8f0;
+  --muted: #0f1838;
+  --muted-foreground: #a3b1cc;
+  --accent: #14204a;
+  --accent-foreground: #f1f5f9;
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: #22d3ee;
+}
+
+/* WhatsApp actions: official teal greens (white text stays readable) */
+.btn-whatsapp,
+.universe .bg-emerald-500 {
+  background-image: linear-gradient(100deg, #128c7e, #075e54);
+  background-color: #0b6d62;
+  box-shadow: 0 10px 30px -10px rgba(18, 140, 126, 0.7);
+  transition: filter 0.2s ease;
+}
+.btn-whatsapp:hover,
+.universe .bg-emerald-500:hover {
+  filter: brightness(1.12);
+}
+
+/* keyboard focus is always visible on dark */
+.universe :focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.35);
+  color: #ffffff;
+}
+
+/*
+  Performance: a live backdrop blur over the animating WebGL canvas has to be
+  recomputed every frame for every card on screen (the main cause of janky
+  scrolling on phones / integrated GPUs). Inside page content, glass is
+  near-opaque instead; real blur stays on single fixed elements (header,
+  dock, assistant, popup).
+*/
+.universe main :is(.glass, [class*="backdrop-blur"]) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.universe main .glass {
+  background: rgba(8, 14, 36, 0.72);
+}
+
+/* ═══════════════════════════════ LANDING MOTION ═══════════════════════════ */
+
+/* hero headline: words rise in from a blur on first paint (no JS needed) */
+.word-rise {
+  animation: word-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes word-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* scroll cue */
+.scroll-cue-dot {
+  animation: scroll-cue 1.8s ease-in-out infinite;
+}
+@keyframes scroll-cue {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+}
+
+/* the finale replaces the footer's CTA strip on pages that have it */
+body:has([data-cta-band]) .footer-cta {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-rise,
+  .scroll-cue-dot {
+    animation: none;
+  }
+  [data-word] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+/* no animation frames (JS off, crawlers): headings visible immediately */
+html[data-motion="off"] [data-word] {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* ═══════════════════════════════ FOOTER ═══════════════════════════════ */
+
+.horizon-spark {
+  filter: drop-shadow(0 0 6px #67e8f9) drop-shadow(0 0 14px #22d3ee);
+}
+
+/* giant ghost wordmark fading downward; a light wave runs across the letters on hover */
+.footer-wordmark {
+  font-size: clamp(4.5rem, 17vw, 16rem);
+  padding-bottom: 0.06em;
+  -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 95%);
+  mask-image: linear-gradient(to bottom, #000 25%, transparent 95%);
+}
+.footer-wordmark > span {
+  color: rgba(255, 255, 255, 0.075);
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+  transition-delay: calc(var(--i, 0) * 55ms);
+}
+.footer-wordmark:hover > span {
+  color: rgba(103, 232, 249, 0.42);
+  text-shadow: 0 0 28px rgba(34, 211, 238, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-wordmark > span {
+    transition: none;
+  }
+}
+
+/* ═══════════════════════════ PLACED STUDENTS MARQUEE ═══════════════════════════ */
+
+.placed-track {
+  animation: placed-scroll 55s linear infinite;
+}
+.placed-track-reverse {
+  animation-direction: reverse;
+}
+.placed-marquee:hover .placed-track,
+.placed-marquee:focus-within .placed-track {
+  animation-play-state: paused;
+}
+@keyframes placed-scroll {
+  to {
+    transform: translateX(calc(-50% - 0.625rem));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .placed-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: auto;
+    justify-content: center;
+  }
+  .placed-track > li[aria-hidden="true"] {
+    display: none;
   }
 }

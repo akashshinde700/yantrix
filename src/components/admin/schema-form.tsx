@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { adminPost } from "@/components/admin/api";
+import { ImageField } from "@/components/admin/image-field";
 import { cn } from "@/lib/utils";
 
 export type AdminFieldType =
@@ -26,7 +27,8 @@ export type AdminFieldType =
   | "boolean"
   | "select"
   | "stringList"
-  | "pairs";
+  | "pairs"
+  | "image";
 
 export interface AdminField {
   name: string;
@@ -136,7 +138,7 @@ export function SchemaForm({
               return (
                 <div
                   key={field.name}
-                  className={cn("space-y-2", field.span === 2 || field.type === "textarea" || field.type === "stringList" || field.type === "pairs" ? "sm:col-span-2" : "")}
+                  className={cn("space-y-2", field.span === 2 || field.type === "textarea" || field.type === "stringList" || field.type === "pairs" || field.type === "image" ? "sm:col-span-2" : "")}
                 >
                   <Label htmlFor={field.name} className="text-sm font-semibold">
                     {field.label}
@@ -167,6 +169,13 @@ export function SchemaForm({
                         ))}
                       </SelectContent>
                     </Select>
+                  ) : field.type === "image" ? (
+                    <ImageField
+                      id={field.name}
+                      value={String(value ?? "")}
+                      placeholder={field.placeholder}
+                      onChange={(next) => update(field.name, next)}
+                    />
                   ) : field.type === "textarea" ? (
                     <Textarea
                       id={field.name}

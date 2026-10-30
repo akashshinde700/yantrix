@@ -58,6 +58,16 @@ const sections: Record<SectionKey, SectionCopy> = {
     "Start your IT journey with Yantrix Technology today",
     "Not sure which course fits you? Talk to our team — we'll help you choose based on your goals and background."
   ),
+  trainers: section(
+    "Our Trainers",
+    "Learn from people who do this work every day",
+    "Our trainers are working professionals — they teach what the industry actually uses, from real projects they have shipped."
+  ),
+  placedStudents: section(
+    "Placed Students",
+    "Our students, now working in IT",
+    "Real learners who trained with us and moved into IT roles."
+  ),
   coursesPage: section(
     "Our Courses",
     "Career-oriented IT courses, taught the practical way",
@@ -486,6 +496,10 @@ const collections: CollectionMap = {
     item(3, { label: "Doubt-solving support" }),
     item(4, { label: "Placement assistance" }),
   ],
+
+  // Added from the admin panel (Trainers / Placed students) — never seeded with sample people.
+  trainers: [],
+  placedStudents: [],
 };
 
 export const DEFAULT_CONTENT: SiteContent = {
@@ -567,7 +581,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       ogImage: "/images/hero-1.png",
       twitterHandle: "",
       locale: "en_IN",
-      themeColor: "#1e40af",
+      themeColor: "#02040c",
       robotsIndex: true,
       robotsFollow: true,
       googleSiteVerification: "",

@@ -9,7 +9,6 @@ import { CtaBand } from "@/components/site/cta-band";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
-import { StarFieldOverlay, NebulaSmoke } from "@/components/site/cosmic-effects";
 import { tiltHandlers } from "@/components/site/fx";
 import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
@@ -79,7 +78,11 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
         </div>
       </div>
 
-      <h3 className="relative z-10 mt-4 text-lg font-extrabold text-ink">{course.title}</h3>
+      <h3 className="relative z-10 mt-4 text-lg font-extrabold text-ink">
+        <a href={`/courses/${course.slug}`} className="transition-colors hover:text-cyber-300">
+          {course.title}
+        </a>
+      </h3>
       <p className="relative z-10 mt-2 text-sm leading-relaxed text-muted-foreground">
         {course.description}
       </p>
@@ -102,12 +105,14 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
           <Clock className="h-3.5 w-3.5 text-brand-600 transition-transform duration-300 group-hover:rotate-12" aria-hidden="true" />
           {course.duration}
         </span>
-        <span
-          aria-hidden="true"
-          className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-brand-600 opacity-0 transition-all duration-300 group-hover:opacity-100"
+        <a
+          href={`/courses/${course.slug}`}
+          className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-brand-600 transition-colors hover:text-cyber-300"
         >
-          Hover to learn more
-        </span>
+          Fees, syllabus & FAQs
+          <ArrowRight className="h-3 w-3" aria-hidden="true" />
+          <span className="sr-only"> for {course.title}</span>
+        </a>
       </div>
 
       <Button
@@ -135,14 +140,13 @@ export function PageCourses() {
     <>
       {/* Page hero band — cosmic space */}
       <section className="relative overflow-hidden bg-space py-16 sm:py-20">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={50} />
-        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <HeroDecor
           orbitClassName="-right-20 -top-24 h-80 w-80 text-brand-400/40"
           circuitClassName="absolute inset-x-0 bottom-0 h-40 w-full text-brand-400/25"
         />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
+            as="h1"
             dark
             align="left"
             eyebrow={section.eyebrow}
@@ -164,8 +168,6 @@ export function PageCourses() {
 
       {/* Course grid — with star field */}
       <section id="course-grid" className="scroll-mt-28 bg-slate-50 py-14 sm:py-16 relative overflow-hidden" aria-label="All courses">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={35} />
-        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {courses.map((course, i) => (
@@ -194,8 +196,6 @@ export function PageCourses() {
 
       {/* Help choose section — cosmic glow */}
       <section className="bg-white py-14 sm:py-16 relative overflow-hidden" aria-labelledby="course-help-heading">
-        <NebulaSmoke className="absolute inset-0 z-0" />
-        <StarFieldOverlay className="absolute inset-0 z-0" count={20} />
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid items-center gap-8 rounded-3xl border border-slate-100 bg-slate-50/80 p-8 sm:p-10 lg:grid-cols-[auto_1fr_auto]">
             <span className="hover-wiggle mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-lg shadow-cyber-500/30 lg:mx-0">

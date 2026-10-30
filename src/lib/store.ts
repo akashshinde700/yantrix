@@ -9,6 +9,8 @@ interface SiteState {
   preselectedCourse: string | null;
   /** Optional section id to scroll to after navigation (e.g. "faqs") */
   pendingSection: string | null;
+  /** Increments on every navigate() — lets a detail page (e.g. a course) know the visitor moved on */
+  navId: number;
   navigate: (view: SiteView, options?: { course?: string; section?: string }) => void;
   clearPendingSection: () => void;
   setPreselectedCourse: (course: string | null) => void;
@@ -18,12 +20,14 @@ export const useSiteStore = create<SiteState>((set) => ({
   view: "home",
   preselectedCourse: null,
   pendingSection: null,
+  navId: 0,
   navigate: (view, options) =>
-    set({
+    set((state) => ({
       view,
       preselectedCourse: options?.course ?? null,
       pendingSection: options?.section ?? null,
-    }),
+      navId: state.navId + 1,
+    })),
   clearPendingSection: () => set({ pendingSection: null }),
   setPreselectedCourse: (course) => set({ preselectedCourse: course }),
 }));

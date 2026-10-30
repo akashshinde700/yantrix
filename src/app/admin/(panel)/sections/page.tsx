@@ -17,6 +17,8 @@ const SECTION_LABELS: Record<SectionKey, string> = {
   placement: "Placement assistance",
   faq: "FAQ section",
   cta: "Call-to-action band",
+  trainers: "Trainers section",
+  placedStudents: "Placed students section",
   coursesPage: "Courses page hero",
   aboutPage: "About page hero",
   contactPage: "Contact page hero",

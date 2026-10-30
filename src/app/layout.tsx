@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { getContent } from "@/lib/content/store";
@@ -10,6 +11,10 @@ import { absoluteUrl } from "@/lib/seo";
  * titles, descriptions, keywords, OpenGraph images and verification tokens can
  * be changed without touching code.
  */
+/* Fonts are self-hosted and preloaded by next/font — no render-blocking request to Google. */
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap", variable: "--font-jakarta-face" });
+const mono = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-mono-face" });
+
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getContent();
   const { global, pages } = content.seo;
@@ -72,7 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export async function generateViewport(): Promise<Viewport> {
   const content = await getContent();
   return {
-    themeColor: content.seo.global.themeColor || "#1e40af",
+    themeColor: content.seo.global.themeColor || "#02040c",
     width: "device-width",
     initialScale: 1,
   };
@@ -87,10 +92,13 @@ export default async function RootLayout({
   const { gaMeasurementId, clarityId } = content.seo.global;
 
   return (
-    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html
+      lang="en-IN"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+      className={`${jakarta.variable} ${mono.variable}`}
+    >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/*
           Fail-safe: Framer Motion entrance animations start from
           `opacity: 0`. If the browser never produces animation frames
@@ -114,8 +122,24 @@ export default async function RootLayout({
               '}catch(e){document.documentElement.setAttribute("data-motion","off")}})();',
           }}
         />
+        {/*
+          Skip the entrance door for: visitors who already came in this session,
+          visitors arriving from a search / answer engine (Google treats a
+          full-screen intro as an intrusive interstitial for search traffic),
+          and crawlers / audit tools. Direct and shared-link visits get the door.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var d=document.documentElement;' +
+              'if(sessionStorage.getItem("yantrix_entered")' +
+              '||/bot|crawl|spider|slurp|lighthouse|pagespeed|headless|preview|inspect/i.test(navigator.userAgent)' +
+              '||/(google|bing|yahoo|duckduckgo|yandex|baidu|ecosia|perplexity|chatgpt|openai|claude|gemini|copilot)\\./i.test(document.referrer))' +
+              'd.setAttribute("data-entered","")}catch(e){}})();',
+          }}
+        />
         <noscript>
-          <style>{`[style*="opacity:0"],[style*="opacity: 0"]{opacity:1!important}[style*="translateY"],[style*="translateX"]{transform:none!important}`}</style>
+          <style>{`[style*="opacity:0"],[style*="opacity: 0"]{opacity:1!important}[style*="translateY"],[style*="translateX"]{transform:none!important}.door-intro{display:none!important}`}</style>
         </noscript>
       </head>
       <body className="antialiased bg-background font-sans text-foreground">

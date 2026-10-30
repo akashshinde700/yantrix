@@ -140,6 +140,8 @@ export const SECTION_KEYS = [
   "placement",
   "faq",
   "cta",
+  "trainers",
+  "placedStudents",
   "coursesPage",
   "aboutPage",
   "contactPage",
@@ -293,6 +295,38 @@ export interface NavLink extends BaseItem {
   view: SiteView;
 }
 
+export interface Trainer extends BaseItem {
+  name: string;
+  /** /media/<id> upload or /images/... path */
+  photo: string;
+  designation: string;
+  /** total years in the industry (0 = hide the badge) */
+  experienceYears: number;
+  bio: string;
+  /** one role per line, e.g. "Senior Developer — Infosys (2018–2023)" */
+  professionalExperience: string[];
+  /** one qualification per line */
+  education: string[];
+  skills: string[];
+  /** industries / domains worked in */
+  industryExperience: string[];
+  linkedin: string;
+}
+
+export interface PlacedStudent extends BaseItem {
+  name: string;
+  photo: string;
+  company: string;
+  role: string;
+  course: string;
+  /** e.g. "2025" or "Jan 2025 batch" */
+  batch: string;
+  /** optional, e.g. "4.2 LPA" — leave empty to hide */
+  package: string;
+  /** optional short quote from the student */
+  quote: string;
+}
+
 export interface SimpleItem extends BaseItem {
   label: string;
   value?: string;
@@ -317,6 +351,8 @@ export const COLLECTION_KEYS = [
   "navFooter",
   "courseChips",
   "courseIncludes",
+  "trainers",
+  "placedStudents",
 ] as const;
 
 export type CollectionKey = (typeof COLLECTION_KEYS)[number];

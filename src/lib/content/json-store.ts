@@ -232,6 +232,25 @@ export async function deleteEnquiry(id: string): Promise<boolean> {
 
 /* ─────────────────────────── admin users ─────────────────────────── */
 
+/* uploaded images: DATA_DIR/media/<id> (+ .type sidecar holding the MIME type) */
+
+export async function saveMedia(id: string, mime: string, data: Buffer): Promise<void> {
+  const dir = path.join(DATA_DIR, "media");
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(path.join(dir, id), data);
+  await fs.writeFile(path.join(dir, `${id}.type`), mime, "utf8");
+}
+
+export async function getMedia(id: string): Promise<{ mime: string; data: Buffer } | null> {
+  const dir = path.join(DATA_DIR, "media");
+  try {
+    const [data, mime] = await Promise.all([fs.readFile(path.join(dir, id)), fs.readFile(path.join(dir, `${id}.type`), "utf8")]);
+    return { mime, data };
+  } catch {
+    return null;
+  }
+}
+
 export async function getAdmins(): Promise<AdminAccount[]> {
   return readJson<AdminAccount[]>("admins", []);
 }

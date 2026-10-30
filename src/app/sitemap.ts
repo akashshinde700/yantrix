@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getContent } from "@/lib/content/store";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, activeCourses, coursePath } from "@/lib/seo";
 import type { SiteView } from "@/lib/content/types";
 
 export const dynamic = "force-dynamic";
@@ -19,8 +19,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: content.seo.pages[view].priority ?? 0.7,
     }));
 
+  const courses = activeCourses(content).map((course) => ({
+    url: absoluteUrl(content, coursePath(course)),
+    lastModified,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
   return [
     ...pages,
+    ...courses,
     {
       url: absoluteUrl(content, "/privacy"),
       lastModified,

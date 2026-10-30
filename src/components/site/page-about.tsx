@@ -5,8 +5,9 @@ import { Eye, Flag, GraduationCap } from "lucide-react";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta-band";
+import { TrainersSection } from "@/components/site/trainers-section";
+import { PlacedStudents } from "@/components/site/placed-students";
 import { HeroDecor } from "@/components/site/svg-decor";
-import { StarFieldOverlay, NebulaSmoke } from "@/components/site/cosmic-effects";
 import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
 import type { ApproachStep, QuickFact } from "@/lib/content/types";
@@ -23,14 +24,13 @@ export function PageAbout() {
     <>
       {/* Page hero band — cosmic space */}
       <section className="relative overflow-hidden bg-space py-16 sm:py-20">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={60} />
-        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <HeroDecor
           orbitClassName="-right-24 -top-20 h-72 w-72 text-brand-400/35"
           circuitClassName="absolute inset-x-0 bottom-0 h-36 w-full text-brand-400/25"
         />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
+            as="h1"
             dark
             align="left"
             eyebrow={
@@ -46,8 +46,6 @@ export function PageAbout() {
 
       {/* Story + quick facts — with star field */}
       <section className="bg-white py-16 sm:py-20 relative overflow-hidden" aria-labelledby="about-story-heading">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={30} />
-        <NebulaSmoke className="absolute inset-0 z-0" />
         <div className="relative z-10 mx-auto grid max-w-7xl items-start gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <div className="relative overflow-hidden rounded-3xl shadow-xl shadow-brand-950/10">
@@ -101,8 +99,6 @@ export function PageAbout() {
 
       {/* Mission & Vision — cosmic glow */}
       <section className="bg-slate-50 py-16 sm:py-20 relative overflow-hidden" aria-labelledby="mission-vision-heading">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={25} />
-        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
             eyebrow="Mission & Vision"
@@ -137,8 +133,6 @@ export function PageAbout() {
 
       {/* Training approach — with star field */}
       <section className="bg-white py-16 sm:py-20 relative overflow-hidden" aria-labelledby="approach-heading">
-        <StarFieldOverlay className="absolute inset-0 z-0" count={20} />
-        <NebulaSmoke vertical={false} className="absolute inset-0 z-0" />
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
             eyebrow="Training Approach"
@@ -177,6 +171,8 @@ export function PageAbout() {
         </div>
       </section>
 
+      <TrainersSection />
+      <PlacedStudents />
       <CtaBand />
     </>
   );

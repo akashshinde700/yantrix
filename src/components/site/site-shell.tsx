@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { WhatsAppFloat } from "@/components/site/whatsapp-float";
+import { DoorIntro } from "@/components/site/door-intro";
+import { CosmicPopup } from "@/components/site/cosmic-popup";
+import { YantrixGuide } from "@/components/site/yantrix-guide";
+import { ChapterDock } from "@/components/site/universe/chapter-dock";
+import { SmoothScroll } from "@/components/site/smooth-scroll";
 import { PageHome } from "@/components/site/page-home";
 import { PageCourses } from "@/components/site/page-courses";
 import { PageAbout } from "@/components/site/page-about";
@@ -14,10 +20,14 @@ import { useSiteStore } from "@/lib/store";
 import { useSiteContent } from "@/lib/content/provider";
 import type { SiteView } from "@/lib/content/types";
 
+/* The 3D universe is client-only and loads after first paint. */
+const UniverseScene = dynamic(() => import("@/components/site/universe/universe-scene"), { ssr: false });
+
 /**
- * Single-page shell hosting all four "pages" (Home / Courses / About / Contact).
- * Views are server-rendered together and toggled via the `hidden` attribute so
- * every page's content stays crawlable, while navigation is instant.
+ * Single-page shell hosting the four "pages" (Home / Courses / About / Contact)
+ * plus optional detail pages (e.g. /courses/[slug]). Only the active page is
+ * rendered, so every URL serves its own unique content to crawlers, while
+ * navigation between pages stays instant on the client.
  */
 const VIEW_PATHS: Record<SiteView, string> = {
   home: "/",
@@ -26,33 +36,62 @@ const VIEW_PATHS: Record<SiteView, string> = {
   contact: "/contact",
 };
 
-export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) {
+const VIEWS: Record<SiteView, () => ReactNode> = {
+  home: () => <PageHome />,
+  courses: () => <PageCourses />,
+  about: () => <PageAbout />,
+  contact: () => <PageContact />,
+};
+
+export function SiteShell({
+  initialView = "home",
+  detail,
+}: {
+  initialView?: SiteView;
+  /** Server-rendered page body that replaces the view (course detail pages). */
+  detail?: ReactNode;
+}) {
   const view = useSiteStore((s) => s.view);
-  const navigate = useSiteStore((s) => s.navigate);
+  const navId = useSiteStore((s) => s.navId);
   const [mounted, setMounted] = useState(false);
   const pendingSection = useSiteStore((s) => s.pendingSection);
   const clearPendingSection = useSiteStore((s) => s.clearPendingSection);
   const seoPages = useSiteContent().seo.pages;
 
-  /* Keep the active view in sync with the URL the visitor landed on. */
+  /* A detail page stays up until the visitor navigates anywhere. */
+  const showDetail = Boolean(detail) && navId === 0;
+
+  /* Keep the active view in sync with the URL the visitor landed on (without counting as a navigation). */
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     if (useSiteStore.getState().view !== initialView) {
-      navigate(initialView);
+      useSiteStore.setState({ view: initialView });
     }
-  }, [initialView, navigate]);
+  }, [initialView]);
 
   /* Reflect client-side tab navigation in the address bar. */
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || showDetail) return;
     if (window.location.pathname !== VIEW_PATHS[view]) {
-      window.history.replaceState(null, "", VIEW_PATHS[view]);
+      window.history.pushState(null, "", VIEW_PATHS[view]);
     }
-  }, [view, mounted]);
+  }, [view, mounted, showDetail]);
+
+  /* Browser back/forward between views */
+  useEffect(() => {
+    const onPop = () => {
+      const match = (Object.keys(VIEW_PATHS) as SiteView[]).find((v) => VIEW_PATHS[v] === window.location.pathname);
+      if (match) useSiteStore.getState().navigate(match);
+      else window.location.reload();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   /* Update document title + meta description on view change */
   useEffect(() => {
+    if (showDetail) return;
     const seo = seoPages[view];
     document.title = seo.title;
     document
@@ -76,7 +115,7 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
     } else {
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     }
-  }, [view, pendingSection, clearPendingSection, seoPages]);
+  }, [view, pendingSection, clearPendingSection, seoPages, showDetail]);
 
   /* Before hydration, trust the server-rendered view so crawlers see the right page. */
   const activeView = mounted ? view : initialView;
@@ -96,7 +135,12 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="universe flex min-h-screen flex-col bg-[#02040c] text-white">
+      {/* CSS backdrop until (or instead of, without WebGL) the 3D universe */}
+      <div aria-hidden="true" className="universe-backdrop pointer-events-none fixed inset-0 z-0" />
+      <UniverseScene view={activeView} />
+      <DoorIntro />
+      <SmoothScroll />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-2 focus:text-white"
@@ -110,41 +154,18 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
         {/* ═══════════════════════════════════════════════════════════════
            PAGE TRANSITION — animated view switching with door effect
            ═══════════════════════════════════════════════════════════════ */}
-        <AnimatePresence mode="wait" custom={view}>
+        <AnimatePresence mode="wait">
           <motion.div
-            key={view}
-            custom={view}
+            key={showDetail ? "detail" : activeView}
             variants={pageVariants}
-            initial="hidden"
+            // first paint is visible immediately (LCP / crawlers); later page switches animate
+            initial={mounted ? "hidden" : false}
             animate="visible"
             exit="exit"
             transition={pageTransition}
             className="mx-auto min-w-full"
           >
-            <div
-              className="view-panel"
-              hidden={activeView !== "home"}
-            >
-              <PageHome />
-            </div>
-            <div
-              className="view-panel"
-              hidden={activeView !== "courses"}
-            >
-              <PageCourses />
-            </div>
-            <div
-              className="view-panel"
-              hidden={activeView !== "about"}
-            >
-              <PageAbout />
-            </div>
-            <div
-              className="view-panel"
-              hidden={activeView !== "contact"}
-            >
-              <PageContact />
-            </div>
+            {showDetail ? detail : VIEWS[activeView]()}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -152,6 +173,9 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
       <Footer />
       <WhatsAppFloat />
       <BackToTop />
+      {activeView === "home" && !showDetail && <ChapterDock />}
+      <YantrixGuide />
+      <CosmicPopup />
     </div>
   );
 }

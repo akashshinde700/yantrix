@@ -1,24 +1,29 @@
+import type { ReactNode } from "react";
 import { SiteShell } from "@/components/site/site-shell";
 import { SiteContentProvider } from "@/lib/content/provider";
 import { getContent } from "@/lib/content/store";
 import { buildJsonLd } from "@/lib/seo";
-import type { SiteView } from "@/lib/content/types";
-
-const PATHS: Record<SiteView, string> = {
-  home: "/",
-  courses: "/courses",
-  about: "/about",
-  contact: "/contact",
-};
+import type { Course, SiteView } from "@/lib/content/types";
 
 /**
- * Server-rendered site page. Every route (/ , /courses, /about, /contact)
- * renders the same shell with the correct view active, so each URL is
- * individually crawlable and has its own metadata.
+ * Server-rendered site page. Every route (/ , /courses, /about, /contact and
+ * /courses/[slug]) renders the same shell with only its own content, so each
+ * URL is unique, individually crawlable and has its own metadata. (The
+ * canonical tag comes from each route's generateMetadata.)
  */
-export async function SitePage({ view }: { view: SiteView }) {
+export async function SitePage({
+  view,
+  course,
+  detail,
+}: {
+  view: SiteView;
+  /** Set on course detail pages for course-specific structured data. */
+  course?: Course;
+  /** Page body that replaces the view (course detail pages). */
+  detail?: ReactNode;
+}) {
   const content = await getContent();
-  const jsonLd = buildJsonLd(content);
+  const jsonLd = buildJsonLd(content, { view, course });
 
   return (
     <>
@@ -29,9 +34,8 @@ export async function SitePage({ view }: { view: SiteView }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
-      <link rel="canonical" href={`${content.settings.url.replace(/\/$/, "")}${PATHS[view]}`} />
       <SiteContentProvider content={content}>
-        <SiteShell initialView={view} />
+        <SiteShell initialView={view} detail={detail} />
       </SiteContentProvider>
     </>
   );
