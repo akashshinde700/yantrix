@@ -21,6 +21,7 @@ import {
   X,
   UserRound,
   Award,
+  Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ const NAV = [
   { href: "/admin/pages", label: "Pages & navigation", icon: BarChart3 },
   { href: "/admin/seo", label: "SEO · AEO · GEO", icon: Search },
   { href: "/admin/enquiries", label: "Enquiries", icon: Mail },
+  { href: "/admin/email", label: "Email notifications", icon: Send },
   { href: "/admin/admins", label: "Admin users", icon: Users },
   { href: "/admin/settings", label: "Site settings", icon: Settings },
 ];

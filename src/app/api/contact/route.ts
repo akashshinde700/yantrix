@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import { addEnquiry } from "@/lib/content/store";
+import { sendEnquiryEmails } from "@/lib/mail/enquiry-emails";
 
 /* ── Validation (mirrors the client-side schema) ── */
 const enquirySchema = z.object({
@@ -86,6 +87,11 @@ export async function POST(request: NextRequest) {
       message: message && message.length > 0 ? message : null,
       source: "website",
     });
+
+    // confirmation to the student + alert to the admin, after the response is sent
+    after(() =>
+      sendEnquiryEmails(enquiry).catch((error) => console.error("[/api/contact] enquiry emails failed:", error))
+    );
 
     return NextResponse.json({ ok: true, id: enquiry.id }, { status: 201 });
   } catch (error) {
