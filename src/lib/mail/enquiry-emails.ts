@@ -27,6 +27,15 @@ async function loadAssets() {
   return assets;
 }
 
+/** The embedded banner + icon every branded email carries. */
+export async function brandAttachments() {
+  const { banner, icon } = await loadAssets();
+  return [
+    { filename: "yantrix.gif", content: banner, cid: CID.banner, contentType: "image/gif" },
+    { filename: "yantrix-icon.png", content: icon, cid: CID.icon, contentType: "image/png" },
+  ];
+}
+
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /** The course the student picked, if it matches a published course. */
@@ -55,11 +64,7 @@ export async function sendEnquiryEmails(
   const content = await getContent();
   const { settings } = content;
   const course = matchCourse(content.collections.courses as unknown as Course[], enquiry.course);
-  const { banner, icon } = await loadAssets();
-  const attachments = [
-    { filename: "yantrix.gif", content: banner, cid: CID.banner, contentType: "image/gif" },
-    { filename: "yantrix-icon.png", content: icon, cid: CID.icon, contentType: "image/png" },
-  ];
+  const attachments = await brandAttachments();
   const from = defaultFrom(settings.name);
   const admins = adminTo ?? adminRecipients(settings.contact.email);
   const studentMail = studentEmail(enquiry, settings, course);

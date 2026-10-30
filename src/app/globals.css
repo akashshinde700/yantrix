@@ -962,18 +962,74 @@ html[data-entered] .door-intro {
   display: none;
 }
 
+/*
+  Vertical layout scales with the screen height so nothing overlaps on short
+  laptop screens: nameplate (top) → emblem (--ey) → copy (bottom).
+*/
 .door-intro {
-  --emblem: 280px;
+  --emblem: clamp(150px, 30vh, 280px);
+  --ey: 42vh; /* emblem centre */
 }
 @media (max-width: 640px) {
   .door-intro {
-    --emblem: 210px;
+    --emblem: min(210px, 28vh);
+    --ey: 45vh;
+  }
+  /* clear the Skip button in the top-right corner */
+  .door-intro .door-plate {
+    top: calc(3vh + 44px);
   }
 }
 .door-emblem {
-  top: 44%;
+  top: var(--ey);
   width: var(--emblem);
   height: var(--emblem);
+}
+
+/* nameplate: dark glass, champagne-gold edge, the full logo */
+.door-plate {
+  width: min(82vw, 470px, 44vh);
+  padding: 1.6vh 2.2vh;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(8, 14, 38, 0.92), rgba(3, 6, 18, 0.92));
+  border: 1px solid rgba(201, 162, 94, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(246, 227, 180, 0.18),
+    0 18px 50px -12px rgba(0, 0, 0, 0.85),
+    0 0 50px -14px rgba(34, 211, 238, 0.45);
+  animation: plate-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+/* vertical only — horizontal centring comes from the element's own translate (-translate-x-1/2) */
+@keyframes plate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.door-plate img {
+  filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.25));
+}
+
+/* copy block spacing scales with height */
+.door-copy {
+  gap: clamp(10px, 1.9vh, 18px);
+}
+
+/* the button fills as the 10-second auto-open approaches */
+.door-auto-bar {
+  animation: door-auto 10s linear forwards;
+  transform: scaleX(0);
+  opacity: 0.8;
+}
+@keyframes door-auto {
+  to {
+    transform: scaleX(1);
+  }
 }
 
 /* light behind the doors */

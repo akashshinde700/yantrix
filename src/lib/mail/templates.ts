@@ -296,3 +296,46 @@ export function adminEmail(enquiry: Enquiry, settings: SiteSettings) {
     text,
   };
 }
+
+/* ───────────── 3. admin sign-in code (OTP) ───────────── */
+
+export function otpEmail(
+  code: string,
+  adminName: string,
+  settings: SiteSettings,
+  meta: { ip: string; at: string; minutes: number }
+) {
+  const digits = code
+    .split("")
+    .map(
+      (d) =>
+        `<td style="padding:0 4px;"><div style="width:46px;height:58px;border-radius:12px;border:1px solid ${C.accent};background:${C.panel};text-align:center;line-height:58px;font-family:Consolas,'Courier New',monospace;font-size:30px;font-weight:700;color:#ffffff;">${esc(d)}</div></td>`
+    )
+    .join("");
+
+  const body = `
+    <tr><td class="yx-pad yx-up" style="padding:34px 36px 8px;">${eyebrow("Admin sign-in", "#22d3ee")}</td></tr>
+    <tr><td class="yx-pad yx-up yx-d1" style="padding:14px 36px 4px;font-family:${FONT};">
+      <h1 class="yx-h1" style="margin:0;font-size:26px;line-height:33px;font-weight:800;color:#ffffff;">Your sign-in code</h1>
+      <p style="margin:10px 0 0;font-size:15px;line-height:23px;color:${C.text};">Hi ${esc(firstName(adminName))}, enter this code to finish signing in to the ${esc(settings.name)} admin panel.</p>
+    </td></tr>
+    <tr><td class="yx-pad yx-up yx-d2" align="center" style="padding:24px 36px 8px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>${digits}</tr></table>
+      <p style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:${C.muted};">Expires in ${meta.minutes} minutes · works once</p>
+    </td></tr>
+    <tr><td class="yx-pad yx-up yx-d3" style="padding:22px 36px 30px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.panel};border:1px solid ${C.line};border-radius:14px;">
+        <tr><td style="padding:14px 18px;font-family:${FONT};font-size:13px;line-height:20px;color:${C.muted};">
+          <strong style="color:${C.text};">Didn't try to sign in?</strong> Someone has your password — change it right away in the admin panel and ignore this code.<br>
+          Request: ${esc(meta.at)} IST · IP ${esc(meta.ip)}
+        </td></tr>
+      </table>
+      <p style="margin:16px 0 0;font-family:${FONT};font-size:12px;color:#64748b;">Never share this code. ${esc(settings.name)} staff will never ask you for it.</p>
+    </td></tr>`;
+
+  return {
+    subject: `${code} is your ${settings.name} admin sign-in code`,
+    html: shell({ title: "Your sign-in code", preheader: `Your code is ${code}. It expires in ${meta.minutes} minutes.`, body, settings }),
+    text: `Your ${settings.name} admin sign-in code: ${code}\nIt expires in ${meta.minutes} minutes and works once.\n\nRequest: ${meta.at} IST · IP ${meta.ip}\nDidn't try to sign in? Change your password right away.`,
+  };
+}

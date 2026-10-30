@@ -17,9 +17,7 @@ export default async function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-space px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 via-brand-800 to-space text-lg font-black text-white ring-1 ring-cyber-400/30">
-            Y
-          </span>
+          <img src="/brand/yantrix-wordmark-dark.svg" alt="Yantrix" width={190} height={53} className="mx-auto h-[53px] w-auto" />
           <h1 className="mt-4 text-2xl font-extrabold text-white">Admin panel</h1>
           <p className="mt-1 text-sm text-slate-400">
             Sign in to manage the Yantrix Technology website.

@@ -137,19 +137,47 @@ export function isOwner(role: PublicAdmin["role"] | undefined): boolean {
   return role === "owner";
 }
 
-export async function authenticate(
-  email: string,
-  password: string
-): Promise<AdminAccount | null> {
+/**
+ * Step 1 of the login: checks email + password only. Does NOT sign in —
+ * the admin must still verify the one-time code (see lib/admin/otp.ts).
+ */
+export async function verifyCredentials(email: string, password: string): Promise<AdminAccount | null> {
   await ensureDefaultAdmin();
   const admins = await getAdmins();
   const admin = admins.find((a) => a.email.toLowerCase() === email.trim().toLowerCase());
   if (!admin || !admin.active) return null;
   if (!verifyPassword(password, admin.passwordHash)) return null;
+  return admin;
+}
 
+export async function getActiveAdminById(id: string): Promise<AdminAccount | null> {
+  const admins = await getAdmins();
+  return admins.find((a) => a.id === id && a.active) ?? null;
+}
+
+/** Step 2 succeeded: record the login time. */
+export async function recordLogin(id: string): Promise<AdminAccount | null> {
+  const admins = await getAdmins();
+  const admin = admins.find((a) => a.id === id);
+  if (!admin) return null;
   const updated: AdminAccount = { ...admin, lastLoginAt: new Date().toISOString() };
-  await saveAdmins(admins.map((a) => (a.id === admin.id ? updated : a)));
+  await saveAdmins(admins.map((a) => (a.id === id ? updated : a)));
   return updated;
+}
+
+/** HMAC with the session secret — used to hash one-time codes at rest. */
+export function signValue(value: string): string {
+  return sign(value);
+}
+
+export function setSessionCookie(response: import("next/server").NextResponse, admin: AdminAccount): void {
+  response.cookies.set(SESSION_COOKIE, createSessionToken(admin), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  });
 }
 
 export const SESSION_MAX_AGE_SECONDS = SESSION_TTL_MS / 1000;

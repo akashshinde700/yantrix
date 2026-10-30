@@ -26,6 +26,8 @@ import { soundPreference, startAmbient } from "@/components/site/universe/ambien
 
 type Phase = "idle" | "unlocking" | "opening" | "gone";
 
+/** The door opens by itself after this long (a click or Enter opens it sooner). */
+const AUTO_OPEN_SECONDS = 10;
 const UNLOCK_MS = 1100;
 const OPEN_MS = 2000;
 
@@ -247,7 +249,7 @@ function DoorPanel({ side, phase }: { side: "left" | "right"; phase: Phase }) {
       {/* handle near the seam */}
       <div
         className={cn(
-          "door-handle absolute top-[44%] hidden h-[26%] w-2 -translate-y-1/2 rounded-full sm:block",
+          "door-handle absolute top-[var(--ey)] hidden h-[calc(var(--emblem)*0.95)] w-2 -translate-y-1/2 rounded-full sm:block",
           left ? "right-[24%]" : "left-[24%]",
           lit && "door-handle-lit"
         )}
@@ -277,6 +279,7 @@ export function DoorIntro() {
   const settings = useSettings();
   const [phase, setPhase] = useState<Phase>("idle");
   const [visible, setVisible] = useState(true);
+  const [autoLeft, setAutoLeft] = useState(AUTO_OPEN_SECONDS);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -326,6 +329,25 @@ export function DoorIntro() {
     }
   }, [phase, finish]);
 
+  // opens by itself after AUTO_OPEN_SECONDS (a click or Enter opens it sooner)
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+  useEffect(() => {
+    if (phase !== "idle" || document.documentElement.hasAttribute("data-entered")) return;
+    const startedAt = Date.now();
+    const id = setInterval(() => {
+      const left = AUTO_OPEN_SECONDS - Math.floor((Date.now() - startedAt) / 1000);
+      setAutoLeft(Math.max(0, left));
+      if (left <= 0) {
+        clearInterval(id);
+        openRef.current();
+      }
+    }, 250);
+    return () => clearInterval(id);
+  }, [phase]);
+
   if (!visible) return null;
 
   return (
@@ -352,14 +374,31 @@ export function DoorIntro() {
 
       {/* lock bolts across the seam */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-1/2 w-0">
-        {/* above the emblem so they never cross the logo or the copy */}
-        {[8, 18, 28].map((top, i) => (
+        {/* positioned from the emblem (CSS vars) so they never touch the logo plate, emblem or copy */}
+        {[{ top: "calc(var(--ey) - var(--emblem) / 2 - 3.4vh)" }, { bottom: "2.2vh" }].map((pos, i) => (
           <span
-            key={top}
+            key={i}
             className={cn("door-bolt absolute -left-7 h-2.5 w-14 rounded-full", phase !== "idle" && "door-bolt-open")}
-            style={{ top: `${top}%`, transitionDelay: `${i * 220}ms` }}
+            style={{ ...pos, transitionDelay: `${i * 260}ms` }}
           />
         ))}
+      </div>
+
+      {/* nameplate with the full logo, at the top of the door */}
+      <div
+        className={cn(
+          "door-plate absolute left-1/2 top-[4vh] -translate-x-1/2 transition-all duration-500",
+          phase !== "idle" && "-translate-y-3 opacity-0"
+        )}
+      >
+        <img
+          src="/brand/yantrix-logo-dark.svg"
+          alt={settings.name}
+          width={470}
+          height={129}
+          className="block h-auto w-full select-none"
+          draggable={false}
+        />
       </div>
 
       {/* light leaking under the doors */}
@@ -386,16 +425,11 @@ export function DoorIntro() {
       {/* copy + action */}
       <div
         className={cn(
-          "absolute inset-x-0 bottom-[8%] flex flex-col items-center gap-4 px-6 text-center transition-all duration-500 sm:bottom-[10%]",
+          "door-copy absolute inset-x-0 bottom-[6vh] flex select-none flex-col items-center px-6 text-center transition-all duration-500",
           phase !== "idle" && "pointer-events-none translate-y-4 opacity-0"
         )}
       >
-        <p className="flex items-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.5em] text-[#e8cf98]">
-          <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#c9a25e]" aria-hidden="true" />
-          {settings.name}
-          <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#c9a25e]" aria-hidden="true" />
-        </p>
-        <p className="max-w-2xl text-3xl font-extrabold tracking-tight text-white text-balance drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] sm:text-5xl">
+        <p className="max-w-3xl text-[clamp(1.55rem,7vw,2.2rem)] font-extrabold leading-[1.08] tracking-tight text-white text-balance drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] sm:text-[clamp(1.75rem,5.4vh,3.1rem)]">
           Your IT career starts{" "}
           <span className="door-title-glow bg-gradient-to-r from-cyan-200 via-sky-300 to-violet-300 bg-clip-text text-transparent">
             behind this door
@@ -404,15 +438,18 @@ export function DoorIntro() {
         <button
           ref={buttonRef}
           onClick={open}
-          className="door-cta group relative mt-2 inline-flex h-14 items-center gap-3 rounded-full px-9 text-base font-bold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#010208]"
+          className="door-cta group relative inline-flex h-14 items-center gap-3 overflow-hidden rounded-full px-9 text-base font-bold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#010208]"
         >
+          {/* auto-open progress */}
+          <span aria-hidden="true" className="door-auto-bar absolute inset-x-6 bottom-1.5 h-0.5 origin-left rounded-full bg-gradient-to-r from-cyan-300 to-[#e8cf98]" />
           <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-cyan-300" />
           </span>
           Open the door
         </button>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-400" aria-live="polite">
+          {phase === "idle" && autoLeft > 0 ? <>Opens automatically in <span className="font-semibold text-[#e8cf98]">{autoLeft}s</span> · </> : null}
           Press <kbd className="rounded border border-white/15 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">Enter</kbd> to open ·{" "}
           <kbd className="rounded border border-white/15 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">Esc</kbd> to skip
         </p>
