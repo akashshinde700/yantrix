@@ -530,3 +530,42 @@ export function seoAudit(content: SiteContent) {
 
   return checks;
 }
+
+/* ─────────────────────── safe inline-script helpers ─────────────────────── */
+
+/**
+ * Serialise structured data for a `<script type="application/ld+json">` block.
+ *
+ * `JSON.stringify` leaves `<` untouched, and the HTML parser ends a script
+ * element at the first `</script` no matter what `type` says. Any admin-editable
+ * string (organisation name, course description, FAQ text…) could therefore
+ * close the tag and inject markup. Escaping the HTML-sensitive characters as
+ * `\uXXXX` keeps the JSON valid while making that impossible.
+ */
+export function serializeJsonLd(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    // Valid in JSON, but line terminators in JavaScript.
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
+/**
+ * Allow-list an analytics id before it is interpolated into an inline script.
+ * The values come from admin-editable content, so a stray quote would otherwise
+ * become executable code on every page.
+ */
+const GA_ID = /^G-[A-Z0-9]{4,20}$/i;
+const CLARITY_ID = /^[a-z0-9]{6,20}$/i;
+
+export function safeMeasurementId(value: string | undefined | null): string {
+  const trimmed = (value ?? "").trim();
+  return GA_ID.test(trimmed) ? trimmed : "";
+}
+
+export function safeClarityId(value: string | undefined | null): string {
+  const trimmed = (value ?? "").trim();
+  return CLARITY_ID.test(trimmed) ? trimmed : "";
+}

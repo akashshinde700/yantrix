@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getContent } from "@/lib/content/store";
 import { fullAddress } from "@/lib/content/helpers";
+import { serializeJsonLd } from "@/lib/seo";
 
 export async function LegalPage({ kind }: { kind: "privacy" | "terms" }) {
   const content = await getContent();
@@ -44,7 +45,7 @@ export async function LegalPage({ kind }: { kind: "privacy" | "terms" }) {
     <main className="mx-auto min-h-screen max-w-3xl px-4 py-14 sm:px-6">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <Link
         href="/"

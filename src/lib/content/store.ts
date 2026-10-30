@@ -21,15 +21,43 @@
 import net from "node:net";
 import * as mysqlStore from "@/lib/content/mysql-store";
 import * as jsonStore from "@/lib/content/json-store";
-import type { AdminAccount, AdminAuditEntry, Enquiry, SiteContent } from "@/lib/content/types";
+import type {
+  AdminAccount,
+  AdminAuditEntry,
+  AdminPatch,
+  Enquiry,
+  SiteContent,
+} from "@/lib/content/types";
 
 type Backend = "mysql" | "json";
 
 const MODE = (process.env.CONTENT_STORE ?? "auto").toLowerCase();
 
-let backend: Backend = MODE === "json" ? "json" : "mysql";
-let warned = false;
-let reachable: Promise<boolean> | null = null;
+/**
+ * Every latch lives on globalThis, not in module scope.
+ *
+ * Next bundles pages and API routes as separate module instances, so a
+ * module-level `backend` could latch to JSON in the page bundle while the API
+ * bundle stayed on MySQL — the site would render content that admin saves never
+ * reach. The content cache below already had to be global for the same reason.
+ */
+const state = globalThis as unknown as {
+  yantrixBackend?: Backend;
+  yantrixReachable?: Promise<boolean> | null;
+  yantrixStoreWarned?: boolean;
+  yantrixContentCache?: { value: SiteContent; at: number; generation: number } | null;
+  yantrixContentPending?: Promise<SiteContent> | null;
+  yantrixContentGeneration?: number;
+};
+
+function currentBackend(): Backend {
+  state.yantrixBackend ??= MODE === "json" ? "json" : "mysql";
+  return state.yantrixBackend;
+}
+
+function setBackend(next: Backend) {
+  state.yantrixBackend = next;
+}
 
 /**
  * Cheap TCP probe before the first query. Connecting through the driver when
@@ -37,8 +65,8 @@ let reachable: Promise<boolean> | null = null;
  * an uncaught exception and that stalled the first render, so ask the socket
  * layer first — it fails in microseconds.
  */
-function mysqlReachable(): Promise<boolean> {
-  reachable ??= new Promise<boolean>((resolve) => {
+function probeMysql(): Promise<boolean> {
+  state.yantrixReachable ??= new Promise<boolean>((resolve) => {
     let url: URL;
     try {
       url = new URL(process.env.DATABASE_URL ?? "mysql://root:root@localhost:3306/yantrix");
@@ -58,7 +86,18 @@ function mysqlReachable(): Promise<boolean> {
     socket.once("connect", () => finish(true));
     socket.once("error", () => finish(false));
   });
-  return reachable;
+  return state.yantrixReachable;
+}
+
+/**
+ * Probe, but only cache a *positive* result. A database that was briefly
+ * unavailable at boot must be picked up again rather than being written off for
+ * the lifetime of the process.
+ */
+async function mysqlReachable(): Promise<boolean> {
+  const ok = await probeMysql();
+  if (!ok) state.yantrixReachable = null;
+  return ok;
 }
 
 /** Errors that mean "the database is not there", not "the query is wrong". */
@@ -85,8 +124,8 @@ function isUnreachable(error: unknown): boolean {
 }
 
 function warnOnce(error: unknown) {
-  if (warned) return;
-  warned = true;
+  if (state.yantrixStoreWarned) return;
+  state.yantrixStoreWarned = true;
   const message = error instanceof Error ? error.message : String(error);
   console.warn(
     `[store] MySQL unavailable (${message.slice(0, 160)}). ` +
@@ -96,10 +135,19 @@ function warnOnce(error: unknown) {
 }
 
 async function run<T>(onMysql: () => Promise<T>, onJson: () => Promise<T>): Promise<T> {
-  if (backend === "json") return onJson();
+  if (currentBackend() === "json") {
+    // While latched to JSON, keep testing the database so a recovered one is used again.
+    if (MODE === "mysql") return onJson();
+    if (await mysqlReachable()) {
+      setBackend("mysql");
+      state.yantrixStoreWarned = false;
+    } else {
+      return onJson();
+    }
+  }
   if (!(await mysqlReachable())) {
     warnOnce(new Error("connection refused"));
-    backend = "json";
+    setBackend("json");
     return onJson();
   }
   try {
@@ -107,7 +155,7 @@ async function run<T>(onMysql: () => Promise<T>, onJson: () => Promise<T>): Prom
   } catch (error) {
     if (MODE !== "auto" || !isUnreachable(error)) throw error;
     warnOnce(error);
-    backend = "json";
+    setBackend("json");
     return onJson();
   }
 }
@@ -125,50 +173,66 @@ const CONTENT_TTL_MS = 30_000;
 // One cache per server process, on globalThis: Next bundles API routes and
 // pages as separate module instances, so a module-level cache would let an
 // admin save refresh only the API's copy while pages kept serving stale content.
-const shared = globalThis as unknown as {
-  yantrixContentCache?: { value: SiteContent; at: number } | null;
-  yantrixContentPending?: Promise<SiteContent> | null;
-};
 
-function remember(value: SiteContent): SiteContent {
-  shared.yantrixContentCache = { value, at: Date.now() };
+/**
+ * Bumped by every write. A read that started before the write compares its
+ * generation on completion and declines to populate the cache if a write has
+ * landed since — otherwise a slow read could resurrect the previous document
+ * for a whole TTL right after an admin saved.
+ */
+function generation(): number {
+  return (state.yantrixContentGeneration ??= 0);
+}
+
+function remember(value: SiteContent, readGeneration: number): SiteContent {
+  if (readGeneration === generation()) {
+    state.yantrixContentCache = { value, at: Date.now(), generation: readGeneration };
+  }
   return value;
 }
 
+function invalidate(): void {
+  state.yantrixContentGeneration = generation() + 1;
+  state.yantrixContentCache = null;
+}
+
 export function getContent(): Promise<SiteContent> {
-  const cached = shared.yantrixContentCache;
-  if (cached && Date.now() - cached.at < CONTENT_TTL_MS) {
+  const cached = state.yantrixContentCache;
+  if (cached && cached.generation === generation() && Date.now() - cached.at < CONTENT_TTL_MS) {
     return Promise.resolve(cached.value);
   }
-  shared.yantrixContentPending ??= run(mysqlStore.getContent, jsonStore.getContent)
-    .then(remember)
+  const readGeneration = generation();
+  state.yantrixContentPending ??= run(mysqlStore.getContent, jsonStore.getContent)
+    .then((value) => remember(value, readGeneration))
     .finally(() => {
-      shared.yantrixContentPending = null;
+      state.yantrixContentPending = null;
     });
-  return shared.yantrixContentPending;
+  return state.yantrixContentPending;
 }
 
 export function saveContent(content: SiteContent): Promise<SiteContent> {
-  shared.yantrixContentCache = null;
+  invalidate();
   return run(
     () => mysqlStore.saveContent(content),
     () => jsonStore.saveContent(content)
-  ).then(remember);
+  ).then((value) => remember(value, generation()));
 }
 
 export function updateContent(
   mutator: (current: SiteContent) => SiteContent | Promise<SiteContent>
 ): Promise<SiteContent> {
-  shared.yantrixContentCache = null;
+  invalidate();
   return run(
     () => mysqlStore.updateContent(mutator),
     () => jsonStore.updateContent(mutator)
-  ).then(remember);
+  ).then((value) => remember(value, generation()));
 }
 
 export function resetContent(): Promise<SiteContent> {
-  shared.yantrixContentCache = null;
-  return run(mysqlStore.resetContent, jsonStore.resetContent).then(remember);
+  invalidate();
+  return run(mysqlStore.resetContent, jsonStore.resetContent).then((value) =>
+    remember(value, generation())
+  );
 }
 
 /* ─────────────────────────── enquiries ─────────────────────────── */
@@ -227,10 +291,25 @@ export function getAdmins(): Promise<AdminAccount[]> {
   return run(mysqlStore.getAdmins, jsonStore.getAdmins);
 }
 
-export function saveAdmins(admins: AdminAccount[]): Promise<void> {
+/** Insert one account. `false` means the email is already in use. */
+export function createAdmin(admin: AdminAccount): Promise<boolean> {
   return run(
-    () => mysqlStore.saveAdmins(admins),
-    () => jsonStore.saveAdmins(admins)
+    () => mysqlStore.createAdmin(admin),
+    () => jsonStore.createAdmin(admin)
+  );
+}
+
+export function updateAdmin(id: string, patch: AdminPatch): Promise<AdminAccount | null> {
+  return run(
+    () => mysqlStore.updateAdmin(id, patch),
+    () => jsonStore.updateAdmin(id, patch)
+  );
+}
+
+export function deleteAdmin(id: string): Promise<boolean> {
+  return run(
+    () => mysqlStore.deleteAdmin(id),
+    () => jsonStore.deleteAdmin(id)
   );
 }
 

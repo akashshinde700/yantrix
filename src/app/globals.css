@@ -90,10 +90,10 @@
 }
 
 :root {
-  /* self-hosted via next/font (app/layout.tsx); names below are fallbacks */
-  --font-jakarta: var(--font-jakarta-face), "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-geist-mono: var(--font-mono-face), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+  /* Self-hosted through @fontsource-variable (imported in app/layout.tsx). */
+  --font-jakarta: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
   --radius: 0.75rem;
   --background: #ffffff;

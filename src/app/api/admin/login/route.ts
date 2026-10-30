@@ -50,9 +50,15 @@ export async function POST(request: NextRequest) {
     new Promise<{ ok: true }>((resolve) => setTimeout(() => resolve({ ok: true }), 12_000)),
   ]);
   if (!sent.ok) {
+    const unavailable = otpDeliveryMethod() === "unavailable";
     return NextResponse.json(
-      { ok: false, error: "Could not send the sign-in code by email. Check the SMTP settings (the server log has details)." },
-      { status: 502 }
+      {
+        ok: false,
+        error: unavailable
+          ? "This server cannot send sign-in codes (SMTP is not configured). Contact the site owner."
+          : "Could not send the sign-in code by email. Check the SMTP settings (the server log has details).",
+      },
+      { status: unavailable ? 503 : 502 }
     );
   }
   await addAuditEntry({ actorEmail: admin.email, action: "login.otp_sent", target: ip });

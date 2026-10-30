@@ -1,19 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+// Self-hosted fonts (bundled by Next from node_modules) — no build-time request
+// to fonts.googleapis.com, so air-gapped CI and proxied builders work.
+import "@fontsource-variable/plus-jakarta-sans";
+import "@fontsource-variable/jetbrains-mono";
 import { Toaster } from "@/components/ui/toaster";
 import { getContent } from "@/lib/content/store";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, safeClarityId, safeMeasurementId } from "@/lib/seo";
 
 /**
  * All metadata is generated from the admin-editable content document, so
  * titles, descriptions, keywords, OpenGraph images and verification tokens can
  * be changed without touching code.
  */
-/* Fonts are self-hosted and preloaded by next/font — no render-blocking request to Google. */
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap", variable: "--font-jakarta-face" });
-const mono = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-mono-face" });
+/* Fonts are self-hosted and preloaded — no render-blocking request to Google. */
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getContent();
@@ -89,14 +90,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const content = await getContent();
-  const { gaMeasurementId, clarityId } = content.seo.global;
+  // Admin-editable: allow-list before interpolating into an inline script.
+  const gaMeasurementId = safeMeasurementId(content.seo.global.gaMeasurementId);
+  const clarityId = safeClarityId(content.seo.global.clarityId);
 
   return (
     <html
       lang="en-IN"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${jakarta.variable} ${mono.variable}`}
     >
       <head>
         {/*

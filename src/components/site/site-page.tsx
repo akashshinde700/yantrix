@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { SiteShell } from "@/components/site/site-shell";
 import { SiteContentProvider } from "@/lib/content/provider";
 import { getContent } from "@/lib/content/store";
-import { buildJsonLd } from "@/lib/seo";
+import { buildJsonLd, serializeJsonLd } from "@/lib/seo";
 import type { Course, SiteView } from "@/lib/content/types";
 
 /**
@@ -31,7 +31,7 @@ export async function SitePage({
         <script
           key={`ld-${index}`}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
         />
       ))}
       <SiteContentProvider content={content}>

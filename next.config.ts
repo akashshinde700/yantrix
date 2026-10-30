@@ -2,10 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  /*
+   * Keep the build honest. `ignoreBuildErrors: true` meant type errors could
+   * never break a deploy, so the types in this project were advisory only.
+   */
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
-  reactStrictMode: false,
+  /*
+   * Strict mode double-invokes effects in development, which is how missing
+   * cleanup functions and non-idempotent effects get caught before production.
+   */
+  reactStrictMode: true,
 
   /*
    * Next 16 blocks dev-server requests whose Origin/Host is not listed here.

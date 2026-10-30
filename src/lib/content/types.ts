@@ -404,6 +404,23 @@ export interface AdminAccount {
   active: boolean;
   createdAt: string;
   lastLoginAt: string | null;
+  /**
+   * Session generation. Embedded in every session token and bumped whenever the
+   * password changes, the account is deactivated, or the owner signs the account
+   * out everywhere — which invalidates tokens already in the wild.
+   */
+  sessionVersion: number;
+}
+
+/** Fields an update may change; everything else is immutable per row. */
+export interface AdminPatch {
+  name?: string;
+  email?: string;
+  passwordHash?: string;
+  role?: AdminRole;
+  active?: boolean;
+  lastLoginAt?: string | null;
+  sessionVersion?: number;
 }
 
 export interface AdminAuditEntry {

@@ -34,17 +34,40 @@ function mergeDeep<T>(base: T, patch: unknown): T {
   return result as T;
 }
 
+/**
+ * Strip anything that is not JSON data (functions, Dates, class instances…) and
+ * cap the nesting depth. Previously this was a *type* whitelist that dropped
+ * every object-valued field silently — the moment an item gained something like
+ * `stats: [{ label, value }]`, saving would have wiped it with a success toast.
+ */
+const MAX_ITEM_DEPTH = 4;
+
+function sanitiseValue(value: unknown, depth = 0): unknown {
+  if (depth > MAX_ITEM_DEPTH) return undefined;
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return value;
+  }
+  if (value === null) return null;
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => sanitiseValue(entry, depth + 1))
+      .filter((entry) => entry !== undefined);
+  }
+  if (isObject(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value)) {
+      const clean = sanitiseValue(entry, depth + 1);
+      if (clean !== undefined) out[key] = clean;
+    }
+    return out;
+  }
+  return undefined;
+}
+
 function sanitiseItem(raw: unknown, fallbackOrder: number) {
   const source = isObject(raw) ? raw : {};
-  const item: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(source)) {
-    if (key === "id") continue;
-    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-      item[key] = value;
-    } else if (Array.isArray(value)) {
-      item[key] = value.map((entry) => (typeof entry === "string" ? entry : String(entry)));
-    }
-  }
+  const item = sanitiseValue(source) as Record<string, unknown>;
+  delete item.id; // ids are assigned by the store, never by the client
   item.sortOrder = Number.isFinite(Number(item.sortOrder)) ? Number(item.sortOrder) : fallbackOrder;
   item.active = item.active !== false;
   return item;
@@ -186,7 +209,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: false, error: `Unknown operation "${op}".` }, { status: 400 });
   } catch (error) {
-    console.error("[/api/admin/content]", error);
-    return NextResponse.json({ ok: false, error: "Could not save changes." }, { status: 500 });
+    // A short reference ties the opaque message in the UI to the server log,
+    // so "it fails sometimes" becomes one grep without leaking internals.
+    const ref = randomUUID().slice(0, 8);
+    console.error(`[/api/admin/content] ${ref}`, { op, error });
+    return NextResponse.json(
+      { ok: false, error: `Could not save changes. Reference ${ref}.` },
+      { status: 500 }
+    );
   }
 }

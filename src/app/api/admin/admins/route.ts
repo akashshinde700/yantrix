@@ -8,7 +8,7 @@ import {
   isOwner,
   publicAdmin,
 } from "@/lib/admin/auth";
-import { addAuditEntry, getAdmins, saveAdmins } from "@/lib/content/store";
+import { addAuditEntry, createAdmin, getAdmins } from "@/lib/content/store";
 import type { AdminAccount } from "@/lib/content/types";
 
 export const dynamic = "force-dynamic";
@@ -46,12 +46,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const admins = await getAdmins();
   const email = parsed.data.email.toLowerCase();
-  if (admins.some((a) => a.email.toLowerCase() === email)) {
-    return NextResponse.json({ ok: false, error: "That email is already in use." }, { status: 409 });
-  }
-
   const account: AdminAccount = {
     id: randomBytes(8).toString("hex"),
     name: parsed.data.name,
@@ -61,8 +56,16 @@ export async function POST(request: Request) {
     active: true,
     createdAt: new Date().toISOString(),
     lastLoginAt: null,
+    sessionVersion: 0,
   };
-  await saveAdmins([...admins, account]);
+
+  // A single INSERT: concurrent creates cannot clobber each other, and the
+  // UNIQUE(email) constraint decides the winner instead of a stale list read.
+  const created = await createAdmin(account);
+  if (!created) {
+    return NextResponse.json({ ok: false, error: "That email is already in use." }, { status: 409 });
+  }
+
   await addAuditEntry({ actorEmail: admin.email, action: "createAdmin", target: email });
   return NextResponse.json({ ok: true, admin: publicAdmin(account) }, { status: 201 });
 }

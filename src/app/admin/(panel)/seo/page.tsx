@@ -113,8 +113,21 @@ export default async function SeoAdminPage() {
               { name: "global.robotsFollow", label: "Allow link following", type: "boolean" },
               { name: "global.googleSiteVerification", label: "Google Search Console token" },
               { name: "global.bingSiteVerification", label: "Bing verification token" },
-              { name: "global.gaMeasurementId", label: "Google Analytics ID", placeholder: "G-XXXXXXX" },
-              { name: "global.clarityId", label: "Microsoft Clarity ID" },
+              {
+                name: "global.gaMeasurementId",
+                label: "Google Analytics ID",
+                placeholder: "G-XXXXXXX",
+                help: "Measurement ID from GA4 — starts with G-. Leave empty to disable analytics.",
+                pattern: "^G-[A-Z0-9]{4,20}$",
+                patternMessage: "A GA4 measurement ID looks like G-ABC123XYZ.",
+              },
+              {
+                name: "global.clarityId",
+                label: "Microsoft Clarity ID",
+                help: "Project ID from clarity.microsoft.com. Leave empty to disable heatmaps.",
+                pattern: "^[a-zA-Z0-9]{6,20}$",
+                patternMessage: "The Clarity ID is a short alphanumeric project id.",
+              },
             ],
           },
           {

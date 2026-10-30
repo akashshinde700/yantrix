@@ -11,10 +11,19 @@ import { defaultFrom, mailConfigured, sendMail } from "@/lib/mail/mailer";
 import { brandAttachments } from "@/lib/mail/enquiry-emails";
 import { istTime, otpEmail } from "@/lib/mail/templates";
 
-export type OtpDelivery = "email" | "console";
+export type OtpDelivery = "email" | "console" | "unavailable";
 
+/**
+ * How the code will be delivered.
+ *
+ * Printing the code to the terminal is a development convenience — in
+ * production it would turn two-factor auth into "whoever can read the container
+ * logs", so the console fallback is disabled there and sign-in fails instead of
+ * silently degrading to a single factor.
+ */
 export function otpDeliveryMethod(): OtpDelivery {
-  return mailConfigured() ? "email" : "console";
+  if (mailConfigured()) return "email";
+  return process.env.NODE_ENV === "production" ? "unavailable" : "console";
 }
 
 export async function deliverOtp(
@@ -22,9 +31,25 @@ export async function deliverOtp(
   code: string,
   meta: { ip: string; minutes: number }
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!mailConfigured()) {
+  const method = otpDeliveryMethod();
+  if (method === "unavailable") {
+    console.error(
+      "[admin OTP] SMTP is not configured and the console fallback is disabled in production — sign-in cannot complete."
+    );
+    return { ok: false, error: "Email delivery is not configured on this server." };
+  }
+  if (method === "console") {
     console.warn(
-      `\n┌──────────────────────────────────────────────┐\n│ [admin OTP] SMTP not configured — code for   │\n│ ${admin.email.padEnd(44)} │\n│ is ${code}  (valid ${meta.minutes} min)                       │\n└──────────────────────────────────────────────┘\n`
+      [
+        "",
+        "  ── admin sign-in code (development fallback) ──",
+        `  account : ${admin.email}`,
+        `  code    : ${code}`,
+        `  valid   : ${meta.minutes} minutes, single use`,
+        "  SMTP is not configured, so the code is printed here.",
+        "  ──────────────────────────────────────────────",
+        "",
+      ].join("\n")
     );
     return { ok: true };
   }

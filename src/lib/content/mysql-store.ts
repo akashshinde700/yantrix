@@ -21,6 +21,7 @@ import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 import type {
   AdminAccount,
   AdminAuditEntry,
+  AdminPatch,
   CollectionKey,
   ContentItem,
   Enquiry,
@@ -89,7 +90,8 @@ const SCHEMA = [
      role VARCHAR(20) NOT NULL,
      active TINYINT(1) NOT NULL DEFAULT 1,
      created_at DATETIME(3) NOT NULL,
-     last_login_at DATETIME(3) NULL
+     last_login_at DATETIME(3) NULL,
+     session_version INT NOT NULL DEFAULT 0
    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
   `CREATE TABLE IF NOT EXISTS audit_log (
      id VARCHAR(36) PRIMARY KEY,
@@ -107,7 +109,25 @@ const SCHEMA = [
    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
 ];
 
-const SCHEMA_KEY = `${SCHEMA.length}:${SCHEMA.join("").length}`;
+/**
+ * Columns added after a table already existed somewhere. `CREATE TABLE IF NOT
+ * EXISTS` never alters an existing table, so these run as idempotent migrations
+ * (MySQL 8 has no `ADD COLUMN IF NOT EXISTS`). Keep each entry to one column.
+ */
+const COLUMN_MIGRATIONS: { table: string; column: string; definition: string }[] = [
+  { table: "admins", column: "session_version", definition: "INT NOT NULL DEFAULT 0" },
+];
+
+const SCHEMA_KEY = `${SCHEMA.length}:${SCHEMA.join("").length}:${COLUMN_MIGRATIONS.map((m) => `${m.table}.${m.column}`).join(",")}`;
+
+async function columnExists(conn: Pool, table: string, column: string): Promise<boolean> {
+  const [rows] = await conn.query<RowDataPacket[]>(
+    `SELECT 1 FROM information_schema.columns
+      WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ? LIMIT 1`,
+    [table, column]
+  );
+  return rows.length > 0;
+}
 
 async function db(): Promise<Pool> {
   if (globalForDb.yantrixSchemaKey !== SCHEMA_KEY) {
@@ -116,7 +136,14 @@ async function db(): Promise<Pool> {
   }
   if (!globalForDb.yantrixSchema) {
     globalForDb.yantrixSchema = (async () => {
-      for (const statement of SCHEMA) await pool().query(statement);
+      const conn = pool();
+      for (const statement of SCHEMA) await conn.query(statement);
+      for (const migration of COLUMN_MIGRATIONS) {
+        if (await columnExists(conn, migration.table, migration.column)) continue;
+        await conn.query(
+          `ALTER TABLE \`${migration.table}\` ADD COLUMN \`${migration.column}\` ${migration.definition}`
+        );
+      }
     })().catch((error) => {
       globalForDb.yantrixSchema = undefined;
       throw error;
@@ -348,7 +375,11 @@ export async function getAdmins(): Promise<AdminAccount[]> {
   const [rows] = await conn.query<RowDataPacket[]>(
     "SELECT * FROM admins ORDER BY created_at ASC"
   );
-  return rows.map((row) => ({
+  return rows.map(rowToAdmin);
+}
+
+function rowToAdmin(row: RowDataPacket): AdminAccount {
+  return {
     id: row.id,
     name: row.name,
     email: row.email,
@@ -357,48 +388,63 @@ export async function getAdmins(): Promise<AdminAccount[]> {
     active: Boolean(row.active),
     createdAt: toIso(row.created_at),
     lastLoginAt: row.last_login_at ? toIso(row.last_login_at) : null,
-  }));
+    sessionVersion: Number(row.session_version ?? 0),
+  };
 }
 
-/** Replaces the full admin list (upserts given accounts, removes the rest). */
-export async function saveAdmins(admins: AdminAccount[]): Promise<void> {
-  const conn = await (await db()).getConnection();
-  try {
-    await conn.beginTransaction();
-    const ids = admins.map((a) => a.id);
-    if (ids.length > 0) {
-      await conn.query("DELETE FROM admins WHERE id NOT IN (?)", [ids]);
-    } else {
-      await conn.query("DELETE FROM admins");
-    }
-    for (const a of admins) {
-      await conn.query(
-        `INSERT INTO admins
-           (id, name, email, password_hash, role, active, created_at, last_login_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           name = VALUES(name), email = VALUES(email),
-           password_hash = VALUES(password_hash), role = VALUES(role),
-           active = VALUES(active), last_login_at = VALUES(last_login_at)`,
-        [
-          a.id,
-          a.name,
-          a.email,
-          a.passwordHash,
-          a.role,
-          a.active ? 1 : 0,
-          toDate(a.createdAt),
-          toDate(a.lastLoginAt),
-        ]
-      );
-    }
-    await conn.commit();
-  } catch (error) {
-    await conn.rollback();
-    throw error;
-  } finally {
-    conn.release();
+/**
+ * Insert one account. Returns false when the email is already taken, so a
+ * concurrent bootstrap or a duplicate create cannot throw or clobber a row.
+ */
+export async function createAdmin(admin: AdminAccount): Promise<boolean> {
+  const conn = await db();
+  const [result] = await conn.query<mysql.ResultSetHeader>(
+    `INSERT INTO admins
+       (id, name, email, password_hash, role, active, created_at, last_login_at, session_version)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE id = id`,
+    [
+      admin.id,
+      admin.name,
+      admin.email,
+      admin.passwordHash,
+      admin.role,
+      admin.active ? 1 : 0,
+      toDate(admin.createdAt),
+      toDate(admin.lastLoginAt),
+      admin.sessionVersion ?? 0,
+    ]
+  );
+  // affectedRows is 1 for a fresh insert, 0 when ON DUPLICATE KEY hit an existing row.
+  return result.affectedRows === 1;
+}
+
+/** Update only the columns present in the patch — never the whole list. */
+export async function updateAdmin(id: string, patch: AdminPatch): Promise<AdminAccount | null> {
+  const columns: string[] = [];
+  const values: unknown[] = [];
+
+  if (patch.name !== undefined) { columns.push("name = ?"); values.push(patch.name); }
+  if (patch.email !== undefined) { columns.push("email = ?"); values.push(patch.email); }
+  if (patch.passwordHash !== undefined) { columns.push("password_hash = ?"); values.push(patch.passwordHash); }
+  if (patch.role !== undefined) { columns.push("role = ?"); values.push(patch.role); }
+  if (patch.active !== undefined) { columns.push("active = ?"); values.push(patch.active ? 1 : 0); }
+  if (patch.lastLoginAt !== undefined) { columns.push("last_login_at = ?"); values.push(toDate(patch.lastLoginAt)); }
+  if (patch.sessionVersion !== undefined) { columns.push("session_version = ?"); values.push(patch.sessionVersion); }
+
+  const conn = await db();
+  if (columns.length > 0) {
+    values.push(id);
+    await conn.query(`UPDATE admins SET ${columns.join(", ")} WHERE id = ?`, values);
   }
+  const [rows] = await conn.query<RowDataPacket[]>("SELECT * FROM admins WHERE id = ?", [id]);
+  return rows.length ? rowToAdmin(rows[0]) : null;
+}
+
+export async function deleteAdmin(id: string): Promise<boolean> {
+  const conn = await db();
+  const [result] = await conn.query<mysql.ResultSetHeader>("DELETE FROM admins WHERE id = ?", [id]);
+  return result.affectedRows > 0;
 }
 
 /* ─────────────────────────── audit log ─────────────────────────── */

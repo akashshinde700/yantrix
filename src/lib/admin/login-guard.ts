@@ -3,36 +3,33 @@
  * (wrong password or wrong code) per 10 minutes per IP. Successful logins
  * clear the counter, so normal use never locks anyone out.
  *
+ * The limiter and `clientIp` live in `@/lib/rate-limit` so the public contact
+ * form shares the same implementation. Counts are per process — see the note
+ * there about multi-instance deployments.
+ *
  * ⚠️ Server-only module.
  */
-import type { NextRequest } from "next/server";
+import { createRateLimiter } from "@/lib/rate-limit";
 
-const WINDOW = 10 * 60 * 1000;
+const WINDOW_MS = 10 * 60 * 1000;
 const MAX_FAILURES = 10;
-const shared = globalThis as unknown as { yantrixLoginFailures?: Map<string, number[]> };
-const failures = (shared.yantrixLoginFailures ??= new Map<string, number[]>());
 
-export function clientIp(request: NextRequest): string {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
-}
+export const loginLimiter = createRateLimiter({
+  name: "admin-login",
+  windowMs: WINDOW_MS,
+  max: MAX_FAILURES,
+});
+
+export { clientIp } from "@/lib/rate-limit";
 
 export function isBlocked(ip: string): boolean {
-  const now = Date.now();
-  const recent = (failures.get(ip) ?? []).filter((t) => now - t < WINDOW);
-  failures.set(ip, recent);
-  return recent.length >= MAX_FAILURES;
+  return !loginLimiter.blocked(ip).allowed;
 }
 
 export function recordFailure(ip: string): void {
-  const now = Date.now();
-  const recent = (failures.get(ip) ?? []).filter((t) => now - t < WINDOW);
-  recent.push(now);
-  failures.set(ip, recent);
-  if (failures.size > 5000) {
-    for (const [key, times] of failures) if (times.every((t) => now - t >= WINDOW)) failures.delete(key);
-  }
+  loginLimiter.record(ip);
 }
 
 export function clearFailures(ip: string): void {
-  failures.delete(ip);
+  loginLimiter.clear(ip);
 }
