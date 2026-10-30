@@ -4,15 +4,12 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
-import { CosmicPopup } from "@/components/site/cosmic-popup";
-import { SpaceBackground } from "@/components/site/space-background";
 import { WhatsAppFloat } from "@/components/site/whatsapp-float";
 import { PageHome } from "@/components/site/page-home";
 import { PageCourses } from "@/components/site/page-courses";
 import { PageAbout } from "@/components/site/page-about";
 import { PageContact } from "@/components/site/page-contact";
 import { ScrollProgress, BackToTop } from "@/components/site/fx";
-import { CursorGlow } from "@/components/site/ai-fx";
 import { useSiteStore } from "@/lib/store";
 import { useSiteContent } from "@/lib/content/provider";
 import type { SiteView } from "@/lib/content/types";
@@ -100,23 +97,6 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* ═══════════════════════════════════════════════════════════════
-         PERSISTENT SPACE BACKGROUND — always visible behind content
-         ═══════════════════════════════════════════════════════════════ */}
-      <SpaceBackground
-        className="fixed inset-0 z-0"
-        intensity={1.0}
-        showShootingStars
-        showNebula
-        showAurora
-      />
-
-      {/* Dark overlay for content readability */}
-      <div
-        className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-space/60 via-transparent to-space/40"
-        aria-hidden="true"
-      />
-
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-2 focus:text-white"
@@ -124,7 +104,6 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
         Skip to main content
       </a>
       <ScrollProgress />
-      <CursorGlow />
       <Header />
 
       <main id="main-content" className="flex-1 relative z-10">
@@ -173,11 +152,6 @@ export function SiteShell({ initialView = "home" }: { initialView?: SiteView }) 
       <Footer />
       <WhatsAppFloat />
       <BackToTop />
-
-      {/* ═══════════════════════════════════════════════════════════════
-         COSMIC POPUP — animated welcome modal on first visit
-         ═══════════════════════════════════════════════════════════════ */}
-      <CosmicPopup />
     </div>
   );
 }

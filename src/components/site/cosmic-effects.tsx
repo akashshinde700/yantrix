@@ -72,15 +72,17 @@ export function CosmicDivider({
    STAR FIELD OVERLAY — subtle twinkling stars overlay for any section
    ═══════════════════════════════════════════════════════════════════════ */
 
-const STAR_POSITIONS = Array.from({ length: 40 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 100,
-  y: Math.random() * 100,
-  size: 1 + Math.random() * 2,
-  delay: Math.random() * 5,
-  duration: 2 + Math.random() * 4,
-  opacity: 0.3 + Math.random() * 0.7,
-}));
+/** Deterministic PRNG so server and client render identical stars (no hydration mismatch). */
+function seeded(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return Math.round((((t ^ (t >>> 14)) >>> 0) / 4294967296) * 1e4) / 1e4;
+  };
+}
 
 export function StarFieldOverlay({
   className,
@@ -89,14 +91,15 @@ export function StarFieldOverlay({
   className?: string;
   count?: number;
 }) {
+  const rand = seeded(count * 7919);
   const stars = Array.from({ length: count }, (_, i) => ({
     id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 1 + Math.random() * 2.5,
-    delay: Math.random() * 5,
-    duration: 2 + Math.random() * 4,
-    opacity: 0.3 + Math.random() * 0.7,
+    x: rand() * 100,
+    y: rand() * 100,
+    size: 1 + rand() * 2.5,
+    delay: rand() * 5,
+    duration: 2 + rand() * 4,
+    opacity: 0.3 + rand() * 0.7,
   }));
 
   return (
