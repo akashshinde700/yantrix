@@ -3,6 +3,7 @@
 import { GraduationCap, MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
+import { StarFieldOverlay } from "@/components/site/cosmic-effects";
 import { useSiteStore } from "@/lib/store";
 import { useCollection, useSettings } from "@/lib/content/provider";
 import { emailHref, fullAddress, phoneHref, whatsappUrl } from "@/lib/content/helpers";
@@ -19,7 +20,10 @@ export function Footer() {
   const mailHref = emailHref(settings);
 
   return (
-    <footer className="mt-auto bg-space text-slate-300">
+    <footer className="mt-auto bg-space text-slate-300 relative overflow-hidden">
+      {/* Star field overlay */}
+      <StarFieldOverlay className="absolute inset-0 z-0" count={40} />
+
       {/* Top neon edge */}
       <div className="neon-line" aria-hidden="true" />
 
