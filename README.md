@@ -1,5 +1,8 @@
 # Yantrix Technology — website + admin panel
 
+> 📘 **Naye user hain?** [`docs/Yantrix-User-Guide-Hinglish.docx`](docs/Yantrix-User-Guide-Hinglish.docx) —
+> poori Hinglish user guide, har public page aur har admin panel ke screenshots + step-by-step instructions ke saath.
+
 Marketing website for **Yantrix Technology** (IT training institute, Dhanori, Pune)
 with a complete, password-protected admin panel. Every piece of text on the
 public site — hero slides, courses, FAQs, section headings, page copy, contact
