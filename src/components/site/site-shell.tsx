@@ -11,6 +11,7 @@ import { CosmicPopup } from "@/components/site/cosmic-popup";
 import { YantrixGuide } from "@/components/site/yantrix-guide";
 import { ChapterDock } from "@/components/site/universe/chapter-dock";
 import { SmoothScroll } from "@/components/site/smooth-scroll";
+import { resumeAmbientOnFirstGesture } from "@/components/site/universe/ambient-sound";
 import { PageHome } from "@/components/site/page-home";
 import { PageCourses } from "@/components/site/page-courses";
 import { PageAbout } from "@/components/site/page-about";
@@ -56,7 +57,9 @@ export function SiteShell({
   const [mounted, setMounted] = useState(false);
   const pendingSection = useSiteStore((s) => s.pendingSection);
   const clearPendingSection = useSiteStore((s) => s.clearPendingSection);
-  const seoPages = useSiteContent().seo.pages;
+  const content = useSiteContent();
+  const seoPages = content.seo.pages;
+  const ctaHidden = content.sections.cta.hidden;
 
   /* A detail page stays up until the visitor navigates anywhere. */
   const showDetail = Boolean(detail) && navId === 0;
@@ -77,6 +80,12 @@ export function SiteShell({
       window.history.pushState(null, "", VIEW_PATHS[view]);
     }
   }, [view, mounted, showDetail]);
+
+  /* Returning visitor who left the space sound on: resume it on their first click/tap */
+  useEffect(() => {
+    if (!document.documentElement.hasAttribute("data-entered")) return; // the door click starts it instead
+    return resumeAmbientOnFirstGesture();
+  }, []);
 
   /* Browser back/forward between views */
   useEffect(() => {
@@ -170,7 +179,8 @@ export function SiteShell({
         </AnimatePresence>
       </main>
 
-      <Footer />
+      {/* every page except Contact ends with the CtaBand finale — the footer then skips its own CTA strip */}
+      <Footer showCta={(activeView === "contact" && !showDetail) || ctaHidden} />
       <WhatsAppFloat />
       <BackToTop />
       {activeView === "home" && !showDetail && <ChapterDock />}

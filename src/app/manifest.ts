@@ -13,6 +13,10 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     display: "standalone",
     background_color: "#02040c",
     theme_color: content.seo.global.themeColor || "#02040c",
-    icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
+    icons: [
+      { src: "/brand/yantrix-icon.svg", sizes: "any", type: "image/svg+xml" },
+      { src: "/brand/favicon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/brand/yantrix-icon.png", sizes: "1024x1024", type: "image/png", purpose: "any" },
+    ],
   };
 }

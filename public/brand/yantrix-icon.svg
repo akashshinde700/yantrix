@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="84 146 835 835" role="img" aria-label="Yantrix Technology"><defs>
+<linearGradient id="gV" gradientUnits="userSpaceOnUse" x1="200" y1="186" x2="700" y2="480"><stop offset="0" stop-color="#03adff"/><stop offset="1" stop-color="#1228d8"/></linearGradient>
+<linearGradient id="gL" gradientUnits="userSpaceOnUse" x1="124" y1="248" x2="455" y2="891"><stop offset="0" stop-color="#e9eaf5"/><stop offset="1" stop-color="#b0b6cd"/></linearGradient>
+<linearGradient id="gR" gradientUnits="userSpaceOnUse" x1="540" y1="260" x2="879" y2="520"><stop offset="0" stop-color="#d9dcea"/><stop offset="1" stop-color="#bcc1d6"/></linearGradient>
+<linearGradient id="gB" gradientUnits="userSpaceOnUse" x1="510" y1="560" x2="660" y2="800"><stop offset="0" stop-color="#14b0ff"/><stop offset="1" stop-color="#1640e2"/></linearGradient>
+<linearGradient id="gBar" gradientUnits="userSpaceOnUse" x1="0" y1="190" x2="0" y2="877"><stop offset="0" stop-color="#17c6ff"/><stop offset="1" stop-color="#1d58f4"/></linearGradient>
+<linearGradient id="gX" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#14c8ff"/><stop offset="1" stop-color="#1a30d8"/></linearGradient>
+</defs><g id="icon">
+<polygon points="124,248 124,344 340,572 340,792 455,891 455,523" fill="url(#gL)"/>
+<polygon points="879,240 524,496 562,519 712,519 879,352" fill="url(#gR)"/>
+<polygon points="170,186 503,479 839,186 655,186 504,323 360,186" fill="url(#gV)"/>
+<polygon points="659,524 545,535 510,590 510,935 659,796" fill="url(#gB)"/>
+</g></svg>

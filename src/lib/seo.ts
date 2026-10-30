@@ -152,7 +152,7 @@ export function buildJsonLd(
       foundingDate: String(settings.foundedYear),
       email: settings.contact.email,
       telephone: settings.contact.phone,
-      logo: absoluteUrl(content, global.ogImage || "/logo.svg"),
+      logo: absoluteUrl(content, "/brand/yantrix-icon.png"),
       image: absoluteUrl(content, global.ogImage || "/images/hero-1.png"),
       address,
       areaServed: global.areaServed,

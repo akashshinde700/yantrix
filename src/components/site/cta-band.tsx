@@ -11,7 +11,7 @@ import { phoneHref, whatsappUrl } from "@/lib/content/helpers";
 /**
  * The closing scene of a page: a large, calm finale over the universe (the
  * spiral galaxy on the home page) with every next step in one place.
- * Marked with data-cta-band so the footer hides its duplicate CTA strip.
+ * Pages that end with it tell the footer to skip its own CTA strip (site-shell).
  */
 export function CtaBand({ title, description }: { title?: string; description?: string }) {
   const navigate = useSiteStore((s) => s.navigate);
@@ -22,7 +22,7 @@ export function CtaBand({ title, description }: { title?: string; description?: 
   const body = description ?? section.description;
 
   return (
-    <section data-cta-band className="relative py-20 sm:py-28" aria-labelledby="cta-heading">
+    <section className="relative py-20 sm:py-28" aria-labelledby="cta-heading">
       {/* soft light so the copy reads over the galaxy */}
       <div
         aria-hidden="true"

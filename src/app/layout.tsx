@@ -132,6 +132,8 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html:
               '(function(){try{var d=document.documentElement;' +
+              // public site theme hook (replaces an expensive html:has(.universe) selector)
+              'if(!/^\\/admin/.test(location.pathname))d.classList.add("site-universe");' +
               'if(sessionStorage.getItem("yantrix_entered")' +
               '||/bot|crawl|spider|slurp|lighthouse|pagespeed|headless|preview|inspect/i.test(navigator.userAgent)' +
               '||/(google|bing|yahoo|duckduckgo|yandex|baidu|ecosia|perplexity|chatgpt|openai|claude|gemini|copilot)\\./i.test(document.referrer))' +

@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, BadgeCheck, Quote, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SectionHeading } from "@/components/site/section-heading";
@@ -14,13 +14,19 @@ function StudentCard({ student, className }: { student: PlacedStudent; className
   return (
     <article
       className={cn(
-        "group flex h-full w-[300px] shrink-0 flex-col gap-4 rounded-3xl border border-white/10 bg-[#0a1230]/85 p-5 transition-colors duration-300 hover:border-cyan-300/40",
+        "group flex h-full w-[300px] shrink-0 flex-col gap-4 rounded-3xl border border-white/10 bg-[#0a1230]/85 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_18px_40px_-18px_rgba(34,211,238,0.55)]",
         className
       )}
     >
       <div className="flex items-center gap-4">
         <div className="relative shrink-0">
-          <PersonPhoto src={student.photo} name={student.name} className="h-16 w-16 rounded-2xl text-[11px]" />
+          <div className="h-16 w-16 overflow-hidden rounded-2xl">
+            <PersonPhoto
+              src={student.photo}
+              name={student.name}
+              className="h-16 w-16 text-[11px] transition-transform duration-500 group-hover:scale-110"
+            />
+          </div>
           <BadgeCheck
             className="absolute -bottom-1.5 -right-1.5 h-6 w-6 rounded-full bg-[#0a1230] text-emerald-300"
             aria-label="Placed"
@@ -64,10 +70,61 @@ function StudentCard({ student, className }: { student: PlacedStudent; className
   );
 }
 
+const FIRST_BATCH = 15;
+
+/**
+ * The card grid inside the panel. Mounted only while the panel is open, so it
+ * renders the first 15 cards immediately (the panel appears instantly) and
+ * the rest once the opening animation has played. Cards cascade in; when the
+ * filter changes, removed cards fade out and — for small result sets — the
+ * remaining ones glide into their new places.
+ */
+function PlacedGrid({ shown, reduced }: { shown: PlacedStudent[]; reduced: boolean }) {
+  const [limit, setLimit] = useState(FIRST_BATCH);
+  useEffect(() => {
+    const t = setTimeout(() => setLimit(Number.POSITIVE_INFINITY), 650);
+    return () => clearTimeout(t);
+  }, []);
+  const visible = shown.slice(0, limit);
+  const glide = !reduced && shown.length <= 40; // layout tracking is cheap only for small sets
+
+  return (
+    <ul className="placed-scroll -mx-1 grid flex-1 content-start gap-3 overflow-y-auto px-1 pb-2 pt-1 sm:grid-cols-2 lg:grid-cols-3">
+      <AnimatePresence mode="popLayout" initial>
+        {visible.map((s, i) => {
+          const blur = i < FIRST_BATCH;
+          return (
+            <motion.li
+              key={s.id}
+              layout={glide}
+              initial={reduced ? false : { opacity: 0, y: 18, scale: 0.96, ...(blur ? { filter: "blur(6px)" } : {}) }}
+              animate={{ opacity: 1, y: 0, scale: 1, ...(blur ? { filter: "blur(0px)" } : {}) }}
+              exit={reduced ? undefined : { opacity: 0, scale: 0.94, transition: { duration: 0.18 } }}
+              transition={{
+                duration: 0.45,
+                delay: reduced ? 0 : i < FIRST_BATCH ? 0.28 + i * 0.035 : Math.min(i - FIRST_BATCH, 20) * 0.02,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <StudentCard student={s} className="w-full" />
+            </motion.li>
+          );
+        })}
+      </AnimatePresence>
+      {shown.length === 0 && (
+        <motion.li initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full py-12 text-center text-sm text-slate-400">
+          No students match your search.
+        </motion.li>
+      )}
+    </ul>
+  );
+}
+
 /** Every placed student, searchable by name or company, with quick company filters. */
 function AllPlacedDialog({ students }: { students: PlacedStudent[] }) {
   const [query, setQuery] = useState("");
   const [company, setCompany] = useState<string | null>(null);
+  const reduced = useReducedMotion();
   const companies = useMemo(() => {
     const counts = new Map<string, number>();
     for (const s of students) if (s.company) counts.set(s.company, (counts.get(s.company) ?? 0) + 1);
@@ -83,56 +140,93 @@ function AllPlacedDialog({ students }: { students: PlacedStudent[] }) {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="mx-auto mt-10 flex items-center gap-2 rounded-full border border-cyan-300/40 bg-cyan-400/10 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-cyan-400/20"
+          className="group mx-auto mt-10 flex items-center gap-2 rounded-full border border-cyan-300/40 bg-cyan-400/10 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-cyan-400/20 hover:shadow-[0_0_30px_-6px_rgba(34,211,238,0.7)]"
         >
           View all {students.length} placed students
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
         </button>
       </DialogTrigger>
-      <DialogContent data-lenis-prevent className="flex max-h-[90svh] flex-col border-white/10 bg-[#070d22] text-white sm:max-w-5xl">
-        <div>
-          <DialogTitle className="text-2xl font-extrabold">All placed students</DialogTitle>
-          <DialogDescription className="mt-1 text-sm text-slate-400">
-            {students.length} students placed — search by name or company.
-          </DialogDescription>
-        </div>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
-          <label htmlFor="placed-search" className="sr-only">Search placed students</label>
-          <input
-            id="placed-search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name or company…"
-            className="h-11 w-full rounded-full border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-cyan-300/50 focus:outline-none"
-          />
-        </div>
-        {companies.length > 1 && (
-          <div className="flex flex-wrap gap-1.5">
-            {[null, ...companies.map(([c]) => c)].map((c) => (
-              <button
-                key={c ?? "all"}
-                type="button"
-                onClick={() => setCompany(c)}
-                aria-pressed={company === c}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
-                  company === c ? "border-cyan-300/60 bg-cyan-400/15 text-white" : "border-white/10 text-slate-300 hover:text-white"
-                )}
-              >
-                {c ?? "All"}
-              </button>
-            ))}
+      <DialogContent
+        data-lenis-prevent
+        className="placed-dialog flex max-h-[90svh] flex-col overflow-hidden border-white/10 bg-[#070d22] text-white sm:max-w-5xl"
+      >
+        {/* header + live counter */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-wrap items-end justify-between gap-3 pr-8"
+        >
+          <div>
+            <DialogTitle className="text-2xl font-extrabold">All placed students</DialogTitle>
+            <DialogDescription className="mt-1 text-sm text-slate-400">
+              Search by name or company, or pick a company below.
+            </DialogDescription>
           </div>
-        )}
-        <ul className="-mx-1 grid flex-1 gap-3 overflow-y-auto px-1 pb-1 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
-          {shown.map((s) => (
-            <li key={s.id}>
-              <StudentCard student={s} className="w-full" />
-            </li>
-          ))}
-          {shown.length === 0 && <li className="col-span-full py-10 text-center text-sm text-slate-400">No students match your search.</li>}
-        </ul>
+          <p className="text-sm text-slate-400" aria-live="polite">
+            Showing{" "}
+            <motion.span
+              key={shown.length}
+              initial={reduced ? false : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-block min-w-[2ch] text-right text-lg font-extrabold text-white"
+            >
+              {shown.length}
+            </motion.span>{" "}
+            of {students.length}
+          </p>
+        </motion.div>
+
+        {/* search + company chips */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          className="space-y-3"
+        >
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
+            <label htmlFor="placed-search" className="sr-only">Search placed students</label>
+            <input
+              id="placed-search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search name or company…"
+              className="h-11 w-full rounded-full border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white transition-shadow placeholder:text-slate-500 focus:border-cyan-300/50 focus:shadow-[0_0_0_4px_rgba(34,211,238,0.12)] focus:outline-none"
+            />
+          </div>
+          {companies.length > 1 && (
+            <div className="flex flex-wrap gap-1.5">
+              {[null, ...companies.map(([c]) => c)].map((c) => {
+                const active = company === c;
+                return (
+                  <button
+                    key={c ?? "all"}
+                    type="button"
+                    onClick={() => setCompany(c)}
+                    aria-pressed={active}
+                    className={cn(
+                      "relative rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
+                      active ? "border-transparent text-white" : "border-white/10 text-slate-300 hover:border-white/25 hover:text-white"
+                    )}
+                  >
+                    {/* the highlight slides from chip to chip */}
+                    {active && (
+                      <motion.span
+                        layoutId="placed-chip"
+                        className="absolute inset-0 rounded-full border border-cyan-300/60 bg-gradient-to-r from-cyan-400/25 to-violet-500/25 shadow-[0_0_16px_-4px_rgba(34,211,238,0.8)]"
+                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                      />
+                    )}
+                    <span className="relative">{c ?? "All"}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+
+        <PlacedGrid shown={shown} reduced={Boolean(reduced)} />
       </DialogContent>
     </Dialog>
   );

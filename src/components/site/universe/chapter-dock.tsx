@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Volume2, VolumeX } from "lucide-react";
 import { CHAPTERS } from "@/components/site/universe/chapters";
-import { isAmbientPlaying, startAmbient, stopAmbient } from "@/components/site/universe/ambient-sound";
+import { SoundButton } from "@/components/site/sound-button";
 import { cn } from "@/lib/utils";
 
 /** Index of the chapter currently in the middle of the viewport. */
@@ -16,34 +15,6 @@ function currentChapter(): number {
     if (el && el.getBoundingClientRect().top <= mid) idx = i;
   });
   return idx;
-}
-
-function SoundToggle() {
-  const [on, setOn] = useState(false);
-  useEffect(() => () => stopAmbient(), []);
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        if (isAmbientPlaying()) {
-          stopAmbient();
-          setOn(false);
-        } else {
-          startAmbient();
-          setOn(true);
-        }
-      }}
-      aria-pressed={on}
-      aria-label={on ? "Turn space sound off" : "Turn space sound on"}
-      title={on ? "Sound on" : "Sound off"}
-      className={cn(
-        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors",
-        on ? "bg-cyan-400/20 text-cyan-200" : "text-slate-400 hover:text-white"
-      )}
-    >
-      {on ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-    </button>
-  );
 }
 
 /**
@@ -145,7 +116,7 @@ export function ChapterDock() {
         </div>
 
         <span aria-hidden="true" className="mx-1 h-5 w-px bg-white/10" />
-        <SoundToggle />
+        <SoundButton />
       </div>
     </nav>
   );

@@ -112,7 +112,7 @@ function FooterLink({ children, onClick, href }: { children: ReactNode; onClick?
  * light on hover. The CTA strip hides itself on pages that end with the
  * CtaBand finale (see globals.css).
  */
-export function Footer() {
+export function Footer({ showCta = true }: { showCta?: boolean }) {
   const navigate = useSiteStore((s) => s.navigate);
   const settings = useSettings();
   const quickLinks = useCollection<NavLink>("navFooter");
@@ -170,7 +170,8 @@ export function Footer() {
       </svg>
 
       <div className="relative pt-24 sm:pt-32">
-        {/* CTA strip — hidden on pages that end with the CtaBand finale */}
+        {/* CTA strip — only on pages without the CtaBand finale (the shell decides) */}
+        {showCta && (
         <div className="footer-cta mx-auto mb-14 max-w-7xl px-4 sm:px-6">
           <div className="flex flex-col items-center justify-between gap-5 rounded-3xl border border-white/10 bg-[#0a1230]/80 px-6 py-7 text-center md:flex-row md:text-left">
             <div>
@@ -196,6 +197,7 @@ export function Footer() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Columns */}
         <motion.div
@@ -206,7 +208,7 @@ export function Footer() {
         >
           {/* Brand */}
           <motion.div custom={0} variants={column} className="space-y-5">
-            <Logo variant="dark" />
+            <Logo variant="dark" height={56} />
             <p className="max-w-sm text-sm leading-relaxed text-slate-400">{settings.positioning}</p>
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-brand-200 ring-1 ring-white/10">

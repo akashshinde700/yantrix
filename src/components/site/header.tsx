@@ -6,6 +6,7 @@ import { Menu, X, GraduationCap, MonitorSmartphone, Handshake, Phone } from "luc
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
+import { SoundButton } from "@/components/site/sound-button";
 import { useSiteStore } from "@/lib/store";
 import { useCollection, useSettings } from "@/lib/content/provider";
 import { phoneHref, whatsappUrl } from "@/lib/content/helpers";
@@ -72,7 +73,7 @@ export function Header() {
             className="group rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
             aria-label={`${settings.name} — go to home page`}
           >
-            <Logo />
+            <Logo height={48} className="max-sm:!h-10" />
           </button>
 
           {/* Desktop nav */}
@@ -103,6 +104,7 @@ export function Header() {
           </ul>
 
           <div className="flex items-center gap-2.5">
+            <SoundButton className="h-10 w-10 ring-1 ring-white/10" />
             <a
               href={waHref}
               target="_blank"

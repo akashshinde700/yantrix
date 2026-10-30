@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { ImageResponse } from "next/og";
 import { getContent } from "@/lib/content/store";
 import { courseHeadline, findCourse } from "@/lib/seo";
@@ -14,6 +16,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { settings } = content;
   const title = course ? courseHeadline(content, course) : settings.name;
   const facts = course ? [course.duration, course.level, (course.modes ?? []).join(" & ")].filter(Boolean) : [];
+  const icon = `data:image/png;base64,${(await readFile(path.join(process.cwd(), "public/brand/yantrix-icon.png"))).toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -32,21 +35,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 18,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 36,
-              fontWeight: 800,
-              background: "linear-gradient(135deg, #2563eb, #0e7490)",
-            }}
-          >
-            Y
-          </div>
+          <img src={icon} width={72} height={72} alt="" />
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 30, fontWeight: 800 }}>{settings.name}</span>
             <span style={{ fontSize: 18, color: "#67e8f9", letterSpacing: 4 }}>{settings.domain.toUpperCase()}</span>

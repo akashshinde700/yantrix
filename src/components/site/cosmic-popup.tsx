@@ -224,12 +224,12 @@ export function CosmicPopup() {
               {/* Icon + title */}
               <div className="flex items-start gap-4">
                 <motion.div
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-cyan-500 text-white shadow-lg shadow-cyan-500/30"
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#060a1c] p-2 shadow-lg shadow-cyan-500/30 ring-1 ring-cyan-400/30"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.6, delay: 0.3, ease: "backOut" }}
                 >
-                  <GraduationCap className="h-6 w-6" />
+                  <img src="/brand/yantrix-icon.svg" alt="" width={40} height={40} className="h-full w-full" />
                 </motion.div>
                 <div>
                   <h3 className="text-xl font-extrabold text-white">

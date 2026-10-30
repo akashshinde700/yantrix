@@ -899,6 +899,8 @@ export default function UniverseScene({ view }: { view: SiteView }) {
       const rawDt = clock.getDelta();
       const dt = Math.min(rawDt, 0.05);
       if (!reducedMotion) adaptQuality(rawDt);
+      // a modal (dialog / panel) is open: the scene is hidden behind it — skip the frame
+      if (document.body.hasAttribute("data-scroll-locked")) return;
       const target = desiredProgress();
 
       if (reducedMotion) {

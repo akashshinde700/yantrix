@@ -1,45 +1,41 @@
 import { useSettings } from "@/lib/content/provider";
 import { cn } from "@/lib/utils";
 
+/**
+ * Official logo artwork (public/brand): icon + "YANTRIX" only — the
+ * "TECHNOLOGY" line and the "Code | Create | Conquer" tagline are left out
+ * (full versions stay in public/brand/yantrix-logo*.svg). Lettering is
+ * outlined paths, so it renders identically everywhere.
+ */
+const LOGO = {
+  /** dark lettering — for light backgrounds */
+  light: "/brand/yantrix-wordmark.svg",
+  /** white lettering — for dark backgrounds */
+  dark: "/brand/yantrix-wordmark-dark.svg",
+};
+const RATIO = 2980 / 830; // artwork viewBox width / height
+
 export function Logo({
-  variant = "light",
+  variant = "dark",
   className,
+  height = 44,
 }: {
+  /** the background the logo sits on */
   variant?: "light" | "dark";
   className?: string;
+  /** rendered height in px (width follows the artwork ratio) */
+  height?: number;
 }) {
   const settings = useSettings();
   return (
-    <span className={cn("flex items-center gap-2.5", className)}>
-      <span
-        aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 via-brand-800 to-space shadow-md shadow-brand-900/20 ring-1 ring-cyber-400/25 transition-all duration-500 group-hover:rotate-[10deg] group-hover:scale-110 group-hover:shadow-[0_0_24px_-2px_rgba(34,211,238,0.55)]"
-      >
-        <svg viewBox="0 0 64 64" className="h-6 w-6" fill="none">
-          <path
-            d="M18 17h11l3 9 3-9h11l-9.5 19.5V47h-9V36.5L18 17z"
-            fill="#ffffff"
-          />
-        </svg>
-      </span>
-      <span className="flex flex-col leading-none">
-        <span
-          className={cn(
-            "text-lg font-extrabold tracking-tight",
-            variant === "light" ? "text-ink" : "text-white"
-          )}
-        >
-          {settings.shortName} <span className="text-brand-600">{settings.name.replace(settings.shortName, "").trim() || "Technology"}</span>
-        </span>
-        <span
-          className={cn(
-            "mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]",
-            variant === "light" ? "text-muted-foreground" : "text-brand-200"
-          )}
-        >
-          {settings.domain}
-        </span>
-      </span>
-    </span>
+    <img
+      src={LOGO[variant]}
+      alt={settings.name}
+      width={Math.round(height * RATIO)}
+      height={height}
+      decoding="async"
+      className={cn("block h-auto max-w-full select-none transition-[filter] duration-300 group-hover:brightness-110", className)}
+      style={{ height, width: "auto" }}
+    />
   );
 }

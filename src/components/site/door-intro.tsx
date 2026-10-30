@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSettings } from "@/lib/content/provider";
 import { ENTERED_EVENT, ENTERED_KEY } from "@/components/site/universe/chapters";
 import { cn } from "@/lib/utils";
+import { soundPreference, startAmbient } from "@/components/site/universe/ambient-sound";
 
 /**
  * Entrance door shown once per browser session, before the welcome popup.
@@ -143,18 +144,41 @@ function Emblem({ lit }: { lit: boolean }) {
       </g>
       {/* hexagon */}
       <polygon points="100,44 148.5,72 148.5,128 100,156 51.5,128 51.5,72" fill="none" stroke="url(#door-gold)" strokeOpacity="0.8" strokeWidth="1.2" />
-      {/* core + brand monogram */}
+      {/* core: dark lens with a blue glow, holding the official Yantrix icon */}
       <circle
         cx="100"
         cy="100"
         r="40"
-        fill="url(#door-core)"
+        fill="#050a1e"
+        stroke="url(#door-core)"
+        strokeWidth="2"
         className="transition-[filter] duration-700"
-        style={{ filter: lit ? "drop-shadow(0 0 22px #67e8f9) brightness(1.35)" : "drop-shadow(0 0 10px rgba(34,211,238,0.7))" }}
+        style={{ filter: lit ? "drop-shadow(0 0 24px #67e8f9) brightness(1.3)" : "drop-shadow(0 0 10px rgba(34,211,238,0.7))" }}
       />
-      <g transform="translate(64 64) scale(1.125)">
-        <path d="M18 17h11l3 9 3-9h11l-9.5 19.5V47h-9V36.5L18 17z" fill="#ffffff" />
-      </g>
+      <svg x="73" y="73" width="54" height="54" viewBox="84 146 835 835">
+        <defs>
+          <linearGradient id="di-v" gradientUnits="userSpaceOnUse" x1="200" y1="186" x2="700" y2="480">
+            <stop offset="0" stopColor="#03adff" />
+            <stop offset="1" stopColor="#1228d8" />
+          </linearGradient>
+          <linearGradient id="di-l" gradientUnits="userSpaceOnUse" x1="124" y1="248" x2="455" y2="891">
+            <stop offset="0" stopColor="#e9eaf5" />
+            <stop offset="1" stopColor="#b0b6cd" />
+          </linearGradient>
+          <linearGradient id="di-r" gradientUnits="userSpaceOnUse" x1="540" y1="260" x2="879" y2="520">
+            <stop offset="0" stopColor="#d9dcea" />
+            <stop offset="1" stopColor="#bcc1d6" />
+          </linearGradient>
+          <linearGradient id="di-b" gradientUnits="userSpaceOnUse" x1="510" y1="560" x2="660" y2="800">
+            <stop offset="0" stopColor="#14b0ff" />
+            <stop offset="1" stopColor="#1640e2" />
+          </linearGradient>
+        </defs>
+        <polygon points="124,248 124,344 340,572 340,792 455,891 455,523" fill="url(#di-l)" />
+        <polygon points="879,240 524,496 562,519 712,519 879,352" fill="url(#di-r)" />
+        <polygon points="170,186 503,479 839,186 655,186 504,323 360,186" fill="url(#di-v)" />
+        <polygon points="659,524 545,535 510,590 510,935 659,796" fill="url(#di-b)" />
+      </svg>
     </svg>
   );
 }
@@ -288,6 +312,8 @@ export function DoorIntro() {
       return;
     }
     playDoorSound();
+    // the click is the visitor's permission for audio: the space ambience swells in as the doors open
+    if (soundPreference() !== "off") startAmbient({ delay: 2.6 });
     setPhase("unlocking");
     timers.current.push(setTimeout(() => setPhase("opening"), UNLOCK_MS));
     timers.current.push(setTimeout(finish, UNLOCK_MS + OPEN_MS));
