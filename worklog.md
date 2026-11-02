@@ -353,3 +353,37 @@ trainers.filterAll, trainers.sectionLabel.
 wall (6 cards, count chips, filter chips) and the partner wall; a mentor created
 through the admin API with company/specialisation appeared on both pages and was
 deleted again.
+
+## Course page: the six remaining reference blocks
+
+Checked the course page against the reference and closed the gaps so each block
+the owner asked about exists as its own labelled, admin-editable section.
+
+- **What do we offer** — the benefit cards now run under that eyebrow
+  (`cp.offerEyebrow`); `offerTitle` on the course overrides the heading, with
+  `cp.offerTitle` as the default ("What this program gives you at <brand>").
+- **Who should attend?** — NEW section (`#audience`) with a heading
+  (`audienceTitle` per course), intro, persona bullets (`audiencePoints`), a
+  closing "not sure? ask us" card and enquire / WhatsApp buttons. Falls back to
+  the single `audience` line when no bullets exist. All 8 seed courses got four
+  persona bullets each; `fillCourseSections` backfills them for existing sites.
+- **Capstone projects / Mini projects** — the projects section now has two
+  clearly labelled halves, each with its own icon, note and count chip
+  (`cp.capstoneHeading`, `cp.miniHeading`, `cp.projectCount`).
+- **Stand out with an industry-recognized certification** — the certificate is no
+  longer buried inside "What's included": it is its own section (`#certificate`)
+  with an eyebrow, heading (course override or `cp.certificateTitle`), text and
+  three proof chips.
+- **Learn from certified experts** — the mentor block's default heading
+  (`cp.trainerTitle`), eyebrow "Your mentor"; avatar, role, experience and
+  "small batches" line stay.
+- The on-page jump nav now reads from these same labels (What do we offer, Who
+  should attend?, Certification, Your mentor) and follows the real section order.
+- Course editor: new "Who should attend" heading + bullets and "What do we offer"
+  heading fields on the Basics tab; the certificate panel is retitled
+  Certification and explains where it renders.
+
+**Verified**: tsc, eslint and `next build` clean; all 8 course pages 200 and each
+contains every one of the six blocks, in the right order:
+overview → why → audience → tools → learn → curriculum → included → certificate
+→ projects → batches → placement → trainer → reviews → FAQs → related.

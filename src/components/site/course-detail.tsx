@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Award,
+  Boxes,
   BarChart3,
   BookOpen,
   Briefcase,
@@ -288,16 +289,22 @@ export function CourseDetail({ slug }: { slug: string }) {
   ];
 
   const anchors = [
-    { id: "overview", label: "Overview" },
-    ...(benefits.length ? [{ id: "why", label: "Why this course" }] : []),
-    ...(tools.length ? [{ id: "tools", label: "Tools covered" }] : []),
+    { id: "overview", label: t("cp.overviewLabel") },
+    ...(benefits.length ? [{ id: "why", label: t("cp.offerEyebrow") }] : []),
+    ...(course.audiencePoints?.length || course.audience
+      ? [{ id: "audience", label: t("cp.audienceEyebrow") }]
+      : []),
+    ...(tools.length ? [{ id: "tools", label: t("cp.toolsEyebrow") }] : []),
     ...(learn.length ? [{ id: "learn", label: "What you'll learn" }] : []),
     ...(curriculum.length ? [{ id: "curriculum", label: "Curriculum" }] : []),
-    ...(includes.length || course.certificateTitle ? [{ id: "included", label: "What's included" }] : []),
+    ...(includes.length ? [{ id: "included", label: t("cp.includedEyebrow") }] : []),
+    ...(course.certificateTitle || course.certificateText
+      ? [{ id: "certificate", label: t("cp.certificateEyebrow") }]
+      : []),
     ...(projects.length || miniProjects.length ? [{ id: "projects", label: "Projects" }] : []),
     ...(batches.length ? [{ id: "batches", label: "Batches" }] : []),
     ...(hasPlacement ? [{ id: "placement", label: "Placement" }] : []),
-    ...(hasTrainer ? [{ id: "trainer", label: "Trainer" }] : []),
+    ...(hasTrainer ? [{ id: "trainer", label: t("cp.trainerEyebrow") }] : []),
     ...(reviews.length ? [{ id: "reviews", label: "Reviews" }] : []),
     ...(faqs.length ? [{ id: "faqs", label: "FAQs" }] : []),
   ];
@@ -618,8 +625,11 @@ export function CourseDetail({ slug }: { slug: string }) {
       {benefits.length ? (
         <Section
           id="why"
-          eyebrow={t("cp.whyEyebrow")}
-          title={`What makes ${course.title} at ${settings.shortName || settings.name} different`}
+          eyebrow={t("cp.offerEyebrow")}
+          title={
+            course.offerTitle ||
+            `${t("cp.offerTitle")} at ${settings.shortName || settings.name}`
+          }
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {benefits.map((benefit, index) => (
@@ -652,6 +662,70 @@ export function CourseDetail({ slug }: { slug: string }) {
                 </div>
               </Reveal>
             ))}
+          </div>
+        </Section>
+      ) : null}
+
+      {/* ═══════════════ WHO SHOULD ATTEND ═══════════════ */}
+      {course.audiencePoints?.length || course.audience ? (
+        <Section
+          id="audience"
+          eyebrow={t("cp.audienceEyebrow")}
+          title={course.audienceTitle || t("cp.audienceTitle")}
+          description={t("cp.audienceText")}
+        >
+          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            {course.audiencePoints?.length ? (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {course.audiencePoints.filter(Boolean).map((point, index) => (
+                  <Reveal key={point} delay={index * 0.05}>
+                    <li className={cn(CARD, "flex h-full items-start gap-3 p-4")}>
+                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-cyber-400/25 bg-cyber-500/10 text-cyber-300">
+                        <UserRound className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <span className="text-sm leading-relaxed text-slate-200">{point}</span>
+                    </li>
+                  </Reveal>
+                ))}
+              </ul>
+            ) : (
+              <Reveal>
+                <p className={cn(CARD, "p-5 text-sm leading-relaxed text-slate-200")}>
+                  {course.audience}
+                </p>
+              </Reveal>
+            )}
+
+            <Reveal delay={0.1}>
+              <div className="aurora-card flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-br from-[#0c1738] to-[#070d22] p-5">
+                <div>
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-cyber-300">
+                    {t("cp.audienceEyebrow")}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                    {t("cp.audienceNote")}
+                  </p>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button
+                    onClick={() => navigate("contact", { course: course.title })}
+                    className="btn-futur h-10 rounded-full px-4 text-xs font-bold text-white"
+                  >
+                    {t("course.enquire")}
+                    <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                  </Button>
+                  <a
+                    href={whatsappUrl(settings, waMessage)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-whatsapp inline-flex h-10 items-center gap-2 rounded-full px-4 text-xs font-bold text-white"
+                  >
+                    <WhatsAppIcon className="h-4 w-4" />
+                    {t("course.askWhatsapp")}
+                  </a>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </Section>
       ) : null}
@@ -714,12 +788,15 @@ export function CourseDetail({ slug }: { slug: string }) {
         />
       ) : null}
 
-      {/* ═══════════════ WHAT'S INCLUDED + CERTIFICATE ═══════════════ */}
-      <IncludedSection
-        includes={includes}
-        certificateTitle={course.certificateTitle}
-        certificateText={course.certificateText}
-        certificateImage={course.certificateImage}
+      {/* ═══════════════ WHAT'S INCLUDED ═══════════════ */}
+      <IncludedSection includes={includes} />
+
+      {/* ═══════════════ CERTIFICATION ═══════════════ */}
+      <CertificateSection
+        title={course.certificateTitle}
+        text={course.certificateText}
+        image={course.certificateImage}
+        onEnquire={() => navigate("contact", { course: course.title })}
       />
 
       {/* ═══════════════ PROJECTS ═══════════════ */}
@@ -903,7 +980,11 @@ export function CourseDetail({ slug }: { slug: string }) {
 
 /* ─────────────────────────── page sections ─────────────────────────── */
 
-/** Capstone + mini projects — the "what you will build" part of the page. */
+/**
+ * Capstone + mini projects — the "what you will build" part of the page, split
+ * into two clearly labelled halves (capstone first, then the smaller
+ * build-along exercises), each with its own count.
+ */
 function ProjectsSection({
   courseTitle,
   projects,
@@ -922,53 +1003,78 @@ function ProjectsSection({
       description={t("cp.projectsText")}
     >
       {projects.length ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {projects.map((project, index) => (
-            <Reveal key={`${project.title}-${index}`} delay={index * 0.05}>
-              <article className={cn(CARD, "group flex h-full flex-col")}>
-                <div className="aspect-[16/9] w-full overflow-hidden border-b border-white/10">
-                  {project.image ? (
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                    />
-                  ) : (
-                    <div
-                      aria-hidden="true"
-                      className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.22),transparent_58%),radial-gradient(circle_at_80%_80%,rgba(37,99,235,0.28),transparent_58%),linear-gradient(135deg,#070d22,#0b1433)]"
-                    >
-                      <Rocket className="h-10 w-10 text-cyber-300/80" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-cyber-400/25 bg-cyber-500/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyber-200">
-                    {t("course.capstone")}
-                  </span>
-                  <h3 className="mt-2.5 text-base font-extrabold text-white">{project.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
-                    {project.description}
-                  </p>
-                </div>
-              </article>
-            </Reveal>
-          ))}
+        <div>
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyber-400/25 bg-cyber-500/10 text-cyber-300">
+              <Rocket className="h-4.5 w-4.5" aria-hidden="true" />
+            </span>
+            <div>
+              <h3 className="text-base font-extrabold text-white">{t("cp.capstoneHeading")}</h3>
+              <p className="text-xs text-slate-400">{t("cp.capstoneText")}</p>
+            </div>
+            <span className="hud-chip ml-auto">
+              {projects.length} {t("cp.projectCount")}
+            </span>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {projects.map((project, index) => (
+              <Reveal key={`${project.title}-${index}`} delay={index * 0.05}>
+                <article className={cn(CARD, "group flex h-full flex-col")}>
+                  <div className="aspect-[16/9] w-full overflow-hidden border-b border-white/10">
+                    {project.image ? (
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <div
+                        aria-hidden="true"
+                        className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.22),transparent_58%),radial-gradient(circle_at_80%_80%,rgba(37,99,235,0.28),transparent_58%),linear-gradient(135deg,#070d22,#0b1433)]"
+                      >
+                        <Rocket className="h-10 w-10 text-cyber-300/80" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-cyber-400/25 bg-cyber-500/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyber-200">
+                      {t("course.capstone")}
+                    </span>
+                    <h4 className="mt-2.5 text-base font-extrabold text-white">{project.title}</h4>
+                    <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
+                      {project.description}
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
         </div>
       ) : null}
 
       {miniProjects.length ? (
-        <div className="mt-8">
-          <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-300">
-            {t("course.miniProjects")}
-          </h3>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className={projects.length ? "mt-10" : undefined}>
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-400/25 bg-violet-500/10 text-violet-200">
+              <Boxes className="h-4.5 w-4.5" aria-hidden="true" />
+            </span>
+            <div>
+              <h3 className="text-base font-extrabold text-white">{t("cp.miniHeading")}</h3>
+              <p className="text-xs text-slate-400">{t("cp.miniText")}</p>
+            </div>
+            <span className="hud-chip ml-auto">
+              {miniProjects.length} {t("cp.projectCount")}
+            </span>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {miniProjects.map((project, index) => (
               <Reveal key={`${project.title}-${index}`} delay={index * 0.04}>
-                <div className="flex h-full items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-600/80 to-cyber-500/80 text-white">
+                <div className="flex h-full items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition-colors hover:border-violet-300/40 hover:bg-white/[0.06]">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500/80 to-brand-600/80 text-white">
                     <Rocket className="h-4 w-4" aria-hidden="true" />
                   </span>
                   <div>
@@ -987,20 +1093,10 @@ function ProjectsSection({
   );
 }
 
-/** "What's included" icon grid + certification block. */
-function IncludedSection({
-  includes,
-  certificateTitle,
-  certificateText,
-  certificateImage,
-}: {
-  includes: { label: string; icon?: string }[];
-  certificateTitle?: string;
-  certificateText?: string;
-  certificateImage?: string;
-}) {
+/** "What's included" icon grid — notes, practice, feedback, support. */
+function IncludedSection({ includes }: { includes: { label: string; icon?: string }[] }) {
   const t = useLabels();
-  if (!includes.length && !certificateTitle) return null;
+  if (!includes.length) return null;
   const Icon = getIcon;
 
   return (
@@ -1010,50 +1106,93 @@ function IncludedSection({
       title={t("cp.includedTitle")}
       description={t("cp.includedText")}
     >
-      {includes.length ? (
-        <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-          {includes.map((item, index) => {
-            const ItemIcon = Icon(item.icon);
-            return (
-              <Reveal key={`${item.label}-${index}`} delay={index * 0.03}>
-                <li className="flex h-full flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-4 text-center transition-colors hover:border-cyber-300/40 hover:bg-white/[0.06]">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyber-400/25 bg-cyber-500/10 text-cyber-300">
-                    <ItemIcon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span className="text-[11px] font-bold leading-tight text-slate-200">
-                    {item.label}
-                  </span>
-                </li>
-              </Reveal>
-            );
-          })}
-        </ul>
-      ) : null}
+      <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        {includes.map((item, index) => {
+          const ItemIcon = Icon(item.icon);
+          return (
+            <Reveal key={`${item.label}-${index}`} delay={index * 0.03}>
+              <li className="flex h-full flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-4 text-center transition-colors hover:border-cyber-300/40 hover:bg-white/[0.06]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyber-400/25 bg-cyber-500/10 text-cyber-300">
+                  <ItemIcon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span className="text-[11px] font-bold leading-tight text-slate-200">
+                  {item.label}
+                </span>
+              </li>
+            </Reveal>
+          );
+        })}
+      </ul>
+    </Section>
+  );
+}
 
-      {certificateTitle ? (
-        <div className="mt-6 grid items-center gap-5 rounded-2xl border border-white/10 bg-gradient-to-r from-[#0c1738] to-[#070d22] p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto]">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white">
-            <Award className="h-7 w-7" aria-hidden="true" />
-          </span>
-          <div>
-            <h3 className="text-base font-extrabold text-white">{certificateTitle}</h3>
-            {certificateText ? (
-              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-400">
-                {certificateText}
-              </p>
-            ) : null}
+/**
+ * Certification — its own block so the promise ("stand out with an
+ * industry-recognised certification") reads on its own, like the reference
+ * page, instead of being buried under "What's included".
+ */
+function CertificateSection({
+  title,
+  text,
+  image,
+  onEnquire,
+}: {
+  title?: string;
+  text?: string;
+  image?: string;
+  onEnquire: () => void;
+}) {
+  const t = useLabels();
+  if (!title && !text) return null;
+
+  return (
+    <Section
+      id="certificate"
+      eyebrow={t("cp.certificateEyebrow")}
+      title={title || t("cp.certificateTitle")}
+    >
+      <div className="grid items-center gap-6 rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1738] via-[#081128] to-[#070d22] p-6 sm:p-8 lg:grid-cols-[auto_1fr_auto]">
+        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-[0_12px_36px_-12px_rgba(34,211,238,0.8)]">
+          <Award className="h-8 w-8" aria-hidden="true" />
+        </span>
+        <div>
+          <p className="max-w-2xl text-sm leading-relaxed text-slate-300">
+            {text || t("cp.certificateText")}
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {[t("cp.certificatePoint1"), t("cp.certificatePoint2"), t("cp.certificatePoint3")]
+              .filter(Boolean)
+              .map((point) => (
+                <li
+                  key={point}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-cyber-300/25 bg-cyber-500/10 px-2.5 py-1 text-[11px] font-bold text-cyber-100"
+                >
+                  <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                  {point}
+                </li>
+              ))}
+          </ul>
+          <div className="mt-5">
+            <Button
+              onClick={onEnquire}
+              className="btn-futur h-10 rounded-full px-5 text-sm font-bold text-white"
+            >
+              {t("course.enquire")}
+              <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+            </Button>
           </div>
-          {certificateImage ? (
-            <img
-              src={certificateImage}
-              alt="Yantrix Technology course certificate"
-              loading="lazy"
-              decoding="async"
-              className="h-24 w-auto rounded-lg border border-white/10 object-contain"
-            />
-          ) : null}
         </div>
-      ) : null}
+        {image ? (
+          <img
+            src={image}
+            alt={t("cp.certificateAlt")}
+            loading="lazy"
+            decoding="async"
+            className="h-28 w-auto rounded-lg border border-white/10 object-contain"
+          />
+        ) : null}
+      </div>
     </Section>
   );
 }

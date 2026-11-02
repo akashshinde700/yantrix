@@ -359,7 +359,14 @@ export interface Course extends BaseItem {
   /** Small stat chips under the headline */
   heroStats?: string[];
   /** e.g. "Designed for freshers & working professionals" */
+  /** One-line "who it is for" under the headline. */
   audience?: string;
+  /** Heading override for the "Who should attend?" block. */
+  audienceTitle?: string;
+  /** Bullet list inside "Who should attend?" — one persona per line. */
+  audiencePoints?: string[];
+  /** Heading override for the "What do we offer" benefits block. */
+  offerTitle?: string;
   aboutTitle?: string;
   aboutParagraphs?: string[];
   aboutImage?: string;
