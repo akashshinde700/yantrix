@@ -218,7 +218,7 @@ Stage Summary:
   custom tagline kept) gains the sections back via Fill new sections while the
   admin's own tagline survives.
 
-## Home page: sections missing vs. the reference site
+## Home page: sections missing vs. the reference site (PR #12)
 
 Audited skillected.com's home page and added everything it has that we did not,
 all admin-editable and all self-hiding when empty.
@@ -246,7 +246,14 @@ all admin-editable and all self-hiding when empty.
   section (`/#gallery`), editable from Footer quick links.
 - globals.css: `.ticker-track` marquee (42s loop, hover pause, reduced-motion
   fallback).
-- Verified: home SSR contains all eight blocks, ticker items render twice (loop
-  copy is aria-hidden), gallery create/delete round-trips through the admin API
-  and appears/disappears on the page, footer hash links emit `/#gallery`, and
-  tsc + eslint + next build are clean.
+- Footer social set widened to match the reference: Telegram, WhatsApp channel
+  and Threads join Instagram/Facebook/LinkedIn/YouTube/X/Google Business
+  (settings → Social profiles; `sameAs` picks them up automatically).
+- Illustrative gallery photos generated into `public/images/gallery-*.jpg`
+  (~140–170 KB JPEGs, down from 2.6 MB PNGs) — replace with real campus photos
+  before go-live.
+- Verified: home SSR contains all eight blocks in the right order, single `<h1>`,
+  ticker items render twice (loop copy is aria-hidden), gallery create/delete
+  round-trips through the admin API and appears/disappears on the page, footer
+  hash links emit `/#gallery`, and tsc + eslint + next build are clean.
+- Shipped in PR #12, merged to `main` as `c9b5a00`.
