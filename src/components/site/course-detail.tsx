@@ -26,6 +26,8 @@ import {
   UserRound,
   Users,
   FileText,
+  FolderOpen,
+  FolderTree,
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -784,6 +786,7 @@ export function CourseDetail({ slug }: { slug: string }) {
           modules={curriculum}
           brochureTitle={course.brochureTitle}
           brochureUrl={course.brochureUrl}
+          files={course.curriculumFiles}
           whatsappHref={whatsappUrl(
             settings,
             `Hi ${settings.name}, please share the ${course.title} syllabus PDF.`
@@ -1378,14 +1381,28 @@ function TrainerSection({
   );
 }
 
-/* ─────────────────────────── curriculum accordion ─────────────────────────── */
+/* ─────────────────────────── course curriculum ─────────────────────────── */
 
+/**
+ * Syllabus block, laid out like the reference course pages:
+ *
+ *   COURSE CURRICULUM            (centred heading)
+ *        [ Show Curriculum ]     (centred toggle for every module)
+ *   149 Modules  📁              (count line)
+ *   ▸ Brochure                  (first accordion: downloadable files)
+ *   ▸ 01 · HTML & CSS           (module accordions, lessons inside)
+ *
+ * The old version was a numbered timeline with chips; the anatomy below is the
+ * one students expect from a syllabus, and it still holds the extra detail our
+ * content has (session counts, per-module duration, search for long syllabi).
+ */
 function CurriculumSection({
   courseTitle,
   title,
   modules,
   brochureTitle,
   brochureUrl,
+  files = [],
   whatsappHref,
 }: {
   courseTitle: string;
@@ -1394,30 +1411,38 @@ function CurriculumSection({
   modules: { title: string; topics: string[]; duration?: string }[];
   brochureTitle?: string;
   brochureUrl?: string;
+  files?: { label: string; url: string }[];
   whatsappHref: string;
 }) {
   const t = useLabels();
   const [open, setOpen] = useState<number[]>([0]);
+  const [brochureOpen, setBrochureOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const allOpen = modules.length > 0 && open.length === modules.length;
 
   const sessions = modules.reduce((sum, module) => sum + (module.topics?.length ?? 0), 0);
-  const totalDuration = modules
-    .map((module) => (module.duration || "").trim())
-    .filter(Boolean)
-    .join(" · ");
 
-  /** Search filters modules by title or topic — handy for a 20-module syllabus. */
+  /* One row per file: the explicit file list, or the single brochure URL. */
+  const brochureFiles = useMemo(() => {
+    const explicit = files.filter((file) => file.label || file.url);
+    if (explicit.length > 0) return explicit;
+    if (brochureUrl) {
+      return [{ label: brochureTitle || `${courseTitle} — ${t("cp.curriculumPdf")}`, url: brochureUrl }];
+    }
+    return [];
+  }, [files, brochureUrl, brochureTitle, courseTitle, t]);
+
+  const allOpen = brochureOpen && modules.length > 0 && open.length === modules.length;
+
+  /** Search filters modules by title or lesson — handy for a long syllabus. */
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return modules.map((module, index) => ({ module, index }));
-    return modules
-      .map((module, index) => ({ module, index }))
-      .filter(
-        ({ module }) =>
-          module.title.toLowerCase().includes(needle) ||
-          (module.topics ?? []).some((topic) => topic.toLowerCase().includes(needle))
-      );
+    const indexed = modules.map((module, index) => ({ module, index }));
+    if (!needle) return indexed;
+    return indexed.filter(
+      ({ module }) =>
+        module.title.toLowerCase().includes(needle) ||
+        (module.topics ?? []).some((topic) => topic.toLowerCase().includes(needle))
+    );
   }, [modules, query]);
 
   const toggle = (index: number) =>
@@ -1425,63 +1450,165 @@ function CurriculumSection({
       current.includes(index) ? current.filter((i) => i !== index) : [...current, index]
     );
 
+  const toggleAll = () => {
+    if (allOpen) {
+      setOpen([]);
+      setBrochureOpen(false);
+      return;
+    }
+    setOpen(modules.map((_, index) => index));
+    setBrochureOpen(true);
+  };
+
   return (
-    <Section
+    <section
       id="curriculum"
-      eyebrow={t("cp.curriculumEyebrow")}
-      title={title || t("cp.curriculumTitle")}
-      description={t("cp.curriculumText")}
+      aria-labelledby="curriculum-heading"
+      className="relative mx-auto max-w-7xl scroll-mt-24 px-4 py-12 sm:px-6 sm:py-16"
     >
-      <div className="mx-auto max-w-4xl">
-        {/* summary strip — modules | sessions, like the reference outline */}
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="hud-chip">
+      <div aria-hidden="true" className="grid-veil pointer-events-none absolute inset-x-6 top-6 -z-10 h-40 opacity-40" />
+
+      {/* ── centred heading + one button that opens or closes everything ── */}
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.32em] text-cyber-300">
+          {t("cp.curriculumEyebrow")}
+        </p>
+        <h2
+          id="curriculum-heading"
+          className="mt-3 text-3xl font-extrabold tracking-tight text-white text-balance sm:text-4xl"
+        >
+          {title || t("cp.curriculumTitle")}
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-pretty text-slate-400 sm:text-base">
+          {t("cp.curriculumText")}
+        </p>
+        <button
+          type="button"
+          onClick={toggleAll}
+          aria-expanded={allOpen}
+          aria-controls="curriculum-list"
+          className="btn-futur btn-shine mt-6 inline-flex h-11 items-center gap-2 rounded-xl px-7 text-sm font-bold text-white"
+        >
+          {allOpen ? (
+            <ChevronDown className="h-4 w-4 rotate-180" aria-hidden="true" />
+          ) : (
+            <ChevronDown className="h-4 w-4" aria-hidden="true" />
+          )}
+          {allOpen ? t("cp.curriculumCollapse") : t("cp.curriculumExpand")}
+        </button>
+      </div>
+
+      <div className="mx-auto mt-10 max-w-3xl">
+        {/* ── count line ── */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p className="flex items-center gap-2 text-sm font-extrabold text-white">
             {modules.length} {t("cp.curriculumModules")}
+            <FolderTree className="h-4 w-4 text-cyber-300" aria-hidden="true" />
+          </p>
+          <span className="text-xs font-semibold text-slate-500">
+            · {sessions} {t("cp.curriculumSessions")}
           </span>
-          <span className="hud-chip">
-            {sessions} {t("cp.curriculumSessions")}
-          </span>
-          {totalDuration ? <span className="hud-chip">{totalDuration}</span> : null}
-          <span className="ml-auto flex flex-wrap items-center gap-2">
-            {modules.length > 4 ? (
-              <label className="relative">
-                <span className="sr-only">{t("cp.curriculumSearch")}</span>
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
-                  aria-hidden="true"
-                />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder={t("cp.curriculumSearch")}
-                  className="h-9 w-44 rounded-full border border-white/12 bg-white/5 pl-8 pr-3 text-xs text-white placeholder:text-slate-500 focus:border-cyber-300/50 focus:outline-none sm:w-56"
-                />
-              </label>
-            ) : null}
-            <button
-              type="button"
-              onClick={() => setOpen(allOpen ? [] : modules.map((_, index) => index))}
-              className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-cyber-200 transition-colors hover:border-cyber-300/50 hover:text-white"
-            >
-              {allOpen ? t("cp.curriculumCollapse") : t("cp.curriculumExpand")}
-            </button>
-          </span>
+          {modules.length > 8 ? (
+            <label className="relative ml-auto">
+              <span className="sr-only">{t("cp.curriculumSearch")}</span>
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
+                aria-hidden="true"
+              />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={t("cp.curriculumSearch")}
+                className="h-9 w-44 rounded-full border border-white/12 bg-white/5 pl-8 pr-3 text-xs text-white placeholder:text-slate-500 focus:border-cyber-300/50 focus:outline-none sm:w-56"
+              />
+            </label>
+          ) : null}
         </div>
 
-        <ol className="relative space-y-3">
-          {/* timeline spine */}
-          <span
-            aria-hidden="true"
-            className="absolute left-[19px] top-2 hidden h-[calc(100%-1rem)] w-px bg-gradient-to-b from-cyber-400/50 via-white/10 to-transparent sm:block"
-          />
+        <div id="curriculum-list" className="mt-4 space-y-2.5">
+          {/* ── Brochure: always the first accordion, like the reference ── */}
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0a1230]/80">
+            <button
+              type="button"
+              onClick={() => setBrochureOpen((value) => !value)}
+              aria-expanded={brochureOpen}
+              aria-controls="curriculum-brochure"
+              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.04] sm:px-5"
+            >
+              <FolderOpen className="h-4 w-4 shrink-0 text-cyber-300" aria-hidden="true" />
+              <span className="min-w-0 flex-1 text-sm font-extrabold text-white sm:text-[15px]">
+                {t("cp.curriculumBrochure")}
+              </span>
+              {brochureFiles.length > 0 ? (
+                <span className="hidden text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:inline">
+                  {brochureFiles.length} {t("cp.curriculumFileCount")}
+                </span>
+              ) : null}
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 shrink-0 text-cyber-300 transition-transform",
+                  brochureOpen && "rotate-180"
+                )}
+                aria-hidden="true"
+              />
+            </button>
+            <div
+              id="curriculum-brochure"
+              aria-hidden={!brochureOpen}
+              inert={!brochureOpen}
+              className={cn(
+                "grid transition-[grid-template-rows,opacity] duration-300 ease-out",
+                brochureOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              )}
+            >
+              <div className="overflow-hidden">
+                <div className="border-t border-white/10">
+                  {brochureFiles.length > 0 ? (
+                    <ul className="divide-y divide-white/[0.06]">
+                      {brochureFiles.map((file) => (
+                        <li key={`${file.label}-${file.url}`}>
+                          <a
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-3 px-4 py-3 text-sm text-slate-200 transition-colors hover:bg-white/[0.04] hover:text-white sm:px-5"
+                          >
+                            <FileText className="h-4 w-4 shrink-0 text-cyber-300/80" aria-hidden="true" />
+                            <span className="min-w-0 flex-1 truncate">{file.label}</span>
+                            <Download
+                              className="h-4 w-4 shrink-0 text-slate-500 transition-colors group-hover:text-cyber-300"
+                              aria-hidden="true"
+                            />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 px-4 py-3 text-sm text-slate-200 transition-colors hover:bg-white/[0.04] hover:text-white sm:px-5"
+                    >
+                      <WhatsAppIcon className="h-4 w-4 shrink-0 text-emerald-400" />
+                      <span className="min-w-0 flex-1">{t("cp.curriculumRequest")}</span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── module accordions ── */}
           {visible.map(({ module, index }) => {
             const expanded = open.includes(index);
-            const topics = (module.topics ?? []).filter(Boolean);
+            const lessons = (module.topics ?? []).filter(Boolean);
             return (
-              <li
+              <div
                 key={`${module.title}-${index}`}
                 className={cn(
-                  "relative rounded-2xl border bg-[#0a1230]/80 transition-colors",
+                  "overflow-hidden rounded-xl border bg-[#0a1230]/80 transition-colors",
                   expanded ? "border-cyber-400/40" : "border-white/10 hover:border-white/20"
                 )}
               >
@@ -1490,30 +1617,30 @@ function CurriculumSection({
                   onClick={() => toggle(index)}
                   aria-expanded={expanded}
                   aria-controls={`module-panel-${index}`}
-                  className="flex w-full items-center gap-3 px-4 py-4 text-left sm:px-5"
+                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.04] sm:px-5"
                 >
-                  <span
+                  <FolderOpen
                     className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-mono text-[11px] font-black",
-                      expanded
-                        ? "bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-[0_0_18px_-4px_rgba(34,211,238,0.9)]"
-                        : "border border-white/10 bg-white/5 text-slate-300"
+                      "h-4 w-4 shrink-0 transition-colors",
+                      expanded ? "text-cyber-300" : "text-slate-500"
                     )}
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
+                    aria-hidden="true"
+                  />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-extrabold text-white sm:text-base">
+                    <span className="block text-sm font-extrabold text-white sm:text-[15px]">
+                      <span className="mr-2 font-mono text-[11px] font-bold text-slate-500">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
                       {module.title}
                     </span>
-                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                       <span>
-                        {topics.length} {t("cp.curriculumSessions")}
+                        {lessons.length} {lessons.length === 1 ? t("cp.curriculumSessionOne") : t("cp.curriculumSessions")}
                       </span>
                       {module.duration ? (
                         <>
                           <span aria-hidden="true">·</span>
-                          <span className="text-cyber-300">{module.duration}</span>
+                          <span className="normal-case tracking-normal text-cyber-300/90">{module.duration}</span>
                         </>
                       ) : null}
                     </span>
@@ -1526,11 +1653,9 @@ function CurriculumSection({
                     aria-hidden="true"
                   />
                 </button>
+
                 <div
                   id={`module-panel-${index}`}
-                  /* animated with grid rows: the panel keeps its height transition
-                     without being unmounted, and stays out of the tab order while
-                     collapsed (`inert` + aria-hidden). */
                   aria-hidden={!expanded}
                   inert={!expanded}
                   className={cn(
@@ -1539,71 +1664,34 @@ function CurriculumSection({
                   )}
                 >
                   <div className="overflow-hidden">
-                    <div className="border-t border-white/10 px-4 pb-4 pt-3 sm:px-5">
-                      <ul className="grid gap-1.5 sm:grid-cols-2">
-                        {topics.map((topic) => (
-                          <li key={topic} className="flex items-start gap-2 text-sm text-slate-300">
-                            <CheckCircle2
-                              className="mt-0.5 h-4 w-4 shrink-0 text-cyber-300/80"
-                              aria-hidden="true"
-                            />
-                            {topic}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    <ul className="divide-y divide-white/[0.06] border-t border-white/10">
+                      {lessons.map((lesson) => (
+                        <li
+                          key={lesson}
+                          className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-300 sm:px-5"
+                        >
+                          <FileText
+                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyber-300/60"
+                            aria-hidden="true"
+                          />
+                          {lesson}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-              </li>
+              </div>
             );
           })}
-        </ol>
 
-        {visible.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-slate-400">
-            {t("cp.curriculumEmpty")}
-          </p>
-        ) : null}
-
-        {/* syllabus PDF / brochure row */}
-        <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white">
-              <FileText className="h-4.5 w-4.5" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-sm font-extrabold text-white">
-                {brochureTitle || `${courseTitle} — ${t("cp.curriculumPdf")}`}
-              </p>
-              <p className="text-xs text-slate-400">{t("course.brochureText")}</p>
-            </div>
-          </div>
-          <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-            {brochureUrl ? (
-              <a
-                href={brochureUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-futur inline-flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-bold text-white"
-              >
-                <Download className="h-4 w-4" aria-hidden="true" />
-                {t("course.downloadBrochure")}
-              </a>
-            ) : (
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-whatsapp inline-flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-bold text-white"
-              >
-                <WhatsAppIcon className="h-4 w-4" />
-                {t("course.getSyllabus")}
-              </a>
-            )}
-          </div>
+          {visible.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-slate-400">
+              {t("cp.curriculumEmpty")}
+            </p>
+          ) : null}
         </div>
       </div>
-    </Section>
+    </section>
   );
 }
 

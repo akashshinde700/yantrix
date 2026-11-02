@@ -406,6 +406,8 @@ export interface Course extends BaseItem {
   curriculum?: CourseModule[];
   brochureTitle?: string;
   brochureUrl?: string;
+  /** Extra downloadable files inside the "Brochure" accordion of the curriculum. */
+  curriculumFiles?: { label: string; url: string }[];
   reviews?: CourseReview[];
   faqs?: CourseFaqItem[];
   ctaTitle?: string;
