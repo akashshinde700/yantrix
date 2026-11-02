@@ -99,6 +99,9 @@ export default async function SettingsAdminPage() {
               { name: "social.linkedin", label: "LinkedIn URL" },
               { name: "social.youtube", label: "YouTube URL" },
               { name: "social.twitter", label: "X / Twitter URL" },
+              { name: "social.telegram", label: "Telegram URL" },
+              { name: "social.whatsappChannel", label: "WhatsApp channel URL" },
+              { name: "social.threads", label: "Threads URL" },
               {
                 name: "social.googleBusiness",
                 label: "Google Business Profile URL",

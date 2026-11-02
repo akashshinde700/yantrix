@@ -1657,3 +1657,39 @@ body[data-scroll-locked] .placed-track {
     height: 60%;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OFFER TICKER
+   The announcement strip above the header. Two identical rows scroll by;
+   the animation pauses on hover and stops for reduced-motion visitors.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 42s linear infinite;
+  will-change: transform;
+}
+.ticker-track:hover,
+.ticker-track:focus-within {
+  animation-play-state: paused;
+}
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* exactly one copy of the row, so the loop is seamless */
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .ticker-track > div[aria-hidden="true"] {
+    display: none;
+  }
+}

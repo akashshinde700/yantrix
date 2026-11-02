@@ -19,6 +19,9 @@ export interface SocialLinks {
   linkedin: string;
   youtube: string;
   twitter: string;
+  telegram: string;
+  whatsappChannel: string;
+  threads: string;
   googleBusiness: string;
 }
 
@@ -148,6 +151,13 @@ export const SECTION_KEYS = [
   "coursesPage",
   "aboutPage",
   "contactPage",
+  "gallery",
+  "partners",
+  "videos",
+  "testimonials",
+  "brochure",
+  "app",
+  "centres",
 ] as const;
 
 export type SectionKey = (typeof SECTION_KEYS)[number];
@@ -165,6 +175,20 @@ export interface HomePageCopy {
   heroPrimaryCta: string;
   heroSecondaryCta: string;
   heroTrustChips: boolean;
+  /** Brochure download block */
+  brochureTitle: string;
+  brochureText: string;
+  brochurePoints: string[];
+  brochureCta: string;
+  /** Public PDF / Drive link */
+  brochureUrl: string;
+  brochureImage: string;
+  /** Mobile app block */
+  appTitle: string;
+  appText: string;
+  appUrl: string;
+  appCta: string;
+  appImage: string;
   aboutImage: string;
   aboutImageAlt: string;
   aboutBadgeTitle: string;
@@ -441,6 +465,11 @@ export interface ContactStep extends BaseItem {
 export interface NavLink extends BaseItem {
   label: string;
   view: SiteView;
+  /**
+   * Optional section id on that page (e.g. "gallery"). When set, the link jumps
+   * straight to that block instead of the top of the page.
+   */
+  hash?: string;
 }
 
 export interface Trainer extends BaseItem {
@@ -480,6 +509,70 @@ export interface SimpleItem extends BaseItem {
   value?: string;
 }
 
+/* ── home page sections that mirror a campus landing page ── */
+
+/** One message in the scrolling offer / announcement ticker. */
+export interface Announcement extends BaseItem {
+  text: string;
+  /** Short, loud bit, e.g. "FLAT 50% OFF" */
+  highlight: string;
+  /** lucide icon name */
+  icon: string;
+}
+
+/** A campus photo in the gallery. */
+export interface GalleryPhoto extends BaseItem {
+  title: string;
+  /** Groups the photo under a filter chip, e.g. Classroom / Lab / Event */
+  category: string;
+  image: string;
+  alt: string;
+}
+
+/** Certification / collaboration logo (IBM-style partner strip). */
+export interface Partner extends BaseItem {
+  name: string;
+  logo: string;
+  description: string;
+  link: string;
+  /** Small label above the name, e.g. "Certification partner" */
+  kind: string;
+}
+
+/** A YouTube video card in the "watch our learning journey" section. */
+export interface VideoItem extends BaseItem {
+  title: string;
+  description: string;
+  /** The 11-character YouTube id (watch?v=THIS) */
+  youtubeId: string;
+  /** Optional custom thumbnail; YouTube's own is used when empty */
+  thumbnail: string;
+  duration: string;
+}
+
+/** Student feedback shown as a card (quote and/or video). */
+export interface Testimonial extends BaseItem {
+  name: string;
+  /** Course / batch / current role */
+  role: string;
+  quote: string;
+  photo: string;
+  /** Optional YouTube id for a video testimonial */
+  youtubeId: string;
+  /** 1–5 */
+  rating: number;
+}
+
+/** One physical training centre in the "find us here" section. */
+export interface Centre extends BaseItem {
+  name: string;
+  address: string;
+  phone: string;
+  hours: string;
+  mapLink: string;
+  image: string;
+}
+
 export const COLLECTION_KEYS = [
   "heroSlides",
   "courses",
@@ -501,6 +594,12 @@ export const COLLECTION_KEYS = [
   "courseIncludes",
   "trainers",
   "placedStudents",
+  "announcements",
+  "gallery",
+  "partners",
+  "videos",
+  "testimonials",
+  "centres",
 ] as const;
 
 export type CollectionKey = (typeof COLLECTION_KEYS)[number];

@@ -6,6 +6,14 @@ import type {
   SectionKey,
 } from "@/lib/content/types";
 import { COURSE_SEEDS } from "@/lib/content/course-seeds";
+import {
+  ANNOUNCEMENT_SEEDS,
+  CENTRE_SEEDS,
+  GALLERY_SEEDS,
+  PARTNER_SEEDS,
+  TESTIMONIAL_SEEDS,
+  VIDEO_SEEDS,
+} from "@/lib/content/home-extras-seeds";
 
 /* ────────────────────────────────────────────────────────────────────
    Default (seed) content for the Yantrix Technology website.
@@ -79,6 +87,41 @@ const sections: Record<SectionKey, SectionCopy> = {
     "Contact Us",
     "Let's talk about your IT career",
     "Send an enquiry about courses, batches or admissions — we usually respond within 24 hours (Mon–Sat).",
+  ),
+  gallery: section(
+    "Campus Gallery",
+    "More than a classroom — a place to grow",
+    "A look inside our Dhanori centre: classrooms, the lab, doubt-solving sessions and the people who make it work.",
+  ),
+  partners: section(
+    "Certifications & collaborations",
+    "Recognised learning, real hiring connections",
+    "Certification, placement and workshop partnerships that make your training count outside the classroom.",
+  ),
+  videos: section(
+    "Watch",
+    "See a class before you join",
+    "Short videos from inside our batches — teaching style, student projects and how placement preparation works.",
+  ),
+  testimonials: section(
+    "Student Stories",
+    "Hear it from our students",
+    "Real feedback from learners who trained with us and moved into IT roles.",
+  ),
+  brochure: section(
+    "Downloads",
+    "Explore our programs & career outcomes",
+    "Download the brochure for the full curriculum outline, batch details, fees and placement approach.",
+  ),
+  app: section(
+    "Learn Anywhere",
+    "Learning at your own pace",
+    "Recordings, notes and practice on your phone — so a missed class never means a missed topic.",
+  ),
+  centres: section(
+    "Find Us Here",
+    "Visit us in person",
+    "Our classroom batches run at these centres. Call before visiting so we can keep a counsellor free for you.",
   ),
 };
 
@@ -424,6 +467,10 @@ const collections: CollectionMap = {
     item(2, { label: "Courses", view: "courses" }),
     item(3, { label: "About Us", view: "about" }),
     item(4, { label: "Contact Us", view: "contact" }),
+    item(5, { label: "Campus gallery", view: "home", hash: "gallery" }),
+    item(6, { label: "Student stories", view: "home", hash: "testimonials" }),
+    item(7, { label: "Download brochure", view: "home", hash: "brochure" }),
+    item(8, { label: "Our centres", view: "home", hash: "centres" }),
   ],
 
   courseChips: [
@@ -443,6 +490,12 @@ const collections: CollectionMap = {
   // Added from the admin panel (Trainers / Placed students) — never seeded with sample people.
   trainers: [],
   placedStudents: [],
+  announcements: ANNOUNCEMENT_SEEDS.map((entry, index) => item(index + 1, entry)),
+  gallery: GALLERY_SEEDS.map((entry, index) => item(index + 1, entry)),
+  partners: PARTNER_SEEDS.map((entry, index) => item(index + 1, entry)),
+  videos: VIDEO_SEEDS.map((entry, index) => item(index + 1, entry)),
+  testimonials: TESTIMONIAL_SEEDS.map((entry, index) => item(index + 1, entry)),
+  centres: CENTRE_SEEDS.map((entry, index) => item(index + 1, entry)),
 };
 
 export const DEFAULT_CONTENT: SiteContent = {
@@ -481,6 +534,9 @@ export const DEFAULT_CONTENT: SiteContent = {
       linkedin: "",
       youtube: "",
       twitter: "",
+      telegram: "",
+      whatsappChannel: "",
+      threads: "",
       googleBusiness: "",
     },
     topBar: {
@@ -645,6 +701,23 @@ export const DEFAULT_CONTENT: SiteContent = {
       heroPrimaryCta: "Explore Courses",
       heroSecondaryCta: "Contact for Admission",
       heroTrustChips: true,
+      brochureTitle: "Download brochure",
+      brochureText:
+        "Complete program details, batch plans, fee structure and placement approach in one PDF.",
+      brochurePoints: [
+        "Industry-aligned curriculum",
+        "Placement assistance & interview prep",
+        "Online and classroom batches",
+      ],
+      brochureCta: "Download the brochure",
+      brochureUrl: "",
+      brochureImage: "",
+      appTitle: "Yantrix learning app",
+      appText:
+        "Class recordings, notes, assignments and doubt support on your phone. Learn between commutes, breaks and after work.",
+      appUrl: "",
+      appCta: "Get the app",
+      appImage: "",
       aboutImage: "/images/about-institute.png",
       aboutImageAlt:
         "Modern training environment at Yantrix Technology institute",

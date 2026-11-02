@@ -60,7 +60,7 @@ npm run start
 | Hero slides        | Slides, images, headlines, CTAs, trust chips                                                                                                                          |
 | Courses            | Course cards **and** a full page per course: cover image, fee card, about copy, specialisations, outcomes, tools, module-by-module curriculum, reviews, FAQs, CTA, SEO |
 | FAQs               | Q&A list (also feeds `FAQPage` structured data)                                                                                                                       |
-| Page sections      | Heading/eyebrow/description for every section + hide a section; feature cards, stats, tech ticker, training modes, placement points, quick facts, after-enquiry steps |
+| Page sections      | Heading/eyebrow/description for every section + hide a section; feature cards, stats, tech ticker, training modes, placement points, quick facts, after-enquiry steps, **offer ticker, campus gallery, partners, videos, testimonials, centres** |
 | Pages & navigation | Page-specific copy (home / courses / about / contact) and header/footer links                                                                                         |
 | SEO · AEO · GEO    | Titles, descriptions, keywords, canonicals, OpenGraph, verification tokens, analytics IDs, local SEO coordinates, JSON-LD toggles, `llms.txt` facts                   |
 | Enquiries          | Search, statuses (new → contacted → enrolled → closed), internal notes, CSV export                                                                                    |
@@ -90,6 +90,27 @@ are still empty (never overwrites text you wrote).
 Slugs are generated from the course name (and de-duplicated with a `-2` suffix
 by the API), so two courses can never fight over the same URL. The course name
 is the only required field — the rest can be added later.
+
+### Home page sections (added from the reference audit)
+
+Everything below is editable in **Admin → Page sections** (content) and
+**Admin → Pages & navigation** (brochure / app copy). Each block hides itself
+when it has no content, so nothing breaks before you fill it in.
+
+| Block | Where it appears | Admin screen |
+| --- | --- | --- |
+| Offer ticker | Scrolling strip above the header, every page (pauses on hover, static for reduced-motion) | Page sections → Offer ticker |
+| Campus gallery | Home page — filter chips by category + click-to-zoom lightbox | Page sections → Campus gallery |
+| Partners & certifications | Home page — logo/label cards with an optional link | Page sections → Partners & certifications |
+| Videos | Home page — YouTube cards that load the player only on click | Page sections → Videos |
+| Student testimonials | Home page — star rating, quote, optional video testimonial | Page sections → Student testimonials |
+| Brochure download | Home page — checklist + PDF button (falls back to the enquiry form) | Pages & navigation → Home · brochure download |
+| Mobile app | Home page — phone mock-up + store button | Pages & navigation → Home · mobile app |
+| Find us here (centres) | Home page — every centre with address, timings, call and directions | Page sections → Centres |
+
+Footer quick links can point at any of these blocks by filling in the optional
+**section anchor** (`gallery`, `videos`, `testimonials`, `brochure`, `app`,
+`centres`) — handy for a "Gallery" or "Our centres" link.
 
 ### Roles
 

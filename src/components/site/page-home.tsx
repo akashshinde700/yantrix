@@ -10,6 +10,15 @@ import { FaqSection } from "@/components/site/faq-section";
 import { CtaBand } from "@/components/site/cta-band";
 import { TrainersSection } from "@/components/site/trainers-section";
 import { PlacedStudents } from "@/components/site/placed-students";
+import {
+  AppSection,
+  BrochureSection,
+  CampusGallery,
+  CentresSection,
+  PartnersSection,
+  TestimonialsSection,
+  VideosSection,
+} from "@/components/site/home-sections";
 
 /**
  * Home page as a journey through the universe: every chapter id below is a
@@ -36,18 +45,27 @@ export function PageHome() {
       <Chapter id="chapter-why">
         <WhyChooseUs />
       </Chapter>
+      <Chapter id="chapter-gallery">
+        <CampusGallery />
+        <PartnersSection />
+      </Chapter>
       <Chapter id="chapter-modes">
         <TrainingModes />
       </Chapter>
       <Chapter id="chapter-about">
         <AboutPreview />
+        <VideosSection />
         <TrainersSection />
+        <TestimonialsSection />
       </Chapter>
       <Chapter id="chapter-placement">
         <PlacementSection />
         <PlacedStudents />
       </Chapter>
       <Chapter id="chapter-faq">
+        <BrochureSection />
+        <AppSection />
+        <CentresSection />
         <FaqSection />
       </Chapter>
       <Chapter id="chapter-cta">

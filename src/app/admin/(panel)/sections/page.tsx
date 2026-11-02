@@ -22,6 +22,13 @@ const SECTION_LABELS: Record<SectionKey, string> = {
   coursesPage: "Courses page hero",
   aboutPage: "About page hero",
   contactPage: "Contact page hero",
+  gallery: "Campus gallery",
+  partners: "Partners & certifications",
+  videos: "Videos",
+  testimonials: "Student testimonials",
+  brochure: "Brochure download",
+  app: "Mobile app",
+  centres: "Find us here (centres)",
 };
 
 const COLLECTIONS = [
@@ -38,6 +45,12 @@ const COLLECTIONS = [
   "contactSteps",
   "courseChips",
   "courseIncludes",
+  "announcements",
+  "gallery",
+  "partners",
+  "videos",
+  "testimonials",
+  "centres",
 ] as const;
 
 export default async function SectionsAdminPage() {

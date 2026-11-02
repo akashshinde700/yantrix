@@ -6,13 +6,16 @@ import {
   ArrowUp,
   ArrowUpRight,
   Clock,
+  AtSign,
   Facebook,
   GraduationCap,
   Instagram,
   Linkedin,
   Mail,
   MapPin,
+  MessageCircle,
   Phone,
+  Send,
   Twitter,
   Youtube,
 } from "lucide-react";
@@ -117,6 +120,9 @@ const SOCIAL: {
   { key: "linkedin", label: "LinkedIn", Icon: Linkedin },
   { key: "youtube", label: "YouTube", Icon: Youtube },
   { key: "twitter", label: "X (Twitter)", Icon: Twitter },
+  { key: "telegram", label: "Telegram", Icon: Send },
+  { key: "whatsappChannel", label: "WhatsApp channel", Icon: MessageCircle },
+  { key: "threads", label: "Threads", Icon: AtSign },
   { key: "googleBusiness", label: "Google Business Profile", Icon: MapPin },
 ];
 
@@ -351,8 +357,8 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
                 <li key={link.id}>
                   {/* real href for crawlers / new-tab, instant nav when JS runs */}
                   <FooterLink
-                    href={VIEW_PATHS[link.view]}
-                    onClick={() => navigate(link.view)}
+                    href={link.hash ? `${VIEW_PATHS[link.view]}#${link.hash}` : VIEW_PATHS[link.view]}
+                    onClick={() => navigate(link.view, link.hash ? { section: link.hash } : undefined)}
                   >
                     {link.label}
                   </FooterLink>
