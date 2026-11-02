@@ -468,3 +468,24 @@ the running dev server).
 all 8 course pages return 200; parsed HTML has no duplicate ids, no dangling
 `aria-labelledby`/`aria-controls` targets, no unnamed buttons, no images without
 `alt`; all 22 internal links, all 48 assets and the contact API resolve.
+
+## Partner wall filled out with placeholder companies
+
+The strip shipped with three category rows ("Industry certification", "Hiring
+partners", "School & college workshops") and the same Yantrix icon repeated as
+every logo — it read as an empty section next to the reference site's logo wall.
+
+- `PARTNER_SEEDS` now has **eight placeholder companies** (hiring, cloud, data,
+  design, e-commerce, fintech, workshop) with a one-line description each, so
+  both the marquee and the cards below it look full.
+- Partners without a logo render a **monogram tile**; a deterministic hash picks
+  one of six gradient tones per name, so the wall looks like a set of marks
+  rather than eight grey squares.
+- The seed file and the admin help text both say these names are invented and
+  must be replaced with partnerships that can be backed up (and logos that may
+  legally be used).
+- Footnote default changed from "Partner & certification logos shown with
+  permission" to "Partner, certification and campus collaborations" — the old
+  line claimed a permission that placeholder data cannot back up.
+- Mentor seeds grew from 6 to **8** (added Digital Marketing and Cyber Security)
+  so the "Meet Your Mentors" grid fills a 4×2 row on desktop.

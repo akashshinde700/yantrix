@@ -209,6 +209,27 @@ export function CampusGallery() {
 
 /* ══════════════════════════════ partners ══════════════════════════════ */
 
+/**
+ * Deterministic colour pair per partner name. Placeholder partners ship without
+ * a logo, so the tile falls back to a monogram — giving each one its own tint
+ * keeps the wall from looking like eight copies of the same grey square.
+ */
+const MONOGRAM_TONES = [
+  "from-sky-500/25 to-cyan-400/25 text-cyan-100 ring-cyan-300/30",
+  "from-violet-500/25 to-fuchsia-400/25 text-fuchsia-100 ring-fuchsia-300/30",
+  "from-emerald-500/25 to-teal-400/25 text-emerald-100 ring-emerald-300/30",
+  "from-amber-500/25 to-orange-400/25 text-amber-100 ring-amber-300/30",
+  "from-rose-500/25 to-pink-400/25 text-rose-100 ring-rose-300/30",
+  "from-indigo-500/25 to-blue-400/25 text-indigo-100 ring-indigo-300/30",
+];
+
+function monogramTone(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) hash = (hash * 31 + name.charCodeAt(i)) % 9973;
+  return MONOGRAM_TONES[hash % MONOGRAM_TONES.length];
+}
+
+
 export function PartnersSection() {
   const partners = useCollection<Partner>("partners");
   const section = useSection("partners");
@@ -231,7 +252,12 @@ export function PartnersSection() {
           />
         ) : (
           <span className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/[0.07] text-xs font-black text-cyber-200">
+            <span
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-xs font-black ring-1",
+                monogramTone(partner.name)
+              )}
+            >
               {partner.name.trim().charAt(0).toUpperCase()}
             </span>
             <span className="whitespace-nowrap text-sm font-extrabold text-slate-200">
@@ -311,7 +337,14 @@ export function PartnersSection() {
           const inner = (
             <>
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.06]">
+                <span
+                  className={cn(
+                    "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl ring-1",
+                    partner.logo
+                      ? "border border-white/10 bg-white/[0.06]"
+                      : `bg-gradient-to-br ${monogramTone(partner.name)}`
+                  )}
+                >
                   {partner.logo ? (
                     <img
                       src={partner.logo}
@@ -321,7 +354,7 @@ export function PartnersSection() {
                       className="h-8 w-8 object-contain"
                     />
                   ) : (
-                    <span className="text-sm font-black text-cyber-200">
+                    <span className="text-sm font-black">
                       {partner.name.trim().charAt(0).toUpperCase()}
                     </span>
                   )}

@@ -78,29 +78,77 @@ export const GALLERY_SEEDS: Record<string, unknown>[] = [
 
 /* ──────────────────────────────── partners ─────────────────────────────── */
 
+/**
+ * Partner / certification strip.
+ *
+ * ⚠️ Placeholder entries: the company names below are invented so the wall is
+ * not empty on a fresh install. They are NOT existing Yantrix partnerships —
+ * replace them with the partners you can actually back up (and whose logos you
+ * are allowed to use) from **Admin → Page sections → Partners & certifications**.
+ */
 export const PARTNER_SEEDS: Record<string, unknown>[] = [
   {
-    name: "Industry certification",
-    kind: "Certification",
-    logo: "/brand/yantrix-icon.svg",
+    name: "TechNova Labs",
+    kind: "Hiring partner",
+    logo: "",
     description:
-      "Complete the program and its final project to earn a Yantrix Technology certificate you can add to your resume and LinkedIn profile.",
+      "Product engineering teams that interview our full-stack and backend students for junior developer roles.",
     link: "",
   },
   {
-    name: "Hiring partners",
-    kind: "Placement",
-    logo: "/brand/yantrix-icon.svg",
+    name: "CloudSprint",
+    kind: "Cloud partner",
+    logo: "",
     description:
-      "We connect trained students with company requirements through our hiring network and referrals.",
+      "Cloud and DevOps teams that take interns from our AWS, Linux and CI/CD batches every quarter.",
     link: "",
   },
   {
-    name: "School & college workshops",
-    kind: "Collaboration",
-    logo: "/brand/yantrix-icon.svg",
+    name: "DataForge Analytics",
+    kind: "Data partner",
+    logo: "",
     description:
-      "Campus workshops and short programs for schools and colleges around Pune, on request.",
+      "Analytics consultancies that source junior analysts from the data analytics program.",
+    link: "",
+  },
+  {
+    name: "PixelCraft Studio",
+    kind: "Design partner",
+    logo: "",
+    description:
+      "A product design studio that reviews UI/UX portfolios and shares live briefs with our design students.",
+    link: "",
+  },
+  {
+    name: "BlueOrbit Systems",
+    kind: "Hiring partner",
+    logo: "",
+    description:
+      "Service company hiring for Java and Python roles, with a shared interview panel for our final-year students.",
+    link: "",
+  },
+  {
+    name: "Nexa Retail",
+    kind: "E-commerce partner",
+    logo: "",
+    description:
+      "In-house commerce tech team that hosts capstone reviews and shares real catalogue problems to solve.",
+    link: "",
+  },
+  {
+    name: "FinEdge Capital",
+    kind: "Fintech partner",
+    logo: "",
+    description:
+      "Fintech product team running guest sessions on data pipelines, security and payments engineering.",
+    link: "",
+  },
+  {
+    name: "CampusBridge",
+    kind: "Workshop partner",
+    logo: "",
+    description:
+      "A college placement-cell network that hosts our campus workshops and short skill programs.",
     link: "",
   },
 ];

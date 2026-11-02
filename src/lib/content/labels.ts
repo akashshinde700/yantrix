@@ -87,7 +87,7 @@ export const LABEL_GROUPS: LabelGroup[] = [
       { key: "home.ctaEyebrow", label: "Closing CTA · eyebrow", value: "Your next step" },
       { key: "home.ctaContact", label: "Closing CTA · contact button", value: "Contact for Admission" },
       { key: "home.ctaWhatsapp", label: "Closing CTA · WhatsApp button", value: "WhatsApp Us" },
-      { key: "partners.note", label: "Partners · footnote under the wall", value: "Partner & certification logos shown with permission" },
+      { key: "partners.note", label: "Partners · footnote under the wall", value: "Partner, certification and campus collaborations" },
       { key: "gallery.photoLabel", label: "Gallery · show-all chip", value: "All" },
       { key: "gallery.close", label: "Gallery · close lightbox label", value: "Close photo" },
       { key: "videos.viewMore", label: "Videos · channel link", value: "View more on YouTube" },
