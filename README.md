@@ -168,9 +168,11 @@ touching the per-course content.
   Add each partner with its label and optional link in **Page sections →
   Partners & certifications**.
 
-⚠️ The six mentor profiles that ship with the site are **samples**. Replace them
-with your real mentors (with their permission) from **Admin → Mentors** before
-go-live, and only list partnerships you can back up.
+⚠️ The eight mentor profiles and eight partner names that ship with the site are
+**samples** — generic titles and invented companies, no real people or brands.
+Replace them with your own mentors (with their permission) from **Admin →
+Trainers** (the page is titled "Mentors") before go-live, and only list
+partnerships you can back up.
 
 ### Design system (futuristic layer)
 
