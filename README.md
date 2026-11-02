@@ -168,11 +168,16 @@ touching the per-course content.
   Add each partner with its label and optional link in **Page sections →
   Partners & certifications**.
 
-⚠️ The eight mentor profiles and eight partner names that ship with the site are
-**samples** — generic titles and invented companies, no real people or brands.
-Replace them with your own mentors (with their permission) from **Admin →
-Trainers** (the page is titled "Mentors") before go-live, and only list
-partnerships you can back up.
+**Mentors.** The 17 profiles that ship with the site are the mentors supplied by
+the site owner — name, role, experience, specialisation and portrait for each,
+stored under `public/images/mentors/` (600×800 JPEG). Edit or remove them from
+**Admin → Trainers** (the page is titled "Mentors"): photo, company, years,
+LinkedIn, bio, experience, education and skills are all fields there, and the
+eye switch hides a profile without deleting it.
+
+**Partners.** The eight company names in that strip are **placeholders**
+(invented, no real brands). Replace them from **Admin → Page sections →
+Partners & certifications**, and only list partnerships you can back up.
 
 ### Design system (futuristic layer)
 

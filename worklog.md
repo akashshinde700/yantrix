@@ -489,3 +489,22 @@ every logo — it read as an empty section next to the reference site's logo wal
   line claimed a permission that placeholder data cannot back up.
 - Mentor seeds grew from 6 to **8** (added Digital Marketing and Cyber Security)
   so the "Meet Your Mentors" grid fills a 4×2 row on desktop.
+
+## Real mentor wall (17 profiles with portraits)
+
+- Replaced the eight generic placeholder mentors with the **17 profiles supplied
+  by the owner**: name, role, years of experience, specialisation, plus the
+  extra detail each card shows (education / company where the source listed one).
+- Portraits were cropped out of the supplied classroom strips into uniform
+  **600×800 JPEGs** under `public/images/mentors/` (one per mentor, 21–29 KB
+  each). The crop script frames head-and-shoulders, keeps the 3:4 ratio the card
+  expects, and rebuilds the background by extending the edge rows/columns so no
+  seams or black bars appear.
+- Specialisations were grouped so the filter chips stay usable: Full Stack,
+  Data Science, Cloud & DevOps, Cyber Security, Soft Skills, Embedded Systems,
+  Programming, Technical Training, Business Analysis.
+- `TRAINER_SEEDS` documents that these are owner-supplied profiles and that
+  every field is editable from **Admin → Trainers**.
+
+**Verified**: `tsc`, `eslint`, `next build` clean; home page renders all 17
+mentor cards, all 17 portrait URLs return 200, About page preview intact.
