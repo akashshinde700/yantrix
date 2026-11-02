@@ -477,6 +477,17 @@ export interface Trainer extends BaseItem {
   /** /media/<id> upload or /images/... path */
   photo: string;
   designation: string;
+  /**
+   * Where the mentor works today — "Reliance Jio", "IIT Bombay", "Freelance".
+   * Shown under the name on the mentor card, like the reference site's
+   * "organisation" line.
+   */
+  company: string;
+  /**
+   * What they teach — "Full Stack", "Data Science", "AWS DevOps".
+   * Drives the specialisation filter chips above the mentor grid.
+   */
+  specialisation: string;
   /** total years in the industry (0 = hide the badge) */
   experienceYears: number;
   bio: string;

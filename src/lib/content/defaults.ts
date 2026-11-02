@@ -15,6 +15,7 @@ import {
   VIDEO_SEEDS,
 } from "@/lib/content/home-extras-seeds";
 import { LABEL_DEFAULTS } from "@/lib/content/labels";
+import { TRAINER_SEEDS } from "@/lib/content/trainer-seeds";
 
 /* ────────────────────────────────────────────────────────────────────
    Default (seed) content for the Yantrix Technology website.
@@ -69,9 +70,9 @@ const sections: Record<SectionKey, SectionCopy> = {
     "Not sure which course fits you? Talk to our team — we'll help you choose based on your goals and background.",
   ),
   trainers: section(
-    "Our Trainers",
-    "Learn from people who do this work every day",
-    "Our trainers are working professionals — they teach what the industry actually uses, from real projects they have shipped.",
+    "Mentors",
+    "Meet Your Mentors",
+    "Working professionals from the industry who teach what they actually use — real projects, real hiring experience, and 1-on-1 guidance.",
   ),
   placedStudents: section(
     "Placed Students",
@@ -95,8 +96,8 @@ const sections: Record<SectionKey, SectionCopy> = {
     "A look inside our Dhanori centre: classrooms, the lab, doubt-solving sessions and the people who make it work.",
   ),
   partners: section(
-    "Certifications & collaborations",
-    "Recognised learning, real hiring connections",
+    "Partners & collaborations",
+    "Our partner companies & certifications",
     "Certification, placement and workshop partnerships that make your training count outside the classroom.",
   ),
   videos: section(
@@ -489,7 +490,7 @@ const collections: CollectionMap = {
   ],
 
   // Added from the admin panel (Trainers / Placed students) — never seeded with sample people.
-  trainers: [],
+  trainers: TRAINER_SEEDS.map((entry, index) => item(index + 1, entry)),
   placedStudents: [],
   announcements: ANNOUNCEMENT_SEEDS.map((entry, index) => item(index + 1, entry)),
   gallery: GALLERY_SEEDS.map((entry, index) => item(index + 1, entry)),

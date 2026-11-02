@@ -1,11 +1,12 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Briefcase, Building2, Code2, GraduationCap, Linkedin } from "lucide-react";
+import { ArrowUpRight, Briefcase, Building2, Code2, GraduationCap, Linkedin, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SectionHeading } from "@/components/site/section-heading";
 import { useCollection, useLabels, useSection } from "@/lib/content/provider";
+import { cn } from "@/lib/utils";
 import type { Trainer } from "@/lib/content/types";
 
 export function initials(name: string): string {
@@ -72,7 +73,8 @@ function TrainerProfile({ trainer }: { trainer: Trainer }) {
         <PersonPhoto src={trainer.photo} name={trainer.name} className="aspect-[4/5] w-full rounded-2xl text-[28px]" />
         {trainer.experienceYears > 0 && (
           <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center text-sm text-slate-300">
-            <span className="text-xl font-extrabold text-white">{trainer.experienceYears}+</span> years experience
+            <span className="text-xl font-extrabold text-white">{trainer.experienceYears}+</span>{" "}
+            {t("trainers.years")}
           </p>
         )}
         {trainer.linkedin && (
@@ -89,6 +91,22 @@ function TrainerProfile({ trainer }: { trainer: Trainer }) {
         )}
       </div>
       <div className="space-y-6">
+        {(trainer.company || trainer.specialisation) && (
+          <ul className="flex flex-wrap gap-1.5">
+            {trainer.company ? (
+              <li className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-slate-200">
+                <Building2 className="h-3 w-3 text-cyber-300" aria-hidden="true" />
+                {trainer.company}
+              </li>
+            ) : null}
+            {trainer.specialisation ? (
+              <li className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                {trainer.specialisation}
+              </li>
+            ) : null}
+          </ul>
+        )}
         {trainer.bio && <p className="text-sm leading-relaxed text-slate-300">{trainer.bio}</p>}
         {has(trainer.professionalExperience) && (
           <ProfileBlock icon={Briefcase} title="Professional experience">
@@ -134,53 +152,155 @@ export function TrainersSection() {
   const section = useSection("trainers");
   const trainers = useCollection<Trainer>("trainers");
   const t = useLabels();
+  const [filter, setFilter] = useState<string>("all");
+
+  /**
+   * Filter chips only earn their space once there is a real spread of
+   * specialisations — with two mentors a "filter" is just extra clicking.
+   */
+  const specialisations = useMemo(() => {
+    const set = new Set<string>();
+    for (const trainer of trainers) {
+      const label = (trainer.specialisation || "").trim();
+      if (label) set.add(label);
+    }
+    return Array.from(set);
+  }, [trainers]);
+
+  const visible = useMemo(
+    () =>
+      filter === "all"
+        ? trainers
+        : trainers.filter((trainer) => (trainer.specialisation || "").trim() === filter),
+    [trainers, filter]
+  );
+
   if (section.hidden || trainers.length === 0) return null;
 
+  const combinedYears = trainers.reduce(
+    (sum, trainer) => sum + (Number(trainer.experienceYears) || 0),
+    0
+  );
+
   return (
-    <section className="relative py-16 sm:py-20" aria-label={section.eyebrow || "Our trainers"}>
+    <section id="mentors" className="relative scroll-mt-24 py-16 sm:py-20" aria-label={section.eyebrow || t("trainers.sectionLabel")}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading eyebrow={section.eyebrow} title={section.title} description={section.description} />
-        <ul className="mt-12 flex flex-wrap justify-center gap-6">
-          {trainers.map((trainer, i) => {
-            const skills = (trainer.skills ?? []).filter(Boolean);
+
+        {/* Live count strip — the reference site lists mentors with their years
+            and specialisations, so surface those numbers up front. */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <span className="hud-chip">
+            {trainers.length} {t("trainers.countLabel")}
+          </span>
+          {combinedYears > 0 ? (
+            <span className="hud-chip">
+              {combinedYears}+ {t("trainers.yearsLabel")}
+            </span>
+          ) : null}
+          {specialisations.length > 1 ? (
+            <span className="hud-chip">
+              {specialisations.length} {t("trainers.tracksLabel")}
+            </span>
+          ) : null}
+        </div>
+
+        {specialisations.length > 1 && trainers.length > 3 ? (
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {[
+              { value: "all", label: t("trainers.filterAll") },
+              ...specialisations.map((label) => ({ value: label, label })),
+            ].map((option) => {
+              const active = filter === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setFilter(option.value)}
+                  className={cn(
+                    "rounded-full border px-4 py-1.5 text-xs font-bold transition-all",
+                    active
+                      ? "border-transparent bg-gradient-to-r from-brand-600 to-cyber-500 text-white shadow-[0_8px_24px_-10px_rgba(34,211,238,0.8)]"
+                      : "border-white/12 bg-white/[0.04] text-slate-300 hover:border-cyber-300/50 hover:text-white"
+                  )}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
+        <ul className="mt-10 flex flex-wrap justify-center gap-5">
+          {visible.map((trainer, i) => {
+            const company = (trainer.company || trainer.designation || "").trim();
+            const specialisation = (trainer.specialisation || "").trim();
+            const years = Number(trainer.experienceYears) || 0;
             return (
               <motion.li
                 key={trainer.id}
-                className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+                className="w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] xl:w-[calc(25%-15px)]"
                 initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.6, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.6, delay: (i % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Dialog>
-                  <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0a1230]/80 transition-colors duration-300 hover:border-cyan-300/40">
-                    <div className="relative aspect-[4/3] overflow-hidden">
+                  <article className="aurora-card sweep-card group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0a1230]/85 transition-colors duration-300 hover:border-cyan-300/40">
+                    {/* portrait photo, like the reference mentor wall */}
+                    <div className="relative aspect-[3/4] overflow-hidden">
                       <PersonPhoto
                         src={trainer.photo}
                         name={trainer.name}
-                        className="h-full w-full text-[34px] transition-transform duration-700 group-hover:scale-105"
+                        className="h-full w-full text-[40px] transition-transform duration-700 group-hover:scale-[1.06]"
                       />
-                      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#0a1230] via-[#0a1230]/10 to-transparent" />
-                      {trainer.experienceYears > 0 && (
-                        <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                          {trainer.experienceYears}+ yrs exp
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-0 bg-gradient-to-t from-[#0a1230] via-[#0a1230]/25 to-transparent"
+                      />
+                      {years > 0 ? (
+                        <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
+                          {years}+ {t("trainers.yearsShort")}
                         </span>
-                      )}
-                    </div>
-                    <div className="flex flex-1 flex-col gap-3 p-5 pt-1">
-                      <div>
-                        <h3 className="text-lg font-extrabold text-white">{trainer.name}</h3>
-                        {trainer.designation && <p className="mt-0.5 text-sm font-medium text-cyber-200">{trainer.designation}</p>}
+                      ) : null}
+                      {specialisation ? (
+                        <span className="absolute left-3 top-3 rounded-full border border-cyan-300/40 bg-cyber-500/20 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyan-100 backdrop-blur-sm">
+                          {specialisation}
+                        </span>
+                      ) : null}
+                      <div className="absolute inset-x-0 bottom-0 p-4">
+                        <h3 className="text-base font-extrabold uppercase leading-tight tracking-wide text-white">
+                          {trainer.name}
+                        </h3>
+                        {company ? (
+                          <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-cyber-200">
+                            <Building2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                            <span className="truncate">{company}</span>
+                          </p>
+                        ) : null}
                       </div>
-                      {trainer.bio && <p className="line-clamp-2 text-sm leading-relaxed text-slate-400">{trainer.bio}</p>}
-                      {skills.length > 0 && <Chips items={skills.slice(0, 5).concat(skills.length > 5 ? [`+${skills.length - 5}`] : [])} />}
+                    </div>
+
+                    <div className="flex flex-1 flex-col gap-3 p-4 pt-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                        {years > 0
+                          ? `${years}+ ${t("trainers.yearsLabel")}`
+                          : trainer.designation || specialisation}
+                      </p>
+                      {trainer.bio ? (
+                        <p className="line-clamp-2 text-xs leading-relaxed text-slate-400">{trainer.bio}</p>
+                      ) : null}
                       <DialogTrigger asChild>
                         <button
                           type="button"
-                          className="mt-auto inline-flex items-center gap-1.5 self-start pt-2 text-sm font-bold text-cyber-300 transition-colors hover:text-white"
+                          className="mt-auto inline-flex items-center gap-1.5 self-start pt-1 text-xs font-bold text-cyber-300 transition-colors hover:text-white"
                         >
                           {t("trainers.profile")}
-                          <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                          <ArrowUpRight
+                            className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                            aria-hidden="true"
+                          />
                           <span className="sr-only"> of {trainer.name}</span>
                         </button>
                       </DialogTrigger>
@@ -192,8 +312,12 @@ export function TrainersSection() {
                   >
                     <div className="mb-2">
                       <DialogTitle className="text-2xl font-extrabold">{trainer.name}</DialogTitle>
-                      <DialogDescription className={trainer.designation ? "mt-1 text-sm font-medium text-cyber-200" : "sr-only"}>
-                        {trainer.designation || `Trainer profile of ${trainer.name}`}
+                      <DialogDescription
+                        className={
+                          trainer.designation ? "mt-1 text-sm font-medium text-cyber-200" : "sr-only"
+                        }
+                      >
+                        {trainer.designation || `${t("trainers.profile")} ${trainer.name}`}
                       </DialogDescription>
                     </div>
                     <TrainerProfile trainer={trainer} />
