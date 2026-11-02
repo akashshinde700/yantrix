@@ -508,3 +508,29 @@ every logo — it read as an empty section next to the reference site's logo wal
 
 **Verified**: `tsc`, `eslint`, `next build` clean; home page renders all 17
 mentor cards, all 17 portrait URLs return 200, About page preview intact.
+
+## Curriculum rebuilt to the reference layout
+
+The syllabus block was a numbered timeline with chips; the reference course pages
+use a simpler, more scannable outline. It now matches that anatomy while keeping
+our data:
+
+- **Centred heading** — eyebrow "Syllabus", H2 "Course Curriculum"
+  (per-course override still works), intro line.
+- **One centred button** — "Show Curriculum" / "Hide Curriculum" opens or closes
+  *everything* (brochure + every module), exactly like the reference.
+- **`N Modules` count line** with a folder icon, plus a muted `· N Sessions`.
+  Search only appears when a course has more than eight modules.
+- **Brochure accordion first** — rows with a PDF icon, file name and download
+  arrow. Files come from the new per-course `curriculumFiles` list (Admin →
+  Courses → Curriculum → Brochure); with no files it falls back to `brochureUrl`,
+  and with neither the row offers the syllabus on WhatsApp.
+- **Module accordions** — folder icon, number + title, session count and optional
+  duration, then one row per lesson with a document icon and hairline dividers.
+- Panels animate open/closed (grid rows) and stay `inert` while collapsed, so
+  keyboard and screen-reader users never land in a hidden list.
+- The old bottom "syllabus PDF" card is gone — the brochure lives at the top now.
+
+**Verified**: `tsc`, `eslint`, `next build` clean; course page renders the
+centred heading, the Show button, the `6 Modules · 24 Sessions` count line, the
+Brochure accordion and six module panels; admin editor accepts the new file list.

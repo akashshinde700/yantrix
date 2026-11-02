@@ -501,6 +501,12 @@ export function CourseEditor({
           topics: asList(module.topics).filter(Boolean),
         }))
         .filter((module) => module.title),
+      curriculumFiles: asRecords(values.curriculumFiles)
+        .map((file) => ({
+          label: asString(file.label).trim(),
+          url: asString(file.url).trim(),
+        }))
+        .filter((file) => file.label && file.url),
       tracks: asRecords(values.tracks)
         .map((track) => ({
           title: asString(track.title).trim(),
@@ -996,6 +1002,25 @@ export function CourseEditor({
                 </Field>
                 <Field label="Brochure URL" hint="Upload a PDF anywhere public and paste the link.">
                   {text("brochureUrl", "/files/full-stack-syllabus.pdf")}
+                </Field>
+              </div>
+              <div className="mt-5">
+                <Field
+                  label="Extra syllabus files"
+                  span={2}
+                  hint="These appear as rows inside the “Brochure” accordion at the top of the curriculum — one PDF (or link) per row. With no files added, the brochure row above is used, and with neither the page offers the syllabus on WhatsApp."
+                >
+                  <RecordListEditor
+                    items={asRecords(values.curriculumFiles)}
+                    onChange={(next) => set("curriculumFiles", next)}
+                    template={{ label: "", url: "" }}
+                    addLabel="Add syllabus file"
+                    itemLabel="File"
+                    fields={[
+                      { key: "label", label: "File name", placeholder: "Full Stack syllabus (PDF)" },
+                      { key: "url", label: "File URL", placeholder: "/files/full-stack-syllabus.pdf" },
+                    ]}
+                  />
                 </Field>
               </div>
             </Panel>
