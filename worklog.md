@@ -387,3 +387,27 @@ the owner asked about exists as its own labelled, admin-editable section.
 contains every one of the six blocks, in the right order:
 overview → why → audience → tools → learn → curriculum → included → certificate
 → projects → batches → placement → trainer → reviews → FAQs → related.
+
+## Course Curriculum block
+
+The syllabus block already existed; it now reads and behaves like a real
+curriculum outline instead of a bare accordion.
+
+- Explicit heading — eyebrow "Syllabus", H2 **"Course Curriculum"**
+  (`cp.curriculumTitle`), overridable per course via `curriculumTitle`.
+- Summary strip: `N Modules` · `N Sessions` (`cp.curriculumModules` /
+  `cp.curriculumSessions`), plus a combined duration chip when modules carry one.
+- Module search (appears with more than four modules) filters by module title or
+  topic and shows a friendly empty state (`cp.curriculumSearch`,
+  `cp.curriculumEmpty`).
+- Numbered timeline with a spine, per-module **"N Sessions"** count and an
+  optional `duration` chip ("3 weeks", "8 sessions") — new field on
+  `CourseModule`, editable per module in the course editor.
+- Show / hide all modules (`cp.curriculumExpand` / `cp.curriculumCollapse`) and a
+  syllabus PDF row (`FileText`, brochure link or WhatsApp fallback) at the end.
+- On-page jump nav now shows "Course Curriculum" (`cp.curriculumTitle`).
+
+**Verified**: tsc, eslint and `next build` clean; all 8 course pages render the
+block with real counts (6 modules / 24 sessions on Full Stack, 4/· on the
+shorter courses); a course-specific heading and a per-module duration chip were
+set through the admin API, rendered on the page, then reverted.
