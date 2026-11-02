@@ -21,15 +21,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
    * brand suffix the tag ran to 90 characters and Google truncated the part
    * that actually matters (course + fees + syllabus).
    */
-  const title = { absolute: `${headline} — Fees & Syllabus` };
-  const description = [
-    course.description,
-    course.duration && `Duration: ${course.duration}.`,
-    course.modes?.length && `${course.modes.join(" & ")} batches.`,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .slice(0, 300);
+  const title = { absolute: course.seoTitle || `${headline} — Fees & Syllabus` };
+  const description = (
+    course.seoDescription ||
+    [
+      course.tagline || course.description,
+      course.duration && `Duration: ${course.duration}.`,
+      course.modes?.length && `${course.modes.join(" & ")} batches.`,
+    ]
+      .filter(Boolean)
+      .join(" ")
+  ).slice(0, 300);
   const url = absoluteUrl(content, coursePath(course));
   const { global } = content.seo;
 

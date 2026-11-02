@@ -64,32 +64,50 @@ export function courseFaqs(content: SiteContent, course: Course): { question: st
   const { settings } = content;
   const city = settings.contact.city;
   const modes = (course.modes ?? []).join(" and ");
-  const list: { question: string; answer: string }[] = [
-    {
-      question: `What is the ${course.title} course at ${settings.name}?`,
-      answer: `${course.description}${course.highlights?.length ? ` You will cover ${course.highlights.slice(0, 4).join(", ")}.` : ""}`,
-    },
-  ];
+
+  /*
+   * Questions written by the admin for this course come first — they are the
+   * ones the team actually gets asked — then the generated Q&A fills the gaps.
+   * Anything with a duplicate question is dropped so the page and the FAQPage
+   * schema never show the same question twice.
+   */
+  const seen = new Set<string>();
+  const list: { question: string; answer: string }[] = [];
+  const add = (entry: { question: string; answer: string }) => {
+    const key = entry.question.trim().toLowerCase();
+    if (!key || !entry.answer.trim() || seen.has(key)) return;
+    seen.add(key);
+    list.push(entry);
+  };
+
+  for (const faq of course.faqs ?? []) {
+    add({ question: faq.question, answer: faq.answer });
+  }
+
+  add({
+    question: `What is the ${course.title} course at ${settings.name}?`,
+    answer: `${course.description}${course.highlights?.length ? ` You will cover ${course.highlights.slice(0, 4).join(", ")}.` : ""}`,
+  });
   if (course.duration) {
-    list.push({
+    add({
       question: `How long is the ${course.title} course?`,
       answer: `The ${course.title} course runs for ${course.duration}. Exact batch timings are shared when you enquire.`,
     });
   }
-  list.push({
+  add({
     question: `What is the fee for the ${course.title} course${city ? ` in ${city}` : ""}?`,
     answer: course.fee && !/request|enquir/i.test(course.fee)
       ? `The fee for ${course.title} is ${course.fee}. Contact ${settings.name} for current offers.`
       : `The fee depends on the batch and mode. Call ${settings.contact.phone} or message on WhatsApp for the current fee and any offers.`,
   });
   if (modes) {
-    list.push({
+    add({
       question: `Is the ${course.title} course available online or offline?`,
       answer: `${course.title} is available ${modes === "Online and Offline" || modes === "Offline and Online" ? "both online and offline (classroom)" : modes.toLowerCase()}${city ? ` — classroom batches are held in ${city}` : ""}.`,
     });
   }
   if (course.level) {
-    list.push({
+    add({
       question: `Who can join the ${course.title} course?`,
       answer: `The course is designed for the ${course.level.toLowerCase()} level. ${settings.name} helps you check whether it fits your background before you enrol.`,
     });
@@ -214,9 +232,13 @@ export function buildJsonLd(
     description: c.description,
     url: absoluteUrl(content, coursePath(c)),
     inLanguage: global.locale?.replace("_", "-") ?? "en-IN",
+    image: c.coverImage ? absoluteUrl(content, c.coverImage) : undefined,
     educationalLevel: c.level || undefined,
-    teaches: c.highlights?.length ? c.highlights : undefined,
+    teaches: c.learn?.length ? c.learn : c.highlights?.length ? c.highlights : undefined,
     timeRequired: c.duration || undefined,
+    syllabusSections: c.curriculum?.length
+      ? c.curriculum.map((module) => ({ "@type": "Syllabus", name: module.title }))
+      : undefined,
     provider: { "@id": orgId, "@type": "EducationalOrganization", name: settings.name, url: `${url}/` },
     offers: {
       "@type": "Offer",
@@ -371,6 +393,15 @@ export function buildLlmsTxt(content: SiteContent, { full = false }: { full?: bo
       );
       if (full && course.highlights?.length) {
         lines.push(`  Topics: ${course.highlights.join("; ")}`);
+      }
+      if (full && course.learn?.length) {
+        lines.push(`  You will learn: ${course.learn.join("; ")}`);
+      }
+      if (full && course.curriculum?.length) {
+        lines.push(`  Curriculum: ${course.curriculum.map((module) => module.title).join(" → ")}`);
+      }
+      if (full && course.tools?.length) {
+        lines.push(`  Tools: ${course.tools.join(", ")}`);
       }
     }
     lines.push("");

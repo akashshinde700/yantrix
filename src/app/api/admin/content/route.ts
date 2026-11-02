@@ -7,7 +7,8 @@ import {
   resetContent,
   updateContent,
 } from "@/lib/content/store";
-import { COLLECTION_KEYS, type CollectionKey, type SiteContent } from "@/lib/content/types";
+import { COLLECTION_KEYS, type CollectionKey, type ContentItem, type SiteContent } from "@/lib/content/types";
+import { slugify } from "@/lib/content/helpers";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +74,32 @@ function sanitiseItem(raw: unknown, fallbackOrder: number) {
   return item;
 }
 
+
+/**
+ * Courses live at /courses/<slug>, so two courses may never share a slug.
+ * Normalise whatever the editor sent, derive one from the title when it is
+ * blank, and append -2, -3… when the name is already taken (rather than
+ * failing the save and losing the admin's work).
+ */
+function withCourseSlug(
+  item: Record<string, unknown>,
+  list: ContentItem[],
+  selfId: string | null
+): Record<string, unknown> {
+  const base =
+    slugify(String(item.slug ?? "")) || slugify(String(item.title ?? "")) || "course";
+  const taken = new Set(
+    list.filter((entry) => entry.id !== selfId).map((entry) => String(entry.slug ?? ""))
+  );
+  let slug = base;
+  let suffix = 2;
+  while (taken.has(slug)) {
+    slug = `${base}-${suffix}`;
+    suffix += 1;
+  }
+  return { ...item, slug };
+}
+
 function isCollectionKey(value: unknown): value is CollectionKey {
   return typeof value === "string" && (COLLECTION_KEYS as readonly string[]).includes(value);
 }
@@ -133,10 +160,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: false, error: "Unknown collection." }, { status: 400 });
       }
       const collection = body.collection;
+      const incoming = isObject(body.item) ? body.item : {};
+      const snapshot = await getContent();
+      const prepared =
+        collection === "courses"
+          ? withCourseSlug(incoming, snapshot.collections.courses, null)
+          : incoming;
       const content = await updateContent((current) => {
         const list = current.collections[collection];
         const maxOrder = list.reduce((max, item) => Math.max(max, item.sortOrder), 0);
-        const item = sanitiseItem(body.item, maxOrder + 1);
+        const item = sanitiseItem(prepared, maxOrder + 1);
         current.collections[collection] = [
           ...list,
           { ...item, id: randomUUID() } as (typeof list)[number],
@@ -153,10 +186,20 @@ export async function POST(request: NextRequest) {
       }
       const collection = body.collection;
       const id = body.id;
+      const snapshot = await getContent();
+      const existing = snapshot.collections[collection].find((item) => item.id === id);
+      if (!existing) {
+        return NextResponse.json({ ok: false, error: "That item no longer exists." }, { status: 404 });
+      }
+      const merged = { ...existing, ...(isObject(body.item) ? body.item : {}) };
+      const prepared =
+        collection === "courses"
+          ? withCourseSlug(merged, snapshot.collections.courses, id)
+          : merged;
       const content = await updateContent((current) => {
         current.collections[collection] = current.collections[collection].map((item) =>
           item.id === id
-            ? ({ ...item, ...sanitiseItem({ ...item, ...(isObject(body.item) ? body.item : {}) }, item.sortOrder) } as typeof item)
+            ? ({ ...item, ...sanitiseItem(prepared, item.sortOrder) } as typeof item)
             : item
         );
         return current;

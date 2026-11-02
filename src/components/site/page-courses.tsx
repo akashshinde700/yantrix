@@ -1,8 +1,18 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, MapPin, MessageCircleQuestion, Monitor, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import {
+  ArrowRight,
+  BarChart3,
+  Clock,
+  MapPin,
+  MessageCircleQuestion,
+  Monitor,
+  Sparkles,
+  Users,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/site/section-heading";
 import { CtaBand } from "@/components/site/cta-band";
@@ -13,121 +23,171 @@ import { tiltHandlers } from "@/components/site/fx";
 import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
 import { whatsappUrl } from "@/lib/content/helpers";
+import { coursePath } from "@/lib/seo";
 import type { Course, SimpleItem } from "@/lib/content/types";
 import { useSiteStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+
+/** Three tinted variants so a grid without cover images still has rhythm. */
+const COVER_TINTS = [
+  "bg-[radial-gradient(circle_at_28%_22%,rgba(34,211,238,0.30),transparent_58%),radial-gradient(circle_at_82%_78%,rgba(37,99,235,0.35),transparent_58%),linear-gradient(135deg,#070d22,#0b1433)]",
+  "bg-[radial-gradient(circle_at_72%_24%,rgba(167,139,250,0.30),transparent_58%),radial-gradient(circle_at_18%_80%,rgba(34,211,238,0.28),transparent_58%),linear-gradient(135deg,#0a0b1f,#0b1433)]",
+  "bg-[radial-gradient(circle_at_48%_18%,rgba(37,99,235,0.36),transparent_58%),radial-gradient(circle_at_86%_76%,rgba(34,211,238,0.26),transparent_58%),linear-gradient(135deg,#050914,#101a3d)]",
+];
+
+/** Cover image, or a branded icon panel when the admin has not uploaded one. */
+function CourseCover({ course, variant = 0 }: { course: Course; variant?: number }) {
+  if (course.coverImage) {
+    return (
+      <img
+        src={course.coverImage}
+        alt={course.coverAlt || `${course.title} course at Yantrix Technology`}
+        loading="lazy"
+        decoding="async"
+        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+      />
+    );
+  }
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "flex h-full w-full items-center justify-center",
+        COVER_TINTS[variant % COVER_TINTS.length]
+      )}
+    >
+      <ContentIcon
+        name={course.icon}
+        className="h-14 w-14 text-cyber-300/90 transition-transform duration-500 group-hover:scale-110"
+      />
+    </div>
+  );
+}
 
 function CourseCard({ course, index }: { course: Course; index: number }) {
   const navigate = useSiteStore((s) => s.navigate);
+  const href = coursePath(course);
 
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay: (index % 4) * 0.07, ease: "easeOut" }}
-      {...tiltHandlers(5)}
-      className="tilt-card spotlight-card card-glow group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/[0.1]"
+      transition={{ duration: 0.5, delay: (index % 3) * 0.07, ease: "easeOut" }}
+      {...tiltHandlers(4)}
+      className="tilt-card spotlight-card card-glow group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
     >
-      {/* Animated top gradient bar — sweeps in on hover */}
       <span
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 rounded-t-2xl bg-gradient-to-r from-brand-500 via-cyber-400 to-brand-700 transition-transform duration-500 ease-out group-hover:scale-x-100"
+        className="absolute inset-x-0 top-0 z-20 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-500 via-cyber-400 to-brand-700 transition-transform duration-500 ease-out group-hover:scale-x-100"
       />
       <HudCorners />
       <ScanSweep />
 
-      <div className="relative z-10 flex items-start justify-between gap-3">
-        {/* Icon with animated dash-flow ring on hover */}
-        <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-brand-600 group-hover:to-cyber-500 group-hover:text-white group-hover:shadow-[0_0_22px_-4px_rgba(34,211,238,0.65)]">
-          <svg
-            viewBox="0 0 100 100"
-            fill="none"
-            aria-hidden="true"
-            className="absolute -inset-2 h-[calc(100%+16px)] w-[calc(100%+16px)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+      {/* ── cover ── */}
+      <a href={href} tabIndex={-1} aria-hidden="true" className="relative block overflow-hidden">
+        <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-white/10">
+          <CourseCover course={course} variant={index} />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#040815]/85 via-[#040815]/10 to-transparent" />
+          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+            {course.badge ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-brand-600 to-cyber-500 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-lg">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                {course.badge}
+              </span>
+            ) : null}
+          </div>
+          <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
+            {course.modes.map((mode) => (
+              <span
+                key={mode}
+                className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-[10px] font-bold text-cyber-200 backdrop-blur"
+              >
+                {mode === "Online" ? (
+                  <Monitor className="h-3 w-3" aria-hidden="true" />
+                ) : (
+                  <MapPin className="h-3 w-3" aria-hidden="true" />
+                )}
+                {mode}
+              </span>
+            ))}
+          </div>
+        </div>
+      </a>
+
+      {/* ── body ── */}
+      <div className="relative z-10 flex flex-1 flex-col p-5">
+        <h3 className="text-lg font-extrabold leading-snug text-ink">
+          <a href={href} className="transition-colors hover:text-cyber-300">
+            {course.title}
+          </a>
+        </h3>
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+          {course.tagline || course.description}
+        </p>
+
+        {course.highlights?.length ? (
+          <div className="mt-3.5 flex flex-wrap gap-1.5">
+            {course.highlights.slice(0, 3).map((highlight) => (
+              <span
+                key={highlight}
+                className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200"
+              >
+                {highlight}
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        <dl className="mt-4 space-y-1.5 text-xs">
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Clock className="h-3.5 w-3.5 text-brand-600" aria-hidden="true" />
+            <dt className="sr-only">Duration</dt>
+            <dd className="font-semibold">{course.duration || "Duration on enquiry"}</dd>
+          </div>
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <BarChart3 className="h-3.5 w-3.5 text-brand-600" aria-hidden="true" />
+            <dt className="sr-only">Level</dt>
+            <dd className="font-semibold">{course.level || "All levels"}</dd>
+          </div>
+        </dl>
+
+        <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Course fee</p>
+            <p className="text-base font-extrabold text-ink">{course.fee || "On request"}</p>
+          </div>
+          <a
+            href={href}
+            className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-brand-600 transition-colors hover:text-cyber-300"
           >
-            <circle
-              cx="50"
-              cy="50"
-              r="47"
-              stroke="currentColor"
-              strokeWidth="3"
-              className="dash-flow text-cyber-400"
-              strokeLinecap="round"
-            />
-          </svg>
-          <ContentIcon
-            name={course.icon}
-            className="h-6 w-6 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-          />
-        </span>
-        <div className="flex flex-wrap justify-end gap-1.5">
-          {course.modes.map((mode) => (
-            <Badge
-              key={mode}
-              variant="secondary"
-              className="rounded-full bg-brand-50 text-[11px] font-bold text-brand-800 ring-1 ring-brand-100"
-            >
-              {mode === "Online" ? (
-                <Monitor className="mr-1 h-3 w-3" aria-hidden="true" />
-              ) : (
-                <MapPin className="mr-1 h-3 w-3" aria-hidden="true" />
-              )}
-              {mode}
-            </Badge>
-          ))}
+            View details
+            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            <span className="sr-only"> for {course.title}</span>
+          </a>
+        </div>
+
+        <div className="mt-4 flex gap-2">
+          <Button
+            onClick={() => navigate("contact", { course: course.title })}
+            className="btn-futur btn-shine h-10 flex-1 rounded-xl text-sm font-bold text-white"
+          >
+            Enquire now
+          </Button>
+          <a
+            href={href}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-3.5 text-sm font-bold text-ink transition-colors hover:border-cyber-300/60 hover:bg-white/5"
+          >
+            Details
+            <ArrowRight className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
+          </a>
         </div>
       </div>
-
-      <h3 className="relative z-10 mt-4 text-lg font-extrabold text-ink">
-        <a href={`/courses/${course.slug}`} className="transition-colors hover:text-cyber-300">
-          {course.title}
-        </a>
-      </h3>
-      <p className="relative z-10 mt-2 text-sm leading-relaxed text-muted-foreground">
-        {course.description}
-      </p>
-
-      {/* Technology chips (Fusion-style) */}
-      <div className="relative z-10 mt-4 flex flex-wrap gap-1.5">
-        {course.highlights.map((h, hi) => (
-          <span
-            key={h}
-            className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200 transition-all duration-300 group-hover:border-brand-200 group-hover:bg-brand-50 group-hover:text-brand-800 group-hover:ring-brand-200"
-            style={{ transitionDelay: `${hi * 40}ms` }}
-          >
-            {h}
-          </span>
-        ))}
-      </div>
-
-      <div className="relative z-10 mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
-          <Clock className="h-3.5 w-3.5 text-brand-600 transition-transform duration-300 group-hover:rotate-12" aria-hidden="true" />
-          {course.duration}
-        </span>
-        <a
-          href={`/courses/${course.slug}`}
-          className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-brand-600 transition-colors hover:text-cyber-300"
-        >
-          Fees, syllabus & FAQs
-          <ArrowRight className="h-3 w-3" aria-hidden="true" />
-          <span className="sr-only"> for {course.title}</span>
-        </a>
-      </div>
-
-      <Button
-        onClick={() => navigate("contact", { course: course.title })}
-        className="btn-futur btn-shine relative z-10 mt-4 h-11 w-full rounded-xl font-bold text-white"
-      >
-        Enquire Now
-        <ArrowRight
-          className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-          aria-hidden="true"
-        />
-      </Button>
     </motion.article>
   );
 }
+
+const FILTERS = ["All", "Online", "Offline"] as const;
 
 export function PageCourses() {
   const courses = useCollection<Course>("courses");
@@ -135,6 +195,24 @@ export function PageCourses() {
   const section = useSection("coursesPage");
   const settings = useSettings();
   const copy = useSiteContent().pages.courses;
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
+
+  const visible = useMemo(
+    () =>
+      filter === "All"
+        ? courses
+        : courses.filter((course) => (course.modes ?? []).some((mode) => mode === filter)),
+    [courses, filter]
+  );
+
+  const counts = useMemo(
+    () => ({
+      All: courses.length,
+      Online: courses.filter((c) => (c.modes ?? []).includes("Online")).length,
+      Offline: courses.filter((c) => (c.modes ?? []).includes("Offline")).length,
+    }),
+    [courses]
+  );
 
   return (
     <>
@@ -169,7 +247,7 @@ export function PageCourses() {
       {/* Course grid — with star field */}
       <section
         id="course-grid"
-        className="scroll-mt-28 bg-slate-50 py-14 sm:py-16 relative overflow-hidden"
+        className="relative scroll-mt-28 overflow-hidden bg-slate-50 py-14 sm:py-16"
         aria-labelledby="course-grid-heading"
       >
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
@@ -177,17 +255,69 @@ export function PageCourses() {
           <h2 id="course-grid-heading" className="sr-only">
             All courses
           </h2>
-          <div className="grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {courses.map((course, i) => (
+
+          {/* Mode filter — mirrors the "online / offline" split on course listings */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {FILTERS.map((option) => {
+                const active = filter === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setFilter(option)}
+                    aria-pressed={active}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold transition-all",
+                      active
+                        ? "border-transparent bg-gradient-to-r from-brand-600 to-cyber-500 text-white shadow-[0_8px_24px_-10px_rgba(34,211,238,0.8)]"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-cyber-300/60 hover:text-ink"
+                    )}
+                  >
+                    {option}
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.5 text-[10px] font-extrabold",
+                        active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                      )}
+                    >
+                      {counts[option]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs font-semibold text-slate-500">
+              Showing {visible.length} of {courses.length} courses
+            </p>
+          </div>
+
+          <div className="grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((course, i) => (
               <CourseCard key={course.id} course={course} index={i} />
             ))}
           </div>
 
+          {visible.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+              <p className="text-sm font-semibold text-ink">
+                No {filter.toLowerCase()} batches are listed right now.
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Talk to us — we often open a batch when enough students ask.
+              </p>
+              <Button
+                onClick={() => useSiteStore.getState().navigate("contact")}
+                className="btn-futur mt-4 h-10 rounded-xl px-5 text-sm font-bold text-white"
+              >
+                Ask about {filter.toLowerCase()} batches
+              </Button>
+            </div>
+          ) : null}
+
           {/* Editable-content + disclaimer notes */}
           <div className="mx-auto mt-10 max-w-3xl space-y-2 text-center">
-            <p className="text-xs leading-relaxed text-slate-500">
-              {copy.note}
-            </p>
+            <p className="text-xs leading-relaxed text-slate-500">{copy.note}</p>
             <p className="text-xs leading-relaxed text-slate-500">
               Looking for something specific or corporate training for your team?{" "}
               <button
@@ -203,14 +333,16 @@ export function PageCourses() {
       </section>
 
       {/* Help choose section — cosmic glow */}
-      <section className="bg-white py-14 sm:py-16 relative overflow-hidden" aria-labelledby="course-help-heading">
+      <section className="relative overflow-hidden bg-white py-14 sm:py-16" aria-labelledby="course-help-heading">
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid items-center gap-8 rounded-3xl border border-slate-100 bg-slate-50/80 p-8 sm:p-10 lg:grid-cols-[auto_1fr_auto]">
             <span className="hover-wiggle mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-lg shadow-cyber-500/30 lg:mx-0">
               <MessageCircleQuestion className="h-8 w-8" aria-hidden="true" />
             </span>
             <div className="text-center lg:text-left">
-              <h2 className="text-xl font-extrabold text-ink sm:text-2xl">{copy.helpTitle}</h2>
+              <h2 id="course-help-heading" className="text-xl font-extrabold text-ink sm:text-2xl">
+                {copy.helpTitle}
+              </h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
                 {copy.helpText}
               </p>

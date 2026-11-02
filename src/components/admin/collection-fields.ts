@@ -50,6 +50,12 @@ export const COLLECTION_META: Record<CollectionKey, CollectionMeta> = {
       { name: "alt", label: "Image alt text", help: "Describe the image for accessibility and SEO." },
     ],
   },
+  /**
+   * Courses are edited with the dedicated full-page editor
+   * (`components/admin/course-editor.tsx`, route `/admin/courses/[id]`) because
+   * one course now carries a whole detail page — syllabus modules, tracks,
+   * reviews and FAQs. These fields are only a fallback for the generic editor.
+   */
   courses: {
     title: "Courses",
     description: "Course cards shown on the Courses page, footer and enquiry form.",

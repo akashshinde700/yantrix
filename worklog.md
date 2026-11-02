@@ -141,3 +141,45 @@ Stage Summary:
   search and CSV export.
 - Fonts switched from build-time `next/font/google` fetching to a CSS `@import`
   so the project builds in offline / restricted-network environments.
+
+## Course detail pages + full course editor
+
+- NEW `src/lib/content/course-seeds.ts`: every seed course now carries a complete
+  detail page — tagline, badge, hero stats, instructor/language, fee note,
+  batch/seats notes, about paragraphs, specialisation tracks, benefit cards,
+  tools, outcomes, module-by-module curriculum, reviews, course FAQs, CTA copy
+  and SEO overrides. `defaults.ts` maps it into the `courses` collection.
+- `types.ts`: added `CourseTrack`, `CourseBenefit`, `CourseModule`,
+  `CourseReview`, `CourseFaqItem` and the optional detail fields on `Course`.
+  All new fields are optional, so content saved before this change keeps
+  rendering (the page falls back to description / highlights).
+- REWRITE `src/components/site/course-detail.tsx`: Skillected-style course page —
+  gradient H1 + breadcrumb, tagline and answer-first summary, hero stat chips,
+  instructor/language/mode meta, cover card with mode overlay, **fee card**
+  (fee, note, batch + seats, brochure, enquire), quick-fact strip, section jump
+  links, about copy, track cards, benefit grid, outcome list, tool grid,
+  accordion curriculum with expand/collapse-all + brochure/syllabus block,
+  review cards, FAQ accordion with "still have questions", related courses and
+  a mobile sticky enquire bar. Every section hides itself when empty.
+- `page-courses.tsx`: card redesign (cover image or branded icon panel, badge
+  ribbon, mode chips, 3-line description, duration/level, fee + "View details"
+  + enquire) and an **All / Online / Offline filter** with live counts and an
+  empty state.
+- `src/lib/seo.ts`: course FAQs now merge admin-written Q&A (deduped) so the
+  page and `FAQPage` schema match; `Course` schema gains `image`, `teaches`
+  (learn outcomes) and `syllabusSections`; `llms-full.txt` lists outcomes,
+  curriculum modules and tools per course.
+- `src/app/courses/[slug]/page.tsx`: metadata honours the per-course
+  `seoTitle` / `seoDescription` overrides.
+- ADMIN: new `course-list.tsx` (cover thumbnail, slug, fee/duration/modes,
+  search, reorder, publish toggle, copy link, preview, delete) and
+  `course-editor.tsx` — a five-tab full-page editor (Basics / About &
+  highlights / Curriculum / Reviews & FAQs / CTA & SEO) with repeatable row
+  editors for tracks, benefits, modules, reviews and FAQs. Routes:
+  `/admin/courses` (list) and `/admin/courses/[id]` (`new` creates).
+- API `/api/admin/content`: course slugs are normalised via `slugify`,
+  derived from the title when blank and de-duplicated (`-2`, `-3`…); updating a
+  missing item now returns a clear 404 instead of a silent no-op.
+- README documents the course tabs; verified create/update/delete round-trips
+  keep nested arrays (curriculum topics, track points) intact, and the page
+  emits valid Course + FAQPage JSON-LD (9 Q&A merged from admin + generated).
