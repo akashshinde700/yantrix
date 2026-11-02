@@ -236,10 +236,48 @@ export interface CourseTrack {
   points: string[];
 }
 
-/** "Why this course" card. */
+/**
+ * "Why this course" card. With `stat` + `tag` it renders as a highlighted
+ * figure card (e.g. "2.5L+ · Jobs in India · Salary"), otherwise as a plain
+ * benefit card.
+ */
 export interface CourseBenefit {
   title: string;
   description: string;
+  stat?: string;
+  tag?: string;
+}
+
+/** One row of the "what's included" icon grid. */
+export interface CourseIncluded {
+  label: string;
+  icon?: string;
+}
+
+/** Mini project or capstone project card. */
+export interface CourseProject {
+  title: string;
+  description: string;
+  image?: string;
+}
+
+/** One upcoming batch shown in the batches table. */
+export interface CourseBatch {
+  label: string;
+  timing: string;
+  starts: string;
+  seats: string;
+  mode?: string;
+  /** ISO date (YYYY-MM-DD) — powers the countdown and Course schema startDate. */
+  startDate?: string;
+}
+
+/** Trainer card for the course page. */
+export interface CourseTrainer {
+  name: string;
+  role: string;
+  photo?: string;
+  bio?: string;
 }
 
 /** One accordion section of the syllabus. */
@@ -296,6 +334,8 @@ export interface Course extends BaseItem {
   priceNote?: string;
   /** Small stat chips under the headline */
   heroStats?: string[];
+  /** e.g. "Designed for freshers & working professionals" */
+  audience?: string;
   aboutTitle?: string;
   aboutParagraphs?: string[];
   aboutImage?: string;
@@ -304,6 +344,28 @@ export interface Course extends BaseItem {
   benefits?: CourseBenefit[];
   /** Tools / technologies covered */
   tools?: string[];
+
+  /* ── page sections that mirror a full course landing page ── */
+
+  /** "What's included" icon grid (recordings, notes, certification…) */
+  includes?: CourseIncluded[];
+  /** Short practice builds */
+  miniProjects?: CourseProject[];
+  /** Portfolio / capstone projects */
+  projects?: CourseProject[];
+  /** Upcoming batches table */
+  batches?: CourseBatch[];
+  placementTitle?: string;
+  placementText?: string;
+  placementPoints?: string[];
+  trainer?: CourseTrainer | null;
+  certificateTitle?: string;
+  certificateText?: string;
+  certificateImage?: string;
+  /** Announcement strip above the course page, e.g. "Admissions open" */
+  urgencyNote?: string;
+  /** ISO date the next batch starts — drives the countdown in that strip */
+  batchStartDate?: string;
   /** "What you'll learn" list — falls back to `highlights` */
   learn?: string[];
   curriculum?: CourseModule[];

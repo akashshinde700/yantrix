@@ -4,6 +4,8 @@ export interface AdminApiResponse {
   ok: boolean;
   error?: string;
   content?: unknown;
+  /** Set by `fillCourseSections` — how many empty fields were filled. */
+  filled?: number;
 }
 
 /** POST a change to the content API. */

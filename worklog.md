@@ -183,3 +183,37 @@ Stage Summary:
 - README documents the course tabs; verified create/update/delete round-trips
   keep nested arrays (curriculum topics, track points) intact, and the page
   emits valid Course + FAQPage JSON-LD (9 Q&A merged from admin + generated).
+
+## Course page: remaining sections (tools / projects / included / batches)
+
+- Course pages now carry the full landing-page structure, in this order:
+  hero + fee card → quick facts → jump links → about → tracks → **why this
+  course** (with optional big-figure stat cards) → **tools covered** →
+  **what you'll learn** → **curriculum** → **what's included** + certificate →
+  **projects** (capstone cards + mini projects) → **batches & timings** →
+  **placement & career support** → **trainer** → reviews → FAQs → related → CTA.
+- NEW above-the-fold **urgency strip**: announcement text from the admin plus a
+  live day/hour/min/sec countdown driven by the next batch date (renders only
+  after mount, so SSR markup stays stable).
+- `types.ts`: `CourseIncluded`, `CourseProject`, `CourseBatch`, `CourseTrainer`
+  and new optional `Course` fields — `audience`, `includes`, `miniProjects`,
+  `projects`, `batches`, `placementTitle/Text/Points`, `trainer`,
+  `certificateTitle/Text/Image`, `urgencyNote`, `batchStartDate`;
+  `CourseBenefit` gained `stat` + `tag` for figure cards.
+- `course-seeds.ts`: shared INCLUDES (12 items), certificate, placement, trainer
+  and default batch rows, merged into every course through a `shared()` wrapper;
+  each course also got its own audience line, 3–4 mini projects, 3–4 capstone
+  projects and placement points.
+- Admin editor rebuilt around seven tabs (Basics / About & highlights / Projects
+  & extras / Curriculum / Batches & placement / Reviews & FAQs / CTA & SEO) with
+  tab counters, nested `trainer.name`-style field paths, an icon select for the
+  included grid, and full array sanitising on save.
+- API: new `fillCourseSections` op fills only EMPTY fields of courses that match
+  a seed (existing admin copy untouched) — exposed as **Fill new sections** on
+  the courses screen; `AdminApiResponse` gained `filled`.
+- SEO: `CourseInstance.startDate` now comes from the soonest upcoming batch per
+  mode.
+- Verified end-to-end: every section present in SSR HTML in the intended order,
+  jump links match section ids, and a stripped record (all new fields removed,
+  custom tagline kept) gains the sections back via Fill new sections while the
+  admin's own tagline survives.

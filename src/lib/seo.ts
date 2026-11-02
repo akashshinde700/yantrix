@@ -247,12 +247,23 @@ export function buildJsonLd(
       availability: "https://schema.org/InStock",
       url: absoluteUrl(content, coursePath(c)),
     },
-    hasCourseInstance: (c.modes?.length ? c.modes : ["Online", "Offline"]).map((mode) => ({
-      "@type": "CourseInstance",
-      courseMode: /online/i.test(mode) ? "Online" : "Onsite",
-      courseWorkload: c.duration || undefined,
-      location: /online/i.test(mode) ? undefined : address,
-    })),
+    hasCourseInstance: (c.modes?.length ? c.modes : ["Online", "Offline"]).map((mode) => {
+      /* The soonest published batch for this mode gives the instance a start date. */
+      const batch = (c.batches ?? [])
+        .filter(
+          (entry) =>
+            entry.startDate &&
+            (!entry.mode || entry.mode.toLowerCase() === mode.toLowerCase())
+        )
+        .sort((a, b) => String(a.startDate).localeCompare(String(b.startDate)))[0];
+      return {
+        "@type": "CourseInstance",
+        courseMode: /online/i.test(mode) ? "Online" : "Onsite",
+        courseWorkload: c.duration || undefined,
+        startDate: batch?.startDate || undefined,
+        location: /online/i.test(mode) ? undefined : address,
+      };
+    }),
   });
 
   if (aeo.enableCourseSchema && courses.length > 0 && !course && (view === "home" || view === "courses")) {

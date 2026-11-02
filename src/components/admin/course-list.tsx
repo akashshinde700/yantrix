@@ -14,6 +14,7 @@ import {
   Pencil,
   Plus,
   Search,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -99,14 +100,39 @@ export function CourseList({ items }: { items: Course[] }) {
             />
           </div>
           {canWrite ? (
-            <Button
-              asChild
-              className="btn-futur h-9 rounded-lg px-4 text-sm font-bold text-white"
-            >
-              <Link href="/admin/courses/new">
-                <Plus className="mr-1.5 h-4 w-4" /> Add course
-              </Link>
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                className="h-9 rounded-lg px-3 text-xs font-bold"
+                title="Add the newest page sections (projects, what's included, batches, placement, trainer) to courses that were saved before those sections existed. Only empty fields are filled."
+                disabled={busyId === "fill"}
+                onClick={async () => {
+                  setBusyId("fill");
+                  const result = await adminPost({ op: "fillCourseSections" });
+                  setBusyId(null);
+                  if (!result.ok) {
+                    toast({ variant: "destructive", title: "Not filled", description: result.error });
+                    return;
+                  }
+                  const filled = (result as { filled?: number }).filled ?? 0;
+                  toast({
+                    title: filled ? "Course sections added" : "Everything was already filled",
+                    description: filled
+                      ? `${filled} empty field${filled === 1 ? "" : "s"} filled from the starter content. Nothing you wrote was changed.`
+                      : "No course had empty sections left to fill.",
+                  });
+                  router.refresh();
+                }}
+              >
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                Fill new sections
+              </Button>
+              <Button asChild className="btn-futur h-9 rounded-lg px-4 text-sm font-bold text-white">
+                <Link href="/admin/courses/new">
+                  <Plus className="mr-1.5 h-4 w-4" /> Add course
+                </Link>
+              </Button>
+            </>
           ) : null}
         </div>
       </header>

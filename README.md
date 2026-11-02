@@ -75,11 +75,17 @@ anything left empty is simply not rendered:
 
 | Tab | What it controls |
 | --- | --- |
-| Basics | Name, slug, icon, badge, description, tagline, cover image, fee + fee note, duration, modes, batch/seats notes, instructor, language, headline stats, highlight chips, publish state |
-| About & highlights | "About this course" paragraphs and image, what-you'll-learn outcomes, benefit cards, specialisation tracks (MERN / Spring Boot / Django…), tools grid, brochure |
+| Basics | Name, slug, icon, badge, description, tagline, "who it is for", cover image, fee + fee note, duration, modes, batch/seats notes, instructor, language, headline stats, announcement strip + next batch start date (drives the countdown), highlight chips, publish state |
+| About & highlights | "About this course" paragraphs and image, what-you'll-learn outcomes, benefit cards (with optional big figure + label), specialisation tracks (MERN / Spring Boot / Django…), tools grid, brochure |
+| Projects & extras | Capstone projects and mini projects (cards, optional screenshot), the "what's included" icon grid, and the certificate block |
 | Curriculum | Syllabus modules — each one becomes an expandable row with its own topic list |
+| Batches & placement | Upcoming batch rows (name, timing, start date, seats, mode), placement & career-support heading, intro and points, trainer card |
 | Reviews & FAQs | Student quotes, plus course-specific Q&A (also exported as FAQ structured data) |
 | CTA & SEO | Closing call to action, mobile sticky button label, WhatsApp message, search title and meta description |
+
+Already-published courses can pick up the newer sections without losing their
+own copy: **Admin → Courses → “Fill new sections”** fills only the fields that
+are still empty (never overwrites text you wrote).
 
 Slugs are generated from the course name (and de-duplicated with a `-2` suffix
 by the API), so two courses can never fight over the same URL. The course name

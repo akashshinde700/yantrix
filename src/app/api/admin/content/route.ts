@@ -9,6 +9,7 @@ import {
 } from "@/lib/content/store";
 import { COLLECTION_KEYS, type CollectionKey, type ContentItem, type SiteContent } from "@/lib/content/types";
 import { slugify } from "@/lib/content/helpers";
+import { COURSE_SEEDS } from "@/lib/content/course-seeds";
 
 export const dynamic = "force-dynamic";
 
@@ -242,6 +243,48 @@ export async function POST(request: NextRequest) {
       });
       await addAuditEntry({ actorEmail: admin.email, action: "moveItem", target: collection });
       return NextResponse.json({ ok: true, content });
+    }
+
+    /*
+     * Courses gained whole new sections (projects, what's included, batches,
+     * placement, trainer, certificate). A site that was seeded before that has
+     * the old, shorter records — this fills ONLY the empty fields of each course
+     * that matches a seed, and never touches content an admin already wrote.
+     */
+    if (op === "fillCourseSections") {
+      const seeds = new Map(
+        (COURSE_SEEDS as Record<string, unknown>[]).map((seed) => [String(seed.slug), seed])
+      );
+      let filled = 0;
+      const content = await updateContent((current) => {
+        current.collections.courses = current.collections.courses.map((item) => {
+          const seed = seeds.get(String(item.slug ?? ""));
+          if (!seed) return item;
+          const merged: Record<string, unknown> = { ...item };
+          for (const [key, value] of Object.entries(seed)) {
+            if (value === undefined) continue;
+            const existing = merged[key];
+            const isEmpty =
+              existing === undefined ||
+              existing === null ||
+              (typeof existing === "string" && existing.trim() === "") ||
+              (Array.isArray(existing) && existing.length === 0) ||
+              (typeof existing === "object" && !Array.isArray(existing) && Object.keys(existing).length === 0);
+            if (isEmpty) {
+              merged[key] = value;
+              filled += 1;
+            }
+          }
+          return merged as (typeof current.collections.courses)[number];
+        });
+        return current;
+      });
+      await addAuditEntry({
+        actorEmail: admin.email,
+        action: "fillCourseSections",
+        target: "courses",
+      });
+      return NextResponse.json({ ok: true, content, filled });
     }
 
     if (op === "reset") {

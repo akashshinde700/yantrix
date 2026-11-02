@@ -10,13 +10,16 @@ import {
   BookOpen,
   ExternalLink,
   Info,
+  Layers,
   ListChecks,
   Loader2,
   MessageSquareQuote,
   Plus,
   Save,
   Search,
+  Sparkles,
   Trash2,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -196,9 +199,11 @@ function StringListEditor({
 interface RowField {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "list";
+  type?: "text" | "textarea" | "list" | "select";
   placeholder?: string;
   span?: 1 | 2;
+  /** Options for `type: "select"`. */
+  options?: { label: string; value: string }[];
 }
 
 /** Editable list of small objects (tracks, modules, reviews, FAQs…). */
@@ -298,6 +303,22 @@ function RecordListEditor({
                     placeholder={field.placeholder}
                     onChange={(event) => update(index, field.key, event.target.value)}
                   />
+                ) : field.type === "select" ? (
+                  <Select
+                    value={asString(item[field.key]) || field.options?.[0]?.value || ""}
+                    onValueChange={(next) => update(index, field.key, next)}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder={field.placeholder ?? "Select…"} />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {(field.options ?? []).map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : field.type === "list" ? (
                   <StringListEditor
                     items={asList(item[field.key])}
@@ -336,7 +357,9 @@ function RecordListEditor({
 const TABS = [
   { id: "basics", label: "Basics", icon: Info },
   { id: "content", label: "About & highlights", icon: BookOpen },
+  { id: "projects", label: "Projects & extras", icon: Layers },
   { id: "curriculum", label: "Curriculum", icon: ListChecks },
+  { id: "cohort", label: "Batches & placement", icon: Users },
   { id: "social", label: "Reviews & FAQs", icon: MessageSquareQuote },
   { id: "seo", label: "CTA & SEO", icon: Search },
 ] as const;
@@ -372,8 +395,24 @@ export function CourseEditor({
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
 
+  /** Set a value by key; `"trainer.name"`-style paths write nested objects. */
   const set = (key: string, value: unknown) => {
-    setValues((current) => ({ ...current, [key]: value }));
+    setValues((current) => {
+      if (!key.includes(".")) return { ...current, [key]: value };
+      const keys = key.split(".");
+      const clone: Values = { ...current };
+      let cursor: Values = clone;
+      keys.forEach((part, index) => {
+        if (index === keys.length - 1) {
+          cursor[part] = value;
+          return;
+        }
+        const next = cursor[part] && typeof cursor[part] === "object" ? { ...(cursor[part] as Values) } : {};
+        cursor[part] = next;
+        cursor = next;
+      });
+      return clone;
+    });
     setDirty(true);
   };
 
@@ -420,6 +459,10 @@ export function CourseEditor({
       tools: asList(values.tools).length,
       reviews: asRecords(values.reviews).length,
       faqs: asRecords(values.faqs).length,
+      projects: asRecords(values.projects).length,
+      miniProjects: asRecords(values.miniProjects).length,
+      includes: asRecords(values.includes).length,
+      batches: asRecords(values.batches).length,
     }),
     [values]
   );
@@ -483,6 +526,40 @@ export function CourseEditor({
           answer: asString(faq.answer).trim(),
         }))
         .filter((faq) => faq.question && faq.answer),
+      includes: asRecords(values.includes)
+        .map((item) => ({ label: asString(item.label).trim(), icon: asString(item.icon) || "Sparkles" }))
+        .filter((item) => item.label),
+      miniProjects: asRecords(values.miniProjects)
+        .map((project) => ({
+          title: asString(project.title).trim(),
+          description: asString(project.description).trim(),
+          image: asString(project.image),
+        }))
+        .filter((project) => project.title),
+      projects: asRecords(values.projects)
+        .map((project) => ({
+          title: asString(project.title).trim(),
+          description: asString(project.description).trim(),
+          image: asString(project.image),
+        }))
+        .filter((project) => project.title),
+      batches: asRecords(values.batches)
+        .map((batch) => ({
+          label: asString(batch.label).trim(),
+          timing: asString(batch.timing).trim(),
+          starts: asString(batch.starts).trim(),
+          seats: asString(batch.seats).trim(),
+          mode: asString(batch.mode).trim(),
+          startDate: asString(batch.startDate).trim(),
+        }))
+        .filter((batch) => batch.label || batch.timing),
+      placementPoints: asList(values.placementPoints).filter(Boolean),
+      trainer: {
+        name: asString((values.trainer as Values | undefined)?.name).trim(),
+        role: asString((values.trainer as Values | undefined)?.role).trim(),
+        photo: asString((values.trainer as Values | undefined)?.photo),
+        bio: asString((values.trainer as Values | undefined)?.bio).trim(),
+      },
       active: values.active !== false,
     };
 
@@ -586,7 +663,11 @@ export function CourseEditor({
               ? curriculumCount
               : entry.id === "social"
                 ? summary.reviews + summary.faqs
-                : 0;
+                : entry.id === "projects"
+                  ? summary.projects + summary.miniProjects
+                  : entry.id === "cohort"
+                    ? summary.batches
+                    : 0;
           return (
             <button
               key={entry.id}
@@ -695,6 +776,14 @@ export function CourseEditor({
                 >
                   {textarea("tagline", "Design, build and deploy complete web applications…", 2)}
                 </Field>
+
+                <Field
+                  label="Who it is for"
+                  span={2}
+                  hint="Shown with a people icon under the headline, e.g. freshers & working professionals."
+                >
+                  {text("audience", "Designed for freshers, career switchers and working professionals")}
+                </Field>
               </div>
             </Panel>
 
@@ -752,6 +841,24 @@ export function CourseEditor({
                 </Field>
                 <Field label="Headline stats" span={2} hint="Small chips under the course page headline.">
                   {stringList("heroStats", "10+ live projects", "Add stat")}
+                </Field>
+
+                <Field
+                  label="Announcement strip"
+                  span={2}
+                  hint="The strip above the course page, e.g. “Admissions open — limited seats”. Leave empty to hide it."
+                >
+                  {text("urgencyNote", "Admissions open — limited seats per batch")}
+                </Field>
+                <Field
+                  label="Next batch start date"
+                  hint="YYYY-MM-DD. With a date set, the strip shows a live countdown."
+                >
+                  <Input
+                    type="date"
+                    value={asString(values.batchStartDate)}
+                    onChange={(event) => set("batchStartDate", event.target.value)}
+                  />
                 </Field>
                 <div className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 sm:col-span-2">
                   <div>
@@ -820,6 +927,8 @@ export function CourseEditor({
                 fields={[
                   { key: "title", label: "Title" },
                   { key: "description", label: "Description", type: "textarea" },
+                  { key: "stat", label: "Big figure (optional)", placeholder: "2.5L+" },
+                  { key: "tag", label: "Figure label (optional)", placeholder: "Jobs in India" },
                 ]}
               />
             </Panel>
@@ -859,6 +968,157 @@ export function CourseEditor({
                 <Field label="Brochure URL" hint="Upload a PDF anywhere public and paste the link.">
                   {text("brochureUrl", "/files/full-stack-syllabus.pdf")}
                 </Field>
+              </div>
+            </Panel>
+          </>
+        ) : null}
+
+        {/* ═══════════ PROJECTS & EXTRAS ═══════════ */}
+        {tab === "projects" ? (
+          <>
+            <Panel
+              title="Capstone projects"
+              description="The portfolio projects at the end of the program. Each one gets a card with an optional screenshot."
+            >
+              <RecordListEditor
+                items={asRecords(values.projects)}
+                onChange={(next) => set("projects", next)}
+                template={{ title: "", description: "", image: "" }}
+                addLabel="Add capstone project"
+                itemLabel="Project"
+                fields={[
+                  { key: "title", label: "Project name", placeholder: "E-commerce website" },
+                  { key: "description", label: "One-line description", type: "textarea" },
+                ]}
+              />
+              <p className="mt-3 text-xs text-muted-foreground">
+                Project screenshots: save each project first, then paste an image URL into the
+                project JSON via the generic editor — or simply leave the card icon-only.
+              </p>
+            </Panel>
+
+            <Panel
+              title="Mini projects"
+              description="Small practice builds used while teaching. Shown as a compact list under the capstones."
+            >
+              <RecordListEditor
+                items={asRecords(values.miniProjects)}
+                onChange={(next) => set("miniProjects", next)}
+                template={{ title: "", description: "", image: "" }}
+                addLabel="Add mini project"
+                itemLabel="Mini project"
+                fields={[
+                  { key: "title", label: "Name", placeholder: "Weather app" },
+                  { key: "description", label: "What it teaches", type: "textarea" },
+                ]}
+              />
+            </Panel>
+
+            <Panel
+              title="What's included"
+              description="The icon grid of deliverables — recordings, notes, assessments, certification, support…"
+            >
+              <RecordListEditor
+                items={asRecords(values.includes)}
+                onChange={(next) => set("includes", next)}
+                template={{ label: "", icon: "Sparkles" }}
+                addLabel="Add item"
+                itemLabel="Item"
+                fields={[
+                  { key: "label", label: "Label", placeholder: "Recorded video lectures" },
+                  {
+                    key: "icon",
+                    label: "Icon",
+                    type: "select",
+                    options: ICON_NAMES.map((name) => ({ label: name, value: name })),
+                  },
+                ]}
+              />
+            </Panel>
+
+            <Panel title="Certificate" description="The certification block under the included grid.">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Certificate title">{text("certificateTitle", "Certificate of completion")}</Field>
+                <Field label="Certificate text" span={2}>
+                  {textarea(
+                    "certificateText",
+                    "Finish the modules, assignments and your final project to receive…",
+                    2
+                  )}
+                </Field>
+                <div className="sm:col-span-2">
+                  <ImageField
+                    id="certificateImage"
+                    value={asString(values.certificateImage)}
+                    placeholder="/images/certificate.webp"
+                    onChange={(next) => set("certificateImage", next)}
+                  />
+                </div>
+              </div>
+            </Panel>
+          </>
+        ) : null}
+
+        {/* ═══════════ BATCHES & PLACEMENT ═══════════ */}
+        {tab === "cohort" ? (
+          <>
+            <Panel
+              title="Upcoming batches"
+              description="Shown as a batch list with a “Book a seat” button per row."
+            >
+              <RecordListEditor
+                items={asRecords(values.batches)}
+                onChange={(next) => set("batches", next)}
+                template={{ label: "", timing: "", starts: "", seats: "", mode: "Offline", startDate: "" }}
+                addLabel="Add batch"
+                itemLabel="Batch"
+                fields={[
+                  { key: "label", label: "Batch name", placeholder: "Weekday batch" },
+                  { key: "mode", label: "Mode", placeholder: "Online / Offline" },
+                  { key: "timing", label: "Timing", placeholder: "Mon–Fri · 2 hours/day" },
+                  { key: "starts", label: "Starts (text)", placeholder: "Next month" },
+                  { key: "seats", label: "Seats", placeholder: "15 seats" },
+                  {
+                    key: "startDate",
+                    label: "Start date (YYYY-MM-DD)",
+                    placeholder: "2026-01-15",
+                  },
+                ]}
+              />
+            </Panel>
+
+            <Panel
+              title="Placement & career support"
+              description="The career-support section near the end of the course page."
+            >
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Section heading" span={2}>
+                  {text("placementTitle", "Placement & career support")}
+                </Field>
+                <Field label="Intro text" span={2}>
+                  {textarea("placementText", "Training is only half the job…", 2)}
+                </Field>
+                <Field label="Support points" span={2} hint="One point per row.">
+                  {stringList("placementPoints", "Resume and portfolio review", "Add point")}
+                </Field>
+              </div>
+            </Panel>
+
+            <Panel title="Trainer" description="The “who teaches this course” card.">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Trainer name">{text("trainer.name", "Saurabh Sir")}</Field>
+                <Field label="Role / designation">{text("trainer.role", "Senior Full Stack Developer")}</Field>
+                <Field label="Short bio" span={2}>
+                  {textarea("trainer.bio", "Teaches with production examples from real projects…", 2)}
+                </Field>
+                <div className="sm:col-span-2">
+                  <ImageField
+                    id="trainer.photo"
+                    value={asString((values.trainer as Values | undefined)?.photo)}
+                    placeholder="/images/trainers/saurabh.webp"
+                    onChange={(next) => set("trainer.photo", next)}
+                  />
+                </div>
               </div>
             </Panel>
           </>
