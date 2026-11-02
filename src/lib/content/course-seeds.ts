@@ -10,6 +10,8 @@
  * "On request" — the admin panel is where the real numbers go in.
  */
 
+import { curriculumFor, syllabusFiles } from "./curriculum-seeds";
+
 const LANGUAGE = "Hindi · English · Marathi";
 
 /* ────────────────────── blocks shared by every course ────────────────────── */
@@ -222,62 +224,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Use Git and GitHub the way a team does — branches, PRs, reviews",
       "Deploy a full stack application to a live URL and debug it in production",
     ],
-    curriculum: [
-      {
-        title: "Web foundations",
-        topics: [
-          "How the web works: HTTP, DNS, requests and responses",
-          "Semantic HTML, forms and accessibility basics",
-          "CSS layout: flexbox, grid and responsive breakpoints",
-          "Chrome DevTools and debugging habits",
-        ],
-      },
-      {
-        title: "JavaScript and the browser",
-        topics: [
-          "Variables, functions, objects and arrays",
-          "DOM, events and form validation",
-          "ES6+, async/await, fetch and working with APIs",
-          "Mini project: interactive web app",
-        ],
-      },
-      {
-        title: "React front end",
-        topics: [
-          "Components, props and state",
-          "Hooks, effects and forms",
-          "Routing and API integration",
-          "Project: dashboard UI with live data",
-        ],
-      },
-      {
-        title: "Node.js and REST APIs",
-        topics: [
-          "Express routing, middleware and error handling",
-          "REST design, validation and status codes",
-          "Authentication with JWT and sessions",
-          "Testing APIs with Postman",
-        ],
-      },
-      {
-        title: "Databases",
-        topics: [
-          "MongoDB collections, CRUD and aggregation",
-          "SQL basics: joins, indexes and relationships",
-          "Connecting a database to your API",
-          "Data modelling for real features",
-        ],
-      },
-      {
-        title: "Capstone and deployment",
-        topics: [
-          "Scoping and planning your capstone",
-          "Git workflow: branches, pull requests, reviews",
-          "Deploying front end and API to the cloud",
-          "Portfolio, resume and interview preparation",
-        ],
-      },
-    ],
+    curriculum: curriculumFor("full-stack-development"),
+    curriculumFiles: syllabusFiles("full-stack-development"),
     brochureTitle: "Full Stack Development syllabus",
     reviews: [
       {
@@ -308,7 +256,7 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       {
         question: "Which stack should I choose — MERN, Spring Boot or Django?",
         answer:
-          "The first four modules are common. After that you pick a track with your mentor: MERN for startups and product companies, Spring Boot for enterprise and service companies, Django if you prefer Python. You can attend overview sessions for all three before deciding.",
+          "The front end, JavaScript, Git and database modules are common to everyone. After that you pick a track with your mentor: MERN for startups and product companies, Spring Boot for enterprise and service companies, Django if you prefer Python. You can attend overview sessions for all three before deciding.",
       },
       {
         question: "Will I get recordings if I miss a class?",
@@ -411,24 +359,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Use Git and GitHub to publish and version your work",
       "Deploy a real website and connect a custom domain",
     ],
-    curriculum: [
-      {
-        title: "HTML foundations",
-        topics: ["Document structure", "Text, links and images", "Forms and inputs", "Accessibility and SEO basics"],
-      },
-      {
-        title: "Modern CSS",
-        topics: ["Selectors and the box model", "Flexbox and grid", "Responsive design", "Transitions and animations"],
-      },
-      {
-        title: "JavaScript essentials",
-        topics: ["Variables, functions, conditions", "Arrays and objects", "DOM and events", "Working with APIs"],
-      },
-      {
-        title: "Project and launch",
-        topics: ["Planning a multi-page site", "Reusable components", "Performance and image optimisation", "Deploying with Netlify or Vercel"],
-      },
-    ],
+    curriculum: curriculumFor("web-development"),
+    curriculumFiles: syllabusFiles("web-development"),
     brochureTitle: "Web Development syllabus",
     reviews: [
       {
@@ -538,24 +470,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Automate repetitive tasks with scripts",
       "Build and publish a small Python project on GitHub",
     ],
-    curriculum: [
-      {
-        title: "Python basics",
-        topics: ["Setup and the interpreter", "Variables and data types", "Conditions and loops", "Functions and scope"],
-      },
-      {
-        title: "Data structures",
-        topics: ["Lists, tuples and sets", "Dictionaries", "Comprehensions", "Sorting and searching"],
-      },
-      {
-        title: "Real-world Python",
-        topics: ["Files and CSV", "Exceptions and logging", "Modules and packages", "Calling web APIs with requests"],
-      },
-      {
-        title: "Objects and projects",
-        topics: ["Classes and objects", "Inheritance in practice", "Mini project build", "Publishing on GitHub"],
-      },
-    ],
+    curriculum: curriculumFor("python-programming"),
+    curriculumFiles: syllabusFiles("python-programming"),
     brochureTitle: "Python Programming syllabus",
     reviews: [
       {
@@ -660,24 +576,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Test your code with JUnit",
       "Build and package a console application",
     ],
-    curriculum: [
-      {
-        title: "Core Java",
-        topics: ["Setup, JVM and bytecode", "Variables, operators, control flow", "Methods and arrays", "Strings and the standard library"],
-      },
-      {
-        title: "Object-oriented design",
-        topics: ["Classes, objects and constructors", "Inheritance and polymorphism", "Interfaces and abstraction", "SOLID in practice"],
-      },
-      {
-        title: "Collections and modern Java",
-        topics: ["List, Set and Map", "Generics", "Streams and lambdas", "Exception handling"],
-      },
-      {
-        title: "Project and database",
-        topics: ["JDBC and MySQL", "Layered application design", "JUnit testing", "Packaging and running the app"],
-      },
-    ],
+    curriculum: curriculumFor("java-programming"),
+    curriculumFiles: syllabusFiles("java-programming"),
     brochureTitle: "Java Programming syllabus",
     faqs: [
       {
@@ -774,24 +674,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Apply basic statistics without over-claiming",
       "Present insights clearly to non-technical stakeholders",
     ],
-    curriculum: [
-      {
-        title: "Excel for analysts",
-        topics: ["Formulas and lookups", "Pivot tables", "Cleaning messy data", "Charts that communicate"],
-      },
-      {
-        title: "SQL",
-        topics: ["SELECT, WHERE, ORDER BY", "Joins and relationships", "GROUP BY and aggregates", "Subqueries and window basics"],
-      },
-      {
-        title: "Visualisation",
-        topics: ["Power BI data model", "Measures and DAX basics", "Dashboard layout", "Storytelling with data"],
-      },
-      {
-        title: "Capstone",
-        topics: ["Choosing a dataset", "End-to-end analysis", "Dashboard build", "Presenting your findings"],
-      },
-    ],
+    curriculum: curriculumFor("data-analytics"),
+    curriculumFiles: syllabusFiles("data-analytics"),
     brochureTitle: "Data Analytics syllabus",
     reviews: [
       {
@@ -901,24 +785,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Design creative assets for social platforms",
       "Write a monthly marketing report a manager can act on",
     ],
-    curriculum: [
-      {
-        title: "Foundations",
-        topics: ["Marketing funnels", "Audience research", "Brand voice", "Channel selection"],
-      },
-      {
-        title: "Search and content",
-        topics: ["Keyword research", "On-page and technical SEO", "Blog and landing page writing", "Search Console"],
-      },
-      {
-        title: "Social and paid ads",
-        topics: ["Platform playbooks", "Creative that stops the scroll", "Google and Meta ads setup", "Budget and bidding basics"],
-      },
-      {
-        title: "Analytics and campaign",
-        topics: ["GA4 events and conversions", "UTM tracking", "Live campaign build", "Reporting and case study"],
-      },
-    ],
+    curriculum: curriculumFor("digital-marketing"),
+    curriculumFiles: syllabusFiles("digital-marketing"),
     brochureTitle: "Digital Marketing syllabus",
     faqs: [
       {
@@ -1014,24 +882,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Apply colour, type and spacing with accessible contrast",
       "Present a case study that survives a design interview",
     ],
-    curriculum: [
-      {
-        title: "Design thinking",
-        topics: ["Problem framing", "User interviews", "Personas and journeys", "Defining success"],
-      },
-      {
-        title: "Structure and flows",
-        topics: ["Information architecture", "Wireframing", "Navigation patterns", "Usability heuristics"],
-      },
-      {
-        title: "Interface craft",
-        topics: ["Typography and colour", "Layout and spacing", "Components and auto-layout", "Accessibility"],
-      },
-      {
-        title: "Prototype and portfolio",
-        topics: ["Interactive prototyping", "Usability testing", "Case study writing", "Portfolio review"],
-      },
-    ],
+    curriculum: curriculumFor("ui-ux-design"),
+    curriculumFiles: syllabusFiles("ui-ux-design"),
     brochureTitle: "UI/UX Design syllabus",
     reviews: [
       {
@@ -1132,24 +984,8 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
       "Create a presentation in PowerPoint",
       "Use email, online forms and cloud storage safely",
     ],
-    curriculum: [
-      {
-        title: "Computer basics",
-        topics: ["Parts of a computer", "Windows and the desktop", "Files and folders", "Keyboard and mouse skills"],
-      },
-      {
-        title: "MS Word",
-        topics: ["Typing and formatting", "Tables and images", "Page setup and printing", "Resume and letter practice"],
-      },
-      {
-        title: "MS Excel",
-        topics: ["Rows, columns and sheets", "Formulas and functions", "Charts", "Simple reports"],
-      },
-      {
-        title: "Internet and exams",
-        topics: ["Browsing and search", "Email and attachments", "Online forms and payments", "MS-CIT style practice tests"],
-      },
-    ],
+    curriculum: curriculumFor("basic-computer-training"),
+    curriculumFiles: syllabusFiles("basic-computer-training"),
     brochureTitle: "Basic Computer Training syllabus",
     faqs: [
       {

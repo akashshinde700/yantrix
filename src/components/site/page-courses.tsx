@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   BarChart3,
+  BookOpen,
   Clock,
   MapPin,
   MessageCircleQuestion,
@@ -151,6 +152,17 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
             <dt className="sr-only">Level</dt>
             <dd className="font-semibold">{course.level || "All levels"}</dd>
           </div>
+          {course.curriculum?.length ? (
+            <div className="flex items-center gap-1.5 text-slate-500">
+              <BookOpen className="h-3.5 w-3.5 text-brand-600" aria-hidden="true" />
+              <dt className="sr-only">{t("cp.curriculumModules")}</dt>
+              <dd className="font-semibold">
+                {course.curriculum.length} {t("cp.curriculumModules")} ·{" "}
+                {course.curriculum.reduce((sum, module) => sum + (module.topics?.length ?? 0), 0)}{" "}
+                {t("cp.curriculumSessions")}
+              </dd>
+            </div>
+          ) : null}
         </dl>
 
         <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4">

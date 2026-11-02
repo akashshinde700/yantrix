@@ -1,0 +1,2113 @@
+{
+  "full-stack-development": [
+    {
+      "title": "Orientation, tooling and study plan",
+      "duration": "Week 1",
+      "topics": [
+        "How the program works: live classes, recordings, assignments and doubt sessions",
+        "Installing VS Code, Chrome, Node.js and Git on Windows and macOS",
+        "Setting up your project folder and the terminal basics you will use daily",
+        "How to follow along, take notes and ask useful questions",
+        "Weekly rhythm: class, practice, assignment, review"
+      ]
+    },
+    {
+      "title": "How the web actually works",
+      "duration": "Week 1",
+      "topics": [
+        "Clients, servers and the request and response cycle",
+        "HTTP methods, status codes, headers and cookies",
+        "DNS, domains, hosting and what happens when you type a URL",
+        "Inspecting real requests in the browser Network tab",
+        "Static sites vs dynamic apps vs APIs"
+      ]
+    },
+    {
+      "title": "HTML5 fundamentals",
+      "duration": "Week 2",
+      "topics": [
+        "Document structure, doctype and the head section",
+        "Headings, paragraphs, lists, links and images",
+        "Semantic tags: header, nav, main, section, article, footer",
+        "Tables, media and embedding third party content",
+        "Writing clean, indented, readable markup",
+        "Lab: build a multi-page personal profile site"
+      ]
+    },
+    {
+      "title": "Forms, validation and accessibility",
+      "duration": "Week 2",
+      "topics": [
+        "Input types, labels, placeholders and helper text",
+        "Native validation attributes and custom messages",
+        "Fieldsets, legends and accessible form grouping",
+        "ARIA basics, focus order and keyboard navigation",
+        "Colour contrast, alt text and screen reader habits",
+        "Lab: accessible registration form"
+      ]
+    },
+    {
+      "title": "CSS fundamentals",
+      "duration": "Week 3",
+      "topics": [
+        "Selectors, specificity, inheritance and the cascade",
+        "The box model: margin, border, padding and box-sizing",
+        "Colour, typography, units and custom properties",
+        "Pseudo classes, pseudo elements and transitions",
+        "Debugging styles with DevTools"
+      ]
+    },
+    {
+      "title": "Layout with flexbox and grid",
+      "duration": "Week 3",
+      "topics": [
+        "Flex containers, axes, wrapping and alignment",
+        "Grid templates, areas, gaps and auto-placement",
+        "Sticky headers, sidebars and card grids",
+        "Positioning: relative, absolute, fixed and sticky",
+        "Lab: dashboard layout built twice, with flex and with grid"
+      ]
+    },
+    {
+      "title": "Responsive and modern CSS",
+      "duration": "Week 4",
+      "topics": [
+        "Mobile first thinking and breakpoint strategy",
+        "Fluid type, clamp() and container queries",
+        "Images, aspect ratios and responsive media",
+        "Dark mode with custom properties and prefers-color-scheme",
+        "Animations, transforms and reduced-motion support",
+        "Lab: marketing landing page that works on every screen"
+      ]
+    },
+    {
+      "title": "Git, GitHub and team workflow",
+      "duration": "Week 4",
+      "topics": [
+        "Repositories, commits, staging and history",
+        "Branches, merges and resolving conflicts",
+        "Pull requests, code review and commit message habits",
+        "Forking, cloning, remotes and .gitignore",
+        "Deploying a static site from GitHub"
+      ]
+    },
+    {
+      "title": "JavaScript fundamentals",
+      "duration": "Week 5",
+      "topics": [
+        "Variables, scope, hoisting and strict mode",
+        "Data types, coercion, equality and truthiness",
+        "Operators, conditionals and loops",
+        "Functions, parameters, return values and closures",
+        "Error handling with try, catch and custom errors"
+      ]
+    },
+    {
+      "title": "Arrays, objects and modern syntax",
+      "duration": "Week 5",
+      "topics": [
+        "Array methods: map, filter, reduce, find, some, every",
+        "Object destructuring, spread and rest",
+        "Template literals, optional chaining and nullish coalescing",
+        "Sorting, grouping and shaping real API data",
+        "Immutability and why it matters for UI state"
+      ]
+    },
+    {
+      "title": "DOM, events and browser APIs",
+      "duration": "Week 6",
+      "topics": [
+        "Selecting and creating elements, updating the DOM",
+        "Event listeners, bubbling, delegation and forms",
+        "localStorage, sessionStorage and cookies",
+        "Timers, debounce and throttle",
+        "Lab: task manager with persistence"
+      ]
+    },
+    {
+      "title": "Async JavaScript and APIs",
+      "duration": "Week 6",
+      "topics": [
+        "Call stack, event loop, microtasks and timers",
+        "Callbacks to promises to async/await",
+        "fetch, JSON, error paths and loading states",
+        "AbortController and race conditions",
+        "Consuming a public REST API end to end"
+      ]
+    },
+    {
+      "title": "Modules, npm and build tooling",
+      "duration": "Week 7",
+      "topics": [
+        "ES modules, import and export",
+        "package.json, dependencies and dev dependencies",
+        "npm scripts and environment variables",
+        "Vite, bundling, hot reload and production builds",
+        "Linting and formatting with ESLint and Prettier"
+      ]
+    },
+    {
+      "title": "TypeScript essentials",
+      "duration": "Week 7",
+      "topics": [
+        "Why types help in larger codebases",
+        "Primitives, arrays, objects, unions and literals",
+        "Interfaces, type aliases and generics",
+        "Narrowing, guards and strict mode",
+        "Typing props, state and API responses"
+      ]
+    },
+    {
+      "title": "React foundations",
+      "duration": "Week 8",
+      "topics": [
+        "Components, JSX and rendering rules",
+        "Props, children and composition",
+        "State with useState and deriving values",
+        "Lists, keys and conditional rendering",
+        "Thinking in components: splitting a page into pieces"
+      ]
+    },
+    {
+      "title": "React state, forms and effects",
+      "duration": "Week 9",
+      "topics": [
+        "Controlled and uncontrolled inputs",
+        "Form validation and error display patterns",
+        "useEffect, dependencies and cleanup",
+        "useReducer for complex state",
+        "Context for shared state"
+      ]
+    },
+    {
+      "title": "React data, routing and performance",
+      "duration": "Week 10",
+      "topics": [
+        "React Router routes, params and nested layouts",
+        "Loading, error and empty states",
+        "Caching with React Query or SWR",
+        "useMemo, useCallback and memo when they actually help",
+        "Code splitting and lazy loading"
+      ]
+    },
+    {
+      "title": "Tailwind CSS and UI systems",
+      "duration": "Week 10",
+      "topics": [
+        "Utility first styling and design tokens",
+        "Responsive and state variants",
+        "Building a reusable button, card and dialog",
+        "Accessible dialogs, dropdowns and focus traps",
+        "Dark theme and design consistency"
+      ]
+    },
+    {
+      "title": "Next.js App Router",
+      "duration": "Week 11",
+      "topics": [
+        "Server and client components",
+        "File based routing, layouts and loading UI",
+        "Data fetching, caching and revalidation",
+        "Route handlers and server actions",
+        "Metadata, SEO and image optimisation"
+      ]
+    },
+    {
+      "title": "Node.js runtime essentials",
+      "duration": "Week 12",
+      "topics": [
+        "Event loop, non blocking IO and streams",
+        "Modules, file system and path utilities",
+        "Environment configuration and process signals",
+        "Reading and writing JSON data safely",
+        "Structuring a Node project for growth"
+      ]
+    },
+    {
+      "title": "Express and REST API design",
+      "duration": "Week 12",
+      "topics": [
+        "Routing, middleware and error middleware",
+        "Controllers, services and validation layers",
+        "Status codes, pagination, filtering and sorting",
+        "Versioning, documentation and Postman collections",
+        "Rate limiting, CORS and request logging"
+      ]
+    },
+    {
+      "title": "MongoDB and Mongoose",
+      "duration": "Week 13",
+      "topics": [
+        "Documents, collections and BSON types",
+        "CRUD with Mongoose models and schemas",
+        "Relationships: embedding vs referencing",
+        "Aggregation pipeline for reports",
+        "Indexes, performance and data validation"
+      ]
+    },
+    {
+      "title": "SQL and PostgreSQL",
+      "duration": "Week 14",
+      "topics": [
+        "Tables, keys, constraints and normalisation",
+        "SELECT, JOIN, GROUP BY and subqueries",
+        "Transactions and ACID behaviour",
+        "Indexes and reading query plans",
+        "Using PostgreSQL from Node with Prisma"
+      ]
+    },
+    {
+      "title": "Authentication and authorisation",
+      "duration": "Week 15",
+      "topics": [
+        "Password hashing with bcrypt and salt rounds",
+        "Sessions, cookies and JWT compared",
+        "Refresh tokens and expiry handling",
+        "Role based access control and route guards",
+        "OAuth basics with Google sign in"
+      ]
+    },
+    {
+      "title": "Security hardening",
+      "duration": "Week 15",
+      "topics": [
+        "OWASP Top 10 walkthrough with examples",
+        "Input validation and injection prevention",
+        "XSS, CSRF and content security policy",
+        "Secrets management and least privilege",
+        "Dependency audits and safe upgrades"
+      ]
+    },
+    {
+      "title": "Testing and quality",
+      "duration": "Week 16",
+      "topics": [
+        "Unit tests with Vitest and assertion design",
+        "Testing React components and hooks",
+        "API integration tests and test databases",
+        "End to end tests with Playwright",
+        "Coverage, flakiness and testable architecture"
+      ]
+    },
+    {
+      "title": "Capstone 1: full stack e-commerce app",
+      "duration": "Weeks 17-18",
+      "topics": [
+        "Requirement gathering and feature slicing",
+        "Data modelling for products, carts and orders",
+        "Building the catalogue, cart and checkout flow",
+        "Admin panel for products and orders",
+        "Payments integration sandbox and order emails",
+        "Deployment, demo and code review"
+      ]
+    },
+    {
+      "title": "Java foundations",
+      "duration": "Week 19",
+      "topics": [
+        "JDK, JVM, IntelliJ setup and first program",
+        "Types, operators, control flow and methods",
+        "Objects, classes, inheritance and interfaces",
+        "Collections, generics and streams",
+        "Exception handling and file IO"
+      ]
+    },
+    {
+      "title": "Spring Boot REST services",
+      "duration": "Week 20",
+      "topics": [
+        "Project structure, starters and configuration",
+        "Controllers, DTOs and validation",
+        "Service layer and exception handling",
+        "Spring Data JPA repositories",
+        "Testing with JUnit and MockMvc"
+      ]
+    },
+    {
+      "title": "JPA, Hibernate and MySQL",
+      "duration": "Week 20",
+      "topics": [
+        "Entities, relationships and fetch strategies",
+        "JPQL and criteria queries",
+        "Transactions and optimistic locking",
+        "Schema migrations with Flyway",
+        "Building a production style CRUD API"
+      ]
+    },
+    {
+      "title": "Spring Security",
+      "duration": "Week 21",
+      "topics": [
+        "Filter chain and authentication managers",
+        "JWT based stateless authentication",
+        "Method level roles and permissions",
+        "CORS, CSRF and password encoders",
+        "Securing a multi role admin API"
+      ]
+    },
+    {
+      "title": "Python foundations",
+      "duration": "Week 22",
+      "topics": [
+        "Syntax, types, control flow and functions",
+        "Lists, dicts, sets and comprehensions",
+        "Modules, packages and virtual environments",
+        "File handling, JSON and CSV",
+        "Object oriented Python and type hints"
+      ]
+    },
+    {
+      "title": "Django and DRF",
+      "duration": "Week 23",
+      "topics": [
+        "Project and app structure, settings and URLs",
+        "Models, migrations and the admin site",
+        "Views, templates and forms",
+        "Django REST Framework serializers and viewsets",
+        "Authentication, permissions and throttling"
+      ]
+    },
+    {
+      "title": "Python for automation and data",
+      "duration": "Week 23",
+      "topics": [
+        "Working with requests and scraping the safe way",
+        "Pandas basics for tabular data",
+        "Cleaning, joining and summarising datasets",
+        "Scheduling scripts and logging",
+        "Packaging a reusable internal tool"
+      ]
+    },
+    {
+      "title": "AI integration: OpenAI and Gemini APIs",
+      "duration": "Week 24",
+      "topics": [
+        "How large language models work at a practical level",
+        "Keys, quotas, cost control and environment setup",
+        "Chat completions, streaming and system prompts",
+        "Structured output with JSON schema",
+        "Embeddings, vector search and retrieval basics",
+        "Guardrails, moderation and fallback behaviour"
+      ]
+    },
+    {
+      "title": "AI assisted development",
+      "duration": "Week 24",
+      "topics": [
+        "Using AI for scaffolding, refactors and tests",
+        "Reviewing generated code instead of trusting it",
+        "Writing good prompts with context and constraints",
+        "Privacy, licensing and when not to use AI",
+        "Keeping a human review checklist"
+      ]
+    },
+    {
+      "title": "Building an AI feature end to end",
+      "duration": "Week 25",
+      "topics": [
+        "Choosing the feature: assistant, summariser or search",
+        "Designing prompts, tools and data flow",
+        "Server side API calls and secret handling",
+        "Streaming responses into the UI",
+        "Evaluating quality and logging failures",
+        "Shipping it behind a feature flag"
+      ]
+    },
+    {
+      "title": "Docker and containers",
+      "duration": "Week 26",
+      "topics": [
+        "Images, containers, layers and registries",
+        "Writing a production Dockerfile for Node",
+        "Compose for app plus database",
+        "Volumes, networks and environment files",
+        "Image size, caching and security basics"
+      ]
+    },
+    {
+      "title": "CI/CD with GitHub Actions",
+      "duration": "Week 26",
+      "topics": [
+        "Workflow files, jobs, steps and runners",
+        "Linting, type checks and tests on every push",
+        "Build artefacts and release tags",
+        "Environment secrets and approvals",
+        "Automatic deploys and rollback plans"
+      ]
+    },
+    {
+      "title": "Cloud deployment and operations",
+      "duration": "Week 27",
+      "topics": [
+        "Frontend hosting on Vercel and Netlify",
+        "API hosting on Render, Railway and AWS basics",
+        "Managed databases, backups and connection pooling",
+        "Domains, HTTPS and DNS records",
+        "Cost awareness and scaling knobs"
+      ]
+    },
+    {
+      "title": "Production debugging and observability",
+      "duration": "Week 27",
+      "topics": [
+        "Reading logs and structured logging",
+        "Health checks, uptime monitors and alerts",
+        "Error tracking with Sentry style tools",
+        "Tracing a slow request across the stack",
+        "Incident notes and postmortems"
+      ]
+    },
+    {
+      "title": "Capstone 2: SaaS dashboard with AI assistant",
+      "duration": "Weeks 28-29",
+      "topics": [
+        "Multi tenant data modelling and auth",
+        "Billing and plan based feature limits",
+        "Team invites, roles and audit trail",
+        "Embedding an AI assistant with citations",
+        "Load testing and performance tuning",
+        "Final demo, documentation and handover"
+      ]
+    },
+    {
+      "title": "System design for interviews",
+      "duration": "Week 30",
+      "topics": [
+        "Requirements, constraints and back of envelope numbers",
+        "Caching, queues and background jobs",
+        "Scaling reads, writes and databases",
+        "Designing a URL shortener and a chat app",
+        "Trade off conversations interviewers listen for"
+      ]
+    },
+    {
+      "title": "Data structures and algorithms",
+      "duration": "Weeks 30-31",
+      "topics": [
+        "Complexity, arrays, strings and two pointers",
+        "Hashing, stacks, queues and linked lists",
+        "Recursion, trees and binary search",
+        "Sorting, heaps and greedy patterns",
+        "Graphs, BFS, DFS and dynamic programming basics",
+        "Pattern based problem practice sets"
+      ]
+    },
+    {
+      "title": "Aptitude and logical reasoning",
+      "duration": "Week 31",
+      "topics": [
+        "Percentages, ratios, averages and profit and loss",
+        "Time, speed, distance and work",
+        "Permutations, combinations and probability",
+        "Number series, coding decoding and puzzles",
+        "Timed mock tests with review"
+      ]
+    },
+    {
+      "title": "Resume, portfolio and LinkedIn",
+      "duration": "Week 32",
+      "topics": [
+        "Writing impact bullets with numbers",
+        "Project descriptions that survive screening",
+        "GitHub cleanup, README files and live links",
+        "LinkedIn profile and referral outreach",
+        "Portfolio site walkthrough"
+      ]
+    },
+    {
+      "title": "Mock interviews and placement drive",
+      "duration": "Week 32",
+      "topics": [
+        "DSA round simulation with feedback",
+        "Machine coding round practice",
+        "System design and project deep dive rounds",
+        "HR round, salary discussion and offer etiquette",
+        "Weekly drives, referrals and follow up tracker"
+      ]
+    }
+  ],
+  "web-development": [
+    {
+      "title": "Orientation and setup",
+      "duration": "Week 1",
+      "topics": [
+        "How the course works: classes, recordings and assignments",
+        "Installing VS Code, Chrome and Git",
+        "Folder structure and terminal basics",
+        "Publishing your first page on the internet"
+      ]
+    },
+    {
+      "title": "How the web works",
+      "duration": "Week 1",
+      "topics": [
+        "Browsers, servers, HTTP and HTTPS",
+        "Domains, hosting and DNS records",
+        "Inspecting network requests in DevTools",
+        "Static sites vs dynamic sites"
+      ]
+    },
+    {
+      "title": "HTML structure and semantics",
+      "duration": "Week 2",
+      "topics": [
+        "Document skeleton and the head section",
+        "Headings, lists, links and images",
+        "Semantic layout tags and when to use them",
+        "Comments, indentation and readable markup"
+      ]
+    },
+    {
+      "title": "HTML forms and media",
+      "duration": "Week 2",
+      "topics": [
+        "Input types, labels, selects and textareas",
+        "Validation attributes and error messages",
+        "Embedding video, audio and maps",
+        "Lab: contact and enquiry forms"
+      ]
+    },
+    {
+      "title": "CSS fundamentals",
+      "duration": "Week 3",
+      "topics": [
+        "Selectors, cascade and specificity",
+        "The box model and spacing systems",
+        "Typography, colour and custom properties",
+        "Pseudo classes and hover states"
+      ]
+    },
+    {
+      "title": "Flexbox and grid",
+      "duration": "Week 3",
+      "topics": [
+        "Flex direction, wrapping and alignment",
+        "Grid templates and gaps",
+        "Sticky headers and sidebars",
+        "Lab: card grid and pricing layout"
+      ]
+    },
+    {
+      "title": "Responsive and mobile first design",
+      "duration": "Week 4",
+      "topics": [
+        "Breakpoints and fluid type",
+        "Responsive images and media queries",
+        "Touch targets and mobile navigation",
+        "Testing on real screen sizes"
+      ]
+    },
+    {
+      "title": "Modern CSS features",
+      "duration": "Week 4",
+      "topics": [
+        "Transitions, transforms and keyframes",
+        "Dark mode and prefers-color-scheme",
+        "Container queries and clamp()",
+        "Reduced motion and accessibility"
+      ]
+    },
+    {
+      "title": "Accessibility essentials",
+      "duration": "Week 5",
+      "topics": [
+        "Semantic HTML as the first accessibility tool",
+        "Keyboard navigation and focus order",
+        "Contrast, alt text and form labels",
+        "Screen reader test walkthrough"
+      ]
+    },
+    {
+      "title": "JavaScript basics",
+      "duration": "Week 5",
+      "topics": [
+        "Variables, types and operators",
+        "Conditionals, loops and functions",
+        "Arrays and objects",
+        "Debugging in the console"
+      ]
+    },
+    {
+      "title": "DOM and events",
+      "duration": "Week 6",
+      "topics": [
+        "Selecting and updating elements",
+        "Event listeners, bubbling and delegation",
+        "Form handling and validation in JS",
+        "Building a tabs and accordion component"
+      ]
+    },
+    {
+      "title": "Async JavaScript and APIs",
+      "duration": "Week 6",
+      "topics": [
+        "Promises and async await",
+        "fetch, JSON and error handling",
+        "Loading and empty states",
+        "Lab: live weather or news widget"
+      ]
+    },
+    {
+      "title": "Git and GitHub workflow",
+      "duration": "Week 7",
+      "topics": [
+        "Commits, branches and merges",
+        "Pull requests and code review",
+        "Hosting with GitHub Pages",
+        "Writing a project README"
+      ]
+    },
+    {
+      "title": "Tailwind CSS",
+      "duration": "Week 7",
+      "topics": [
+        "Utility first styling and configuration",
+        "Responsive and state variants",
+        "Reusable components with classes",
+        "Rebuilding a landing page in Tailwind"
+      ]
+    },
+    {
+      "title": "React foundations",
+      "duration": "Week 8",
+      "topics": [
+        "Components, JSX and props",
+        "State with useState",
+        "Lists, keys and conditional rendering",
+        "Splitting a design into components"
+      ]
+    },
+    {
+      "title": "React forms and data",
+      "duration": "Week 9",
+      "topics": [
+        "Controlled inputs and validation",
+        "Effects and cleanup",
+        "Fetching data and showing states",
+        "Routing between pages"
+      ]
+    },
+    {
+      "title": "Next.js and SEO",
+      "duration": "Week 10",
+      "topics": [
+        "Pages, layouts and routing",
+        "Metadata, Open Graph and sitemaps",
+        "Image and font optimisation",
+        "Deploying to Vercel"
+      ]
+    },
+    {
+      "title": "Performance and Core Web Vitals",
+      "duration": "Week 10",
+      "topics": [
+        "Measuring LCP, CLS and INP",
+        "Image, font and script budgets",
+        "Lazy loading and code splitting",
+        "Lighthouse audits and fixes"
+      ]
+    },
+    {
+      "title": "Testing and quality",
+      "duration": "Week 11",
+      "topics": [
+        "Accessibility and HTML validation checks",
+        "Unit testing small functions",
+        "Cross browser testing checklist",
+        "Bug triage and regression notes"
+      ]
+    },
+    {
+      "title": "Portfolio project 1: business website",
+      "duration": "Week 11",
+      "topics": [
+        "Brief, wireframe and content plan",
+        "Build responsive pages with a design system",
+        "Contact form and WhatsApp integration",
+        "Launch, analytics and handover"
+      ]
+    },
+    {
+      "title": "Portfolio project 2: web app",
+      "duration": "Week 12",
+      "topics": [
+        "Feature planning and data shape",
+        "CRUD with a hosted backend",
+        "Auth and protected screens",
+        "Deploy, test and demo"
+      ]
+    },
+    {
+      "title": "Freelance and client workflow",
+      "duration": "Week 12",
+      "topics": [
+        "Scoping work and writing proposals",
+        "Pricing, milestones and invoices",
+        "Communication and revision limits",
+        "Handover docs and maintenance plans"
+      ]
+    },
+    {
+      "title": "Interview preparation",
+      "duration": "Week 13",
+      "topics": [
+        "HTML, CSS and JS interview questions",
+        "Live coding on common UI tasks",
+        "Explaining your projects clearly",
+        "Mock interview and feedback"
+      ]
+    }
+  ],
+  "python-programming": [
+    {
+      "title": "Orientation and Python setup",
+      "duration": "Week 1",
+      "topics": [
+        "Installing Python, VS Code and the terminal",
+        "Running scripts, the REPL and notebooks",
+        "Virtual environments and pip",
+        "How the course and assignments work"
+      ]
+    },
+    {
+      "title": "Python syntax essentials",
+      "duration": "Week 1",
+      "topics": [
+        "Variables, numbers, strings and booleans",
+        "Operators, input and output",
+        "Conditionals and loops",
+        "Writing clean, readable code from day one"
+      ]
+    },
+    {
+      "title": "Collections in depth",
+      "duration": "Week 2",
+      "topics": [
+        "Lists, tuples and slicing",
+        "Dictionaries and nested data",
+        "Sets and when they help",
+        "List and dict comprehensions"
+      ]
+    },
+    {
+      "title": "Functions and modules",
+      "duration": "Week 2",
+      "topics": [
+        "Parameters, defaults and keyword arguments",
+        "Return values, scope and closures",
+        "Importing modules and packages",
+        "Writing your first reusable utility module"
+      ]
+    },
+    {
+      "title": "Strings and text processing",
+      "duration": "Week 3",
+      "topics": [
+        "Formatting, f-strings and slicing",
+        "Regular expressions for validation",
+        "Cleaning messy real world text",
+        "Lab: parsing a CSV report"
+      ]
+    },
+    {
+      "title": "Files, JSON and CSV",
+      "duration": "Week 3",
+      "topics": [
+        "Reading and writing text files safely",
+        "Working with JSON APIs and config",
+        "CSV files and the csv module",
+        "Error handling with try, except and finally"
+      ]
+    },
+    {
+      "title": "Object oriented Python",
+      "duration": "Week 4",
+      "topics": [
+        "Classes, objects and attributes",
+        "Methods, properties and dunder methods",
+        "Inheritance and composition",
+        "Dataclasses and type hints"
+      ]
+    },
+    {
+      "title": "Exceptions and logging",
+      "duration": "Week 4",
+      "topics": [
+        "Built in exception types",
+        "Custom exceptions and error contracts",
+        "Logging levels and handlers",
+        "Debugging with breakpoints"
+      ]
+    },
+    {
+      "title": "Testing with pytest",
+      "duration": "Week 5",
+      "topics": [
+        "Writing your first test",
+        "Fixtures and parametrised tests",
+        "Mocking external services",
+        "Coverage and test organisation"
+      ]
+    },
+    {
+      "title": "Standard library toolkit",
+      "duration": "Week 5",
+      "topics": [
+        "datetime, pathlib and os",
+        "collections and itertools",
+        "argparse for command line tools",
+        "Building a CLI tool end to end"
+      ]
+    },
+    {
+      "title": "Working with APIs",
+      "duration": "Week 6",
+      "topics": [
+        "HTTP basics and the requests library",
+        "Authentication, headers and pagination",
+        "Retries, timeouts and rate limits",
+        "Lab: build a data pulling script"
+      ]
+    },
+    {
+      "title": "Web scraping responsibly",
+      "duration": "Week 6",
+      "topics": [
+        "HTML parsing with BeautifulSoup",
+        "Selectors and pagination",
+        "Robots.txt, terms and politeness",
+        "Saving scraped data to CSV and SQLite"
+      ]
+    },
+    {
+      "title": "SQL and SQLite",
+      "duration": "Week 7",
+      "topics": [
+        "Tables, keys and relationships",
+        "SELECT, JOIN and aggregate queries",
+        "Using SQLite from Python",
+        "Parameterised queries and safety"
+      ]
+    },
+    {
+      "title": "Pandas fundamentals",
+      "duration": "Week 7",
+      "topics": [
+        "Series, DataFrames and indexing",
+        "Filtering, sorting and grouping",
+        "Merging tables and handling missing data",
+        "Lab: sales report from raw CSV"
+      ]
+    },
+    {
+      "title": "Data visualisation",
+      "duration": "Week 8",
+      "topics": [
+        "Matplotlib charts that read well",
+        "Seaborn for statistical plots",
+        "Plotly interactive dashboards",
+        "Choosing the right chart"
+      ]
+    },
+    {
+      "title": "NumPy essentials",
+      "duration": "Week 8",
+      "topics": [
+        "Arrays, shapes and broadcasting",
+        "Vectorised operations and performance",
+        "Random numbers and simulation",
+        "Moving between NumPy and Pandas"
+      ]
+    },
+    {
+      "title": "Building web apps with Flask",
+      "duration": "Week 9",
+      "topics": [
+        "Routes, templates and static files",
+        "Forms, validation and flash messages",
+        "Blueprints and app structure",
+        "Deploying a Flask app"
+      ]
+    },
+    {
+      "title": "Django fundamentals",
+      "duration": "Week 10",
+      "topics": [
+        "Project and app structure",
+        "Models, migrations and the admin",
+        "Views, templates and URL routing",
+        "Forms and authentication"
+      ]
+    },
+    {
+      "title": "Django REST APIs",
+      "duration": "Week 10",
+      "topics": [
+        "Serializers and viewsets",
+        "Permissions and throttling",
+        "Pagination, filtering and search",
+        "Documenting the API"
+      ]
+    },
+    {
+      "title": "Automation and scheduling",
+      "duration": "Week 11",
+      "topics": [
+        "Email, PDF and Excel automation",
+        "Watching folders and reacting to files",
+        "Cron and task schedulers",
+        "Building an internal reporting bot"
+      ]
+    },
+    {
+      "title": "AI with Python",
+      "duration": "Week 11",
+      "topics": [
+        "Calling language model APIs",
+        "Prompt design and structured output",
+        "Embeddings and simple semantic search",
+        "Cost control and guardrails"
+      ]
+    },
+    {
+      "title": "Project 1: data report automation",
+      "duration": "Week 12",
+      "topics": [
+        "Requirement and data source mapping",
+        "Cleaning pipeline and validation",
+        "Charts, summary and PDF export",
+        "Scheduling and delivery"
+      ]
+    },
+    {
+      "title": "Project 2: REST API with auth",
+      "duration": "Week 12",
+      "topics": [
+        "Data modelling and migrations",
+        "Auth, roles and permissions",
+        "Tests and API documentation",
+        "Deployment and monitoring"
+      ]
+    },
+    {
+      "title": "Interview preparation",
+      "duration": "Week 13",
+      "topics": [
+        "Python interview question bank",
+        "Coding round practice",
+        "Explaining projects and trade offs",
+        "Mock interview and feedback"
+      ]
+    }
+  ],
+  "java-programming": [
+    {
+      "title": "Orientation and Java setup",
+      "duration": "Week 1",
+      "topics": [
+        "JDK, IntelliJ IDEA and first program",
+        "How Java runs: JVM, bytecode and memory",
+        "Packages, classpath and project structure",
+        "Course plan, assignments and doubt sessions"
+      ]
+    },
+    {
+      "title": "Language fundamentals",
+      "duration": "Week 1",
+      "topics": [
+        "Primitive types, literals and casting",
+        "Operators, conditionals and switch",
+        "Loops and loop control",
+        "Reading input and formatting output"
+      ]
+    },
+    {
+      "title": "Methods and arrays",
+      "duration": "Week 2",
+      "topics": [
+        "Method signatures, overloading and varargs",
+        "Pass by value and mutable arguments",
+        "Single and multi dimensional arrays",
+        "Lab: marks analyser and matrix operations"
+      ]
+    },
+    {
+      "title": "Strings and the standard library",
+      "duration": "Week 2",
+      "topics": [
+        "String, StringBuilder and immutability",
+        "Common String methods and formatting",
+        "Math, Random and wrapper classes",
+        "Date and time with java.time"
+      ]
+    },
+    {
+      "title": "Object oriented programming",
+      "duration": "Week 3",
+      "topics": [
+        "Classes, constructors and encapsulation",
+        "Inheritance, super and method overriding",
+        "Abstract classes vs interfaces",
+        "Polymorphism with real examples"
+      ]
+    },
+    {
+      "title": "Advanced OOP",
+      "duration": "Week 3",
+      "topics": [
+        "Static members and nested classes",
+        "Records and sealed types",
+        "Enums and constants done right",
+        "Composition over inheritance"
+      ]
+    },
+    {
+      "title": "Exceptions and file IO",
+      "duration": "Week 4",
+      "topics": [
+        "Checked vs unchecked exceptions",
+        "try with resources and custom exceptions",
+        "Reading and writing files",
+        "Working with JSON in Java"
+      ]
+    },
+    {
+      "title": "Collections framework",
+      "duration": "Week 4",
+      "topics": [
+        "List, Set, Map and their implementations",
+        "Comparable, Comparator and sorting",
+        "Iterators and concurrent modification",
+        "Choosing the right collection"
+      ]
+    },
+    {
+      "title": "Generics and streams",
+      "duration": "Week 5",
+      "topics": [
+        "Generic classes, methods and wildcards",
+        "Stream API: map, filter, reduce",
+        "Collectors and grouping",
+        "Lab: refactor loops into streams"
+      ]
+    },
+    {
+      "title": "Functional Java",
+      "duration": "Week 5",
+      "topics": [
+        "Lambdas and functional interfaces",
+        "Method references and composition",
+        "Optional and null safety",
+        "Immutability patterns"
+      ]
+    },
+    {
+      "title": "Multithreading basics",
+      "duration": "Week 6",
+      "topics": [
+        "Threads, runnables and lifecycle",
+        "Race conditions and synchronization",
+        "Executors and thread pools",
+        "CompletableFuture for async work"
+      ]
+    },
+    {
+      "title": "JVM, memory and performance",
+      "duration": "Week 6",
+      "topics": [
+        "Stack, heap and garbage collection",
+        "Profiling basics",
+        "Memory leaks and common pitfalls",
+        "JVM tuning knobs"
+      ]
+    },
+    {
+      "title": "Maven and Gradle",
+      "duration": "Week 7",
+      "topics": [
+        "Project layout and coordinates",
+        "Dependencies and scopes",
+        "Plugins and build lifecycle",
+        "Multi module builds"
+      ]
+    },
+    {
+      "title": "JDBC and MySQL",
+      "duration": "Week 7",
+      "topics": [
+        "Connecting, statements and result sets",
+        "Prepared statements and SQL injection",
+        "Transactions and isolation levels",
+        "Connection pooling with HikariCP"
+      ]
+    },
+    {
+      "title": "Spring Boot foundations",
+      "duration": "Week 8",
+      "topics": [
+        "Starters, auto configuration and profiles",
+        "Controllers and request mapping",
+        "Configuration properties and validation",
+        "Exception handling and error responses"
+      ]
+    },
+    {
+      "title": "Spring Data JPA",
+      "duration": "Week 8",
+      "topics": [
+        "Entities and relationships",
+        "Repositories and query methods",
+        "JPQL and native queries",
+        "Pagination, sorting and projections"
+      ]
+    },
+    {
+      "title": "REST API design",
+      "duration": "Week 9",
+      "topics": [
+        "Resources, verbs and status codes",
+        "DTOs, mapping and versioning",
+        "Pagination, filtering and sorting",
+        "OpenAPI documentation"
+      ]
+    },
+    {
+      "title": "Spring Security",
+      "duration": "Week 9",
+      "topics": [
+        "Security filter chain",
+        "JWT authentication end to end",
+        "Roles, authorities and method security",
+        "Password encoding and CORS"
+      ]
+    },
+    {
+      "title": "Testing Spring applications",
+      "duration": "Week 10",
+      "topics": [
+        "JUnit 5 and assertions",
+        "Mockito for service tests",
+        "MockMvc for controller tests",
+        "Testcontainers with a real database"
+      ]
+    },
+    {
+      "title": "Validation and clean architecture",
+      "duration": "Week 10",
+      "topics": [
+        "Bean validation annotations",
+        "Layered architecture and boundaries",
+        "Mapping with MapStruct",
+        "Logging and audit trails"
+      ]
+    },
+    {
+      "title": "Caching, scheduling and messaging",
+      "duration": "Week 11",
+      "topics": [
+        "Spring cache abstraction",
+        "Scheduled jobs",
+        "Async methods and mail",
+        "Introduction to Kafka or RabbitMQ"
+      ]
+    },
+    {
+      "title": "Docker and deployment",
+      "duration": "Week 11",
+      "topics": [
+        "Dockerising a Spring Boot service",
+        "Compose with MySQL",
+        "Environment profiles for production",
+        "Deploying to a cloud VM"
+      ]
+    },
+    {
+      "title": "Project: banking style REST API",
+      "duration": "Week 12",
+      "topics": [
+        "Domain modelling for accounts and transfers",
+        "Transactions and concurrency safety",
+        "Auth, roles and audit logging",
+        "Tests, documentation and deployment"
+      ]
+    },
+    {
+      "title": "Project: microservice + client",
+      "duration": "Week 12",
+      "topics": [
+        "Splitting the service boundary",
+        "Service to service calls",
+        "React or Thymeleaf client",
+        "Containerised local stack"
+      ]
+    },
+    {
+      "title": "Interview preparation",
+      "duration": "Week 13",
+      "topics": [
+        "Core Java question bank",
+        "OOP and collections deep dive",
+        "Spring interview scenarios",
+        "Coding round and mock interview"
+      ]
+    }
+  ],
+  "data-analytics": [
+    {
+      "title": "Orientation and the analyst role",
+      "duration": "Week 1",
+      "topics": [
+        "What data analysts actually do day to day",
+        "Tools we will use: Excel, SQL, Python, Power BI",
+        "Analytics vs data science vs engineering",
+        "Setting up your learning environment"
+      ]
+    },
+    {
+      "title": "Spreadsheet foundations",
+      "duration": "Week 1",
+      "topics": [
+        "Formulas, references and named ranges",
+        "Sorting, filtering and conditional formatting",
+        "Pivot tables and pivot charts",
+        "Data cleaning in spreadsheets"
+      ]
+    },
+    {
+      "title": "Business metrics and KPIs",
+      "duration": "Week 2",
+      "topics": [
+        "Revenue, margin, CAC, LTV and churn",
+        "Choosing metrics that match a business goal",
+        "Defining a metric precisely",
+        "Building a KPI sheet"
+      ]
+    },
+    {
+      "title": "Data types and data quality",
+      "duration": "Week 2",
+      "topics": [
+        "Categorical, numeric, temporal and text data",
+        "Duplicates, outliers and missing values",
+        "Validation rules and source checks",
+        "Documenting a dataset"
+      ]
+    },
+    {
+      "title": "SQL foundations",
+      "duration": "Week 3",
+      "topics": [
+        "Tables, schemas and data types",
+        "SELECT, WHERE, ORDER BY and LIMIT",
+        "Aggregations and GROUP BY",
+        "CASE statements and derived columns"
+      ]
+    },
+    {
+      "title": "SQL joins and subqueries",
+      "duration": "Week 4",
+      "topics": [
+        "Inner, left, right and full joins",
+        "Self joins and relationship patterns",
+        "Subqueries and CTEs",
+        "Window functions for ranking and running totals"
+      ]
+    },
+    {
+      "title": "SQL for analysis",
+      "duration": "Week 4",
+      "topics": [
+        "Cohort and retention queries",
+        "Funnel analysis in SQL",
+        "Time series aggregation",
+        "Query performance and indexes"
+      ]
+    },
+    {
+      "title": "Python for analysts",
+      "duration": "Week 5",
+      "topics": [
+        "Python basics in a notebook",
+        "Lists, dicts and loops for data work",
+        "Functions and reusable analysis steps",
+        "Debugging and reading errors"
+      ]
+    },
+    {
+      "title": "Pandas essentials",
+      "duration": "Week 5",
+      "topics": [
+        "Series and DataFrames",
+        "Selecting, filtering and sorting",
+        "Groupby, pivot and merge",
+        "Cleaning real messy data"
+      ]
+    },
+    {
+      "title": "Exploratory data analysis",
+      "duration": "Week 6",
+      "topics": [
+        "Summary statistics and distributions",
+        "Missing value strategies",
+        "Correlation and relationships",
+        "Asking the next question"
+      ]
+    },
+    {
+      "title": "Visualisation principles",
+      "duration": "Week 6",
+      "topics": [
+        "Chart selection and misleading charts",
+        "Colour, labels and annotation",
+        "Matplotlib and Seaborn basics",
+        "Designing a one page narrative"
+      ]
+    },
+    {
+      "title": "Statistics for decisions",
+      "duration": "Week 7",
+      "topics": [
+        "Mean, median, variance and percentiles",
+        "Sampling and confidence intervals",
+        "Hypothesis testing and p values",
+        "A/B test design and reading results"
+      ]
+    },
+    {
+      "title": "Excel to dashboard workflow",
+      "duration": "Week 7",
+      "topics": [
+        "Preparing a clean model sheet",
+        "Power Query style transformations",
+        "Chart design in Excel",
+        "Saving and sharing a report pack"
+      ]
+    },
+    {
+      "title": "Power BI foundations",
+      "duration": "Week 8",
+      "topics": [
+        "Importing data and the data model",
+        "Relationships and star schema",
+        "DAX basics: measures and calculated columns",
+        "Building report pages"
+      ]
+    },
+    {
+      "title": "Power BI advanced",
+      "duration": "Week 8",
+      "topics": [
+        "Time intelligence measures",
+        "Filters, slicers and drill through",
+        "Row level security",
+        "Publishing to the Power BI service"
+      ]
+    },
+    {
+      "title": "Tableau essentials",
+      "duration": "Week 9",
+      "topics": [
+        "Connecting data and building views",
+        "Dimensions, measures and aggregations",
+        "Calculated fields and parameters",
+        "Dashboards and actions"
+      ]
+    },
+    {
+      "title": "Dashboard storytelling",
+      "duration": "Week 9",
+      "topics": [
+        "Defining the audience and the decision",
+        "Layout hierarchy and visual weight",
+        "Annotations that explain the why",
+        "Review checklist before publishing"
+      ]
+    },
+    {
+      "title": "Data cleaning at scale",
+      "duration": "Week 10",
+      "topics": [
+        "Deduplication strategies",
+        "Standardising names, dates and categories",
+        "Joining sources with different keys",
+        "Automating a repeatable cleaning pipeline"
+      ]
+    },
+    {
+      "title": "Advanced Excel analytics",
+      "duration": "Week 10",
+      "topics": [
+        "Lookup patterns with XLOOKUP and INDEX MATCH",
+        "What if analysis and goal seek",
+        "Pivot based mini dashboards",
+        "Macros and VBA introduction"
+      ]
+    },
+    {
+      "title": "Forecasting and trends",
+      "duration": "Week 11",
+      "topics": [
+        "Moving averages and trend lines",
+        "Seasonality and decomposition",
+        "Basic regression for forecasting",
+        "Communicating uncertainty"
+      ]
+    },
+    {
+      "title": "AI assisted analysis",
+      "duration": "Week 11",
+      "topics": [
+        "Using AI to draft queries and explanations",
+        "Validating AI output against the data",
+        "Automating summaries and insights",
+        "Privacy and data handling rules"
+      ]
+    },
+    {
+      "title": "Portfolio project: sales analytics",
+      "duration": "Week 12",
+      "topics": [
+        "Business brief and questions",
+        "SQL extracts and cleaning",
+        "Dashboard build and storytelling",
+        "Findings deck and recommendations"
+      ]
+    },
+    {
+      "title": "Portfolio project: marketing funnel",
+      "duration": "Week 12",
+      "topics": [
+        "Channel level data model",
+        "Funnel and cohort analysis",
+        "Cost and ROI reporting",
+        "Stakeholder presentation"
+      ]
+    },
+    {
+      "title": "Interview and case preparation",
+      "duration": "Week 13",
+      "topics": [
+        "SQL interview question bank",
+        "Case study frameworks",
+        "Explaining dashboard decisions",
+        "Mock interview and feedback"
+      ]
+    }
+  ],
+  "digital-marketing": [
+    {
+      "title": "Orientation and the digital landscape",
+      "duration": "Week 1",
+      "topics": [
+        "How digital marketing creates demand",
+        "Channels, funnels and customer journeys",
+        "Setting up your own practice brand",
+        "Tools and accounts you need on day one"
+      ]
+    },
+    {
+      "title": "Marketing fundamentals",
+      "duration": "Week 1",
+      "topics": [
+        "Positioning, audience and value proposition",
+        "Brand voice and messaging",
+        "Budget planning across channels",
+        "Setting goals that can be measured"
+      ]
+    },
+    {
+      "title": "Website and landing pages",
+      "duration": "Week 2",
+      "topics": [
+        "Anatomy of a converting landing page",
+        "Copywriting: headline, proof, offer, CTA",
+        "Mobile first page structure",
+        "Tracking setup with GA4 and events"
+      ]
+    },
+    {
+      "title": "SEO foundations",
+      "duration": "Week 2",
+      "topics": [
+        "How search engines crawl and rank",
+        "Keyword research and search intent",
+        "On page SEO: titles, headings and structure",
+        "Technical SEO basics: speed, sitemap, schema"
+      ]
+    },
+    {
+      "title": "Content and blogging",
+      "duration": "Week 3",
+      "topics": [
+        "Content pillars and topic clusters",
+        "Writing for skimming and for search",
+        "Internal linking and refresh strategy",
+        "Content calendar and publishing rhythm"
+      ]
+    },
+    {
+      "title": "Google Ads search campaigns",
+      "duration": "Week 3",
+      "topics": [
+        "Account structure, campaigns and ad groups",
+        "Keyword match types and negative keywords",
+        "Ad copy, extensions and quality score",
+        "Bidding strategies and budget pacing"
+      ]
+    },
+    {
+      "title": "Google Ads display and remarketing",
+      "duration": "Week 4",
+      "topics": [
+        "Audience segments and targeting options",
+        "Creative sizes and asset ratios",
+        "Remarketing lists and exclusions",
+        "Reading placement reports"
+      ]
+    },
+    {
+      "title": "Meta ads setup",
+      "duration": "Week 4",
+      "topics": [
+        "Business manager, pixel and conversions API",
+        "Campaign objectives and structures",
+        "Audiences: core, custom and lookalike",
+        "Creative formats that stop the scroll"
+      ]
+    },
+    {
+      "title": "Meta ads optimisation",
+      "duration": "Week 5",
+      "topics": [
+        "Testing creatives and hooks",
+        "Budget scaling and learning phase",
+        "Retargeting ladders",
+        "Reading ROAS and CPR correctly"
+      ]
+    },
+    {
+      "title": "Social media strategy",
+      "duration": "Week 5",
+      "topics": [
+        "Platform fit for Instagram, LinkedIn and YouTube",
+        "Content formats and posting cadence",
+        "Community management and tone",
+        "Influencer and collaboration basics"
+      ]
+    },
+    {
+      "title": "Copywriting and storytelling",
+      "duration": "Week 6",
+      "topics": [
+        "Problem, promise, proof and payoff",
+        "Writing hooks and short form scripts",
+        "Email subject lines that get opened",
+        "Ad policy: what you cannot claim"
+      ]
+    },
+    {
+      "title": "Design for marketers",
+      "duration": "Week 6",
+      "topics": [
+        "Canva workflow and brand kits",
+        "Carousel and reel cover design",
+        "Making ads legible on small screens",
+        "Simple motion with templates"
+      ]
+    },
+    {
+      "title": "Email marketing",
+      "duration": "Week 7",
+      "topics": [
+        "List building and lead magnets",
+        "Welcome, nurture and win back flows",
+        "Deliverability and list hygiene",
+        "Open, click and revenue reporting"
+      ]
+    },
+    {
+      "title": "WhatsApp and messaging marketing",
+      "duration": "Week 7",
+      "topics": [
+        "Opt in and consent rules",
+        "Broadcast campaigns and templates",
+        "Automation and quick replies",
+        "Measuring responses and conversions"
+      ]
+    },
+    {
+      "title": "Analytics with GA4",
+      "duration": "Week 8",
+      "topics": [
+        "Property setup, streams and filters",
+        "Events, conversions and audiences",
+        "Traffic, acquisition and engagement reports",
+        "Attribution and channel grouping"
+      ]
+    },
+    {
+      "title": "Tracking and tag management",
+      "duration": "Week 8",
+      "topics": [
+        "Google Tag Manager setup",
+        "Pixel and server side tagging basics",
+        "UTM discipline and naming conventions",
+        "Debugging missing conversions"
+      ]
+    },
+    {
+      "title": "CRO and experimentation",
+      "duration": "Week 9",
+      "topics": [
+        "Funnel mapping and drop off analysis",
+        "A/B test design and sample size",
+        "Heatmaps and session recordings",
+        "Prioritising tests by impact"
+      ]
+    },
+    {
+      "title": "Influencer and affiliate marketing",
+      "duration": "Week 9",
+      "topics": [
+        "Choosing creators that match the brand",
+        "Briefs, deliverables and usage rights",
+        "Affiliate programs and commissions",
+        "Measuring lift beyond last click"
+      ]
+    },
+    {
+      "title": "Marketplace and local marketing",
+      "duration": "Week 10",
+      "topics": [
+        "Google Business Profile optimisation",
+        "Local SEO and reviews",
+        "Amazon and marketplace listing basics",
+        "Hyperlocal campaigns"
+      ]
+    },
+    {
+      "title": "AI tools for marketers",
+      "duration": "Week 10",
+      "topics": [
+        "Research, ideation and first drafts with AI",
+        "Prompt patterns for ads and emails",
+        "Editing AI copy into brand voice",
+        "Risks: accuracy, plagiarism and policies"
+      ]
+    },
+    {
+      "title": "Reporting and client communication",
+      "duration": "Week 11",
+      "topics": [
+        "Building a one page performance report",
+        "Explaining results without jargon",
+        "Deck structure for a monthly review",
+        "Renewals and upselling conversations"
+      ]
+    },
+    {
+      "title": "Freelance and agency playbook",
+      "duration": "Week 11",
+      "topics": [
+        "Service packages and pricing",
+        "Proposals, contracts and scope",
+        "Hiring and delegating work",
+        "Retainer management"
+      ]
+    },
+    {
+      "title": "Live project: launch a brand",
+      "duration": "Week 12",
+      "topics": [
+        "Brand and offer definition",
+        "Website and landing page build",
+        "Paid and organic launch plan",
+        "First 30 days performance review"
+      ]
+    },
+    {
+      "title": "Live project: local business campaign",
+      "duration": "Week 12",
+      "topics": [
+        "Audit and competitor scan",
+        "Local SEO and Google Ads setup",
+        "WhatsApp and review collection flow",
+        "Cost per lead report and next steps"
+      ]
+    },
+    {
+      "title": "Certification and interview preparation",
+      "duration": "Week 13",
+      "topics": [
+        "Google Ads and GA4 certification walkthrough",
+        "Portfolio of campaigns and results",
+        "Interview questions and case rounds",
+        "Mock pitch to a prospective client"
+      ]
+    }
+  ],
+  "ui-ux-design": [
+    {
+      "title": "Orientation and the designer mindset",
+      "duration": "Week 1",
+      "topics": [
+        "What UI and UX designers do in product teams",
+        "Design process: discover, define, design, validate",
+        "Figma setup and file organisation",
+        "How this course is assessed"
+      ]
+    },
+    {
+      "title": "Design fundamentals",
+      "duration": "Week 1",
+      "topics": [
+        "Layout grids and alignment",
+        "Hierarchy, contrast and spacing",
+        "Colour theory and accessible palettes",
+        "Typography scale and pairing"
+      ]
+    },
+    {
+      "title": "User research basics",
+      "duration": "Week 2",
+      "topics": [
+        "Writing a research plan",
+        "Interview scripts and asking neutral questions",
+        "Surveys and when not to use them",
+        "Synthesising notes into themes"
+      ]
+    },
+    {
+      "title": "Personas, journeys and problem framing",
+      "duration": "Week 2",
+      "topics": [
+        "Turning research into personas",
+        "Journey maps and pain points",
+        "Problem statements and how might we questions",
+        "Scoping the right problem"
+      ]
+    },
+    {
+      "title": "Information architecture",
+      "duration": "Week 3",
+      "topics": [
+        "Card sorting and tree testing",
+        "Navigation patterns",
+        "Site maps and flow diagrams",
+        "Naming and labelling content"
+      ]
+    },
+    {
+      "title": "Wireframing",
+      "duration": "Week 3",
+      "topics": [
+        "Low fidelity sketching",
+        "Wireframe kits and greybox layouts",
+        "Content first wireframes",
+        "Reviewing wireframes with stakeholders"
+      ]
+    },
+    {
+      "title": "Figma core skills",
+      "duration": "Week 4",
+      "topics": [
+        "Frames, layers and auto layout",
+        "Components, variants and properties",
+        "Styles, variables and design tokens",
+        "Prototyping links and transitions"
+      ]
+    },
+    {
+      "title": "Building a design system",
+      "duration": "Week 4",
+      "topics": [
+        "Atoms, molecules and patterns",
+        "Component naming and documentation",
+        "Spacing and radius scales",
+        "Versioning and handoff"
+      ]
+    },
+    {
+      "title": "Interaction design",
+      "duration": "Week 5",
+      "topics": [
+        "States: default, hover, focus, disabled",
+        "Micro interactions and feedback",
+        "Motion principles and timing",
+        "Designing for touch gestures"
+      ]
+    },
+    {
+      "title": "Accessibility in design",
+      "duration": "Week 5",
+      "topics": [
+        "Contrast and text sizing",
+        "Focus states and keyboard flows",
+        "Accessible forms and error messaging",
+        "Testing with a screen reader"
+      ]
+    },
+    {
+      "title": "Mobile app design",
+      "duration": "Week 6",
+      "topics": [
+        "iOS and Android conventions",
+        "Navigation models and tab bars",
+        "Responsive rules and breakpoints",
+        "Designing for one hand use"
+      ]
+    },
+    {
+      "title": "Web design and responsive layout",
+      "duration": "Week 6",
+      "topics": [
+        "Desktop, tablet and mobile frames",
+        "Grids and container widths",
+        "Sections that convert",
+        "Dark mode variations"
+      ]
+    },
+    {
+      "title": "Forms and complex flows",
+      "duration": "Week 7",
+      "topics": [
+        "Form field design and validation",
+        "Multi step flows and progress",
+        "Empty, loading and error states",
+        "Reducing cognitive load"
+      ]
+    },
+    {
+      "title": "Usability testing",
+      "duration": "Week 7",
+      "topics": [
+        "Writing a test script",
+        "Moderating without leading",
+        "Recording observations and severity",
+        "Turning findings into fixes"
+      ]
+    },
+    {
+      "title": "Dashboards and data design",
+      "duration": "Week 8",
+      "topics": [
+        "Information density that still reads",
+        "Chart selection in product UI",
+        "Tables, filters and bulk actions",
+        "Designing for power users"
+      ]
+    },
+    {
+      "title": "Design handoff and developer collaboration",
+      "duration": "Week 8",
+      "topics": [
+        "Specs, annotations and tokens",
+        "Working with an engineering team",
+        "Reviewing builds against design",
+        "Handling design debt"
+      ]
+    },
+    {
+      "title": "Portfolio project 1: mobile app",
+      "duration": "Week 9",
+      "topics": [
+        "Choose a real problem and audience",
+        "Research and problem statement",
+        "Flows, wireframes and UI screens",
+        "Interactive prototype and test"
+      ]
+    },
+    {
+      "title": "Portfolio project 2: SaaS dashboard",
+      "duration": "Week 10",
+      "topics": [
+        "Information architecture for the product",
+        "Component library and tokens",
+        "Key screens with all states",
+        "Case study write up"
+      ]
+    },
+    {
+      "title": "Case studies and storytelling",
+      "duration": "Week 11",
+      "topics": [
+        "Structure: context, role, process, outcome",
+        "Showing decisions, not just screens",
+        "Before and after comparisons",
+        "Writing for recruiters and clients"
+      ]
+    },
+    {
+      "title": "Freelance UX and client work",
+      "duration": "Week 11",
+      "topics": [
+        "Scoping and estimating design work",
+        "Workshops and stakeholder alignment",
+        "Pricing models",
+        "Deliverables and handover"
+      ]
+    },
+    {
+      "title": "AI in design workflow",
+      "duration": "Week 12",
+      "topics": [
+        "Using AI for research synthesis and copy",
+        "Generating and refining ideas",
+        "AI plugins in Figma",
+        "Where human judgement still wins"
+      ]
+    },
+    {
+      "title": "Interview preparation",
+      "duration": "Week 12",
+      "topics": [
+        "Portfolio review checklist",
+        "Whiteboard design challenge practice",
+        "Presenting a case study in ten minutes",
+        "Mock interview and feedback"
+      ]
+    }
+  ],
+  "basic-computer-training": [
+    {
+      "title": "Getting started with computers",
+      "duration": "Week 1",
+      "topics": [
+        "Parts of a computer and what they do",
+        "Turning on, logging in and safely shutting down",
+        "Files, folders and the file explorer",
+        "Pen drive, memory card and storage basics"
+      ]
+    },
+    {
+      "title": "Windows essentials",
+      "duration": "Week 1",
+      "topics": [
+        "Desktop, taskbar and start menu",
+        "Installing and uninstalling software",
+        "Settings, printers and Wi Fi",
+        "Screenshots, search and shortcuts"
+      ]
+    },
+    {
+      "title": "Typing and keyboard skills",
+      "duration": "Week 2",
+      "topics": [
+        "Home row and touch typing practice",
+        "Useful shortcut keys for every app",
+        "Typing speed and accuracy drills",
+        "Regional language typing basics"
+      ]
+    },
+    {
+      "title": "Internet and email",
+      "duration": "Week 2",
+      "topics": [
+        "Browsers, tabs and bookmarks",
+        "Searching effectively and checking sources",
+        "Creating a Gmail account safely",
+        "Attachments, CC, BCC and email etiquette"
+      ]
+    },
+    {
+      "title": "Online safety",
+      "duration": "Week 3",
+      "topics": [
+        "Passwords and two factor authentication",
+        "Spotting phishing and fake links",
+        "UPI, banking and OTP safety",
+        "Privacy settings on social media"
+      ]
+    },
+    {
+      "title": "Microsoft Word",
+      "duration": "Week 3",
+      "topics": [
+        "Creating, saving and printing documents",
+        "Formatting text, headings and lists",
+        "Tables, images and page setup",
+        "Writing a resume in Word"
+      ]
+    },
+    {
+      "title": "Microsoft Excel",
+      "duration": "Week 4",
+      "topics": [
+        "Cells, rows, columns and sheets",
+        "Formulas, SUM, AVERAGE and IF",
+        "Sorting, filtering and charts",
+        "Making a simple expense sheet"
+      ]
+    },
+    {
+      "title": "Microsoft PowerPoint",
+      "duration": "Week 4",
+      "topics": [
+        "Slide layouts and themes",
+        "Text, images, charts and transitions",
+        "Speaker notes and presenting",
+        "Building a five slide presentation"
+      ]
+    },
+    {
+      "title": "Google Workspace",
+      "duration": "Week 5",
+      "topics": [
+        "Google Docs and Sheets basics",
+        "Drive folders, sharing and permissions",
+        "Google Forms for surveys",
+        "Calendar, Meet and reminders"
+      ]
+    },
+    {
+      "title": "Digital payments and government services",
+      "duration": "Week 5",
+      "topics": [
+        "UPI apps and safe transactions",
+        "Online bill payments and recharges",
+        "Aadhaar, PAN and DigiLocker basics",
+        "Booking tickets and appointments"
+      ]
+    },
+    {
+      "title": "Social media and communication",
+      "duration": "Week 6",
+      "topics": [
+        "WhatsApp business style messaging",
+        "Creating pages and profiles",
+        "Sharing safely and avoiding spam",
+        "Video calls and screen sharing"
+      ]
+    },
+    {
+      "title": "Printing, scanning and backups",
+      "duration": "Week 6",
+      "topics": [
+        "Print settings and paper sizes",
+        "Scanning documents to PDF",
+        "Backing up to drive and pen drive",
+        "Organising files with clear names"
+      ]
+    },
+    {
+      "title": "Practical project",
+      "duration": "Week 7",
+      "topics": [
+        "Make a resume and cover letter",
+        "Build an expense tracker in Excel",
+        "Prepare a presentation about yourself",
+        "Email everything as attachments"
+      ]
+    },
+    {
+      "title": "Assessment and next steps",
+      "duration": "Week 7",
+      "topics": [
+        "Practical test covering all modules",
+        "Certificate and next course guidance",
+        "Choosing between office and coding tracks",
+        "Doubt clearing session"
+      ]
+    }
+  ]
+}

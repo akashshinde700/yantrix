@@ -1415,7 +1415,9 @@ function CurriculumSection({
   whatsappHref: string;
 }) {
   const t = useLabels();
-  const [open, setOpen] = useState<number[]>([0]);
+  /* The first two modules start open: students see real lesson content without
+     having to discover the toggle, and the syllabus never looks empty. */
+  const [open, setOpen] = useState<number[]>(() => (modules.length > 1 ? [0, 1] : [0]));
   const [brochureOpen, setBrochureOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -1496,6 +1498,20 @@ function CurriculumSection({
           )}
           {allOpen ? t("cp.curriculumCollapse") : t("cp.curriculumExpand")}
         </button>
+
+        {brochureFiles[0]?.url ? (
+          <p className="mt-4">
+            <a
+              href={brochureFiles[0].url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyber-300 underline decoration-cyber-300/40 underline-offset-4 transition-colors hover:text-white"
+            >
+              <Download className="h-3.5 w-3.5" aria-hidden="true" />
+              {t("cp.curriculumDownload")}
+            </a>
+          </p>
+        ) : null}
       </div>
 
       <div className="mx-auto mt-10 max-w-3xl">
@@ -1644,6 +1660,18 @@ function CurriculumSection({
                         </>
                       ) : null}
                     </span>
+                    {/* Collapsed modules still show what is inside them, so the
+                        syllabus reads as content instead of a list of headings. */}
+                    {!expanded && lessons.length > 0 ? (
+                      <span className="mt-1 block text-[12px] leading-relaxed text-slate-400/90">
+                        {lessons.slice(0, 3).join(" · ")}
+                        {lessons.length > 3 ? (
+                          <span className="text-slate-500">
+                            {" · "}+{lessons.length - 3} {t("cp.curriculumMore")}
+                          </span>
+                        ) : null}
+                      </span>
+                    ) : null}
                   </span>
                   <ChevronDown
                     className={cn(
