@@ -996,6 +996,10 @@ html[data-entered] .door-intro {
 .door-intro {
   --emblem: clamp(150px, 30vh, 280px);
   --ey: 42vh; /* emblem centre */
+  /* The door owns the whole viewport, so paints never need to escape it. */
+  contain: layout paint style;
+  /* Nothing under the door is interactive; this also stops stray hover work. */
+  touch-action: none;
 }
 @media (max-width: 640px) {
   .door-intro {
@@ -1011,6 +1015,8 @@ html[data-entered] .door-intro {
   top: var(--ey);
   width: var(--emblem);
   height: var(--emblem);
+  /* above the panel's darkening veil so the emblem keeps its glow */
+  z-index: 2;
 }
 
 /* nameplate: dark glass, champagne-gold edge, the full logo */
@@ -1049,9 +1055,11 @@ html[data-entered] .door-intro {
 
 /* the button fills as the 10-second auto-open approaches */
 .door-auto-bar {
-  animation: door-auto 3s linear forwards;
+  /* duration comes from the component so the bar and the timer never drift */
+  animation: door-auto var(--door-auto, 2.5s) linear forwards;
   transform: scaleX(0);
   opacity: 0.8;
+  transform-origin: left center;
 }
 @keyframes door-auto {
   to {
@@ -1066,21 +1074,45 @@ html[data-entered] .door-intro {
     radial-gradient(ellipse 30% 70% at 50% 50%, rgba(56, 189, 248, 0.55), transparent 70%),
     radial-gradient(ellipse 60% 80% at 50% 50%, rgba(99, 102, 241, 0.35), transparent 75%),
     #010208;
-  transition: transform 2s cubic-bezier(0.7, 0, 0.2, 1), filter 2s ease;
+  /* Promoted so the 1.8x push is composited instead of re-rasterising the
+     three radial gradients on every frame (that was the stutter on open). */
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 1.25s cubic-bezier(0.7, 0, 0.2, 1);
+}
+/* Brightness boost as a separate white veil: animating `opacity` is free,
+   animating `filter: brightness()` forced a full-screen repaint per frame. */
+.door-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.55), transparent 62%);
+  opacity: 0;
+  transition: opacity 1.25s ease;
 }
 .door-intro[data-phase="opening"] .door-light {
   transform: scale(1.8);
-  filter: brightness(1.6);
+}
+.door-intro[data-phase="opening"] .door-light::after {
+  opacity: 1;
 }
 
-/* volumetric rays */
+/* volumetric rays
+   Was a 220vmax square: on a 1440px screen that is a ~3200px layer with a radial
+   mask, i.e. tens of megabytes of texture to rotate and scale. 150vmax looks the
+   same (the mask fades out well before the edge) at less than half the pixels. */
 .door-rays {
+  width: 150vmax;
+  height: 150vmax;
+  pointer-events: none;
   background: repeating-conic-gradient(from 0deg, rgba(186, 230, 253, 0.16) 0deg 3deg, transparent 3deg 14deg);
   -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 55%);
   mask-image: radial-gradient(circle, #000 0%, transparent 55%);
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
-  transition: opacity 1.2s ease, transform 2.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transition: opacity 0.9s ease, transform 1.25s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .door-intro[data-phase="unlocking"] .door-rays {
   opacity: 0.35;
@@ -1093,17 +1125,39 @@ html[data-entered] .door-intro {
 
 /* doors */
 .door-panel {
-  transition: transform 2s cubic-bezier(0.7, 0, 0.2, 1), filter 2s ease;
   will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
   box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.65);
+  transition: transform 1.25s cubic-bezier(0.7, 0, 0.2, 1);
+}
+/* The swing darkens the door with an overlay instead of `filter: brightness()`
+   — a filter on a rotating, 3D-transformed layer is re-rasterised every frame. */
+.door-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: #010208;
+  opacity: 0;
+  transition: opacity 1.25s ease;
+}
+.door-open-left,
+.door-open-right {
+  transform: translateX(var(--door-shift, -104%)) rotateY(var(--door-turn, 32deg));
+}
+.door-open-left::after,
+.door-open-right::after {
+  opacity: 0.42;
 }
 .door-open-left {
-  transform: translateX(-104%) rotateY(32deg);
-  filter: brightness(0.6);
+  --door-shift: -104%;
+  --door-turn: 32deg;
 }
 .door-open-right {
-  transform: translateX(104%) rotateY(-32deg);
-  filter: brightness(0.6);
+  --door-shift: 104%;
+  --door-turn: -32deg;
 }
 .door-recess {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.25));
@@ -1178,11 +1232,12 @@ html[data-entered] .door-intro {
 }
 
 .door-intro-fade {
-  animation: door-fade 2s ease-in forwards;
+  animation: door-fade 1.25s ease-in forwards;
+  pointer-events: none;
 }
 @keyframes door-fade {
   0%,
-  72% {
+  62% {
     opacity: 1;
   }
   100% {
@@ -1195,7 +1250,15 @@ html[data-entered] .door-intro {
   stroke-dasharray: 9 91;
   stroke-dashoffset: 100;
   animation: door-trace 3.4s linear infinite;
-  filter: drop-shadow(0 0 3px #22d3ee);
+}
+/* Was `filter: drop-shadow(...)`: an SVG filter is re-rasterised every frame the
+   dash offset moves, for 16 paths. The wide low-opacity path in the markup gives
+   the same glow for free. */
+.door-intro[data-phase="opening"] .door-trace,
+.door-intro[data-phase="opening"] .door-dust,
+.door-intro[data-phase="opening"] .emblem-spin,
+.door-intro[data-phase="opening"] .emblem-spin-rev {
+  animation-play-state: paused;
 }
 .door-trace-fast {
   animation-duration: 0.6s;
@@ -1305,8 +1368,10 @@ html[data-entered] .door-intro {
     animation: none;
   }
   .door-panel,
+  .door-panel::after,
   .door-rays,
   .door-light,
+  .door-light::after,
   .door-bolt {
     transition: none;
   }
