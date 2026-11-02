@@ -226,6 +226,41 @@ export interface HeroSlide extends BaseItem {
   alt: string;
 }
 
+/**
+ * A specialisation / track inside a course (e.g. "MERN Stack with AI"), shown
+ * as its own card on the course detail page.
+ */
+export interface CourseTrack {
+  title: string;
+  subtitle: string;
+  points: string[];
+}
+
+/** "Why this course" card. */
+export interface CourseBenefit {
+  title: string;
+  description: string;
+}
+
+/** One accordion section of the syllabus. */
+export interface CourseModule {
+  title: string;
+  topics: string[];
+}
+
+/** A student review shown on the course detail page. */
+export interface CourseReview {
+  name: string;
+  role: string;
+  quote: string;
+}
+
+/** A course-specific question, merged with the generated Q&A for SEO. */
+export interface CourseFaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface Course extends BaseItem {
   slug: string;
   title: string;
@@ -236,6 +271,54 @@ export interface Course extends BaseItem {
   modes: string[];
   highlights: string[];
   icon: string;
+
+  /*
+   * Everything below is optional so content saved before the detail page
+   * existed keeps rendering (the page falls back to the fields above), and the
+   * admin panel can fill sections in gradually.
+   */
+
+  /** One-line promise under the headline */
+  tagline?: string;
+  /** Corner ribbon on the card, e.g. "Most popular" */
+  badge?: string;
+  coverImage?: string;
+  coverAlt?: string;
+  /** Trainer / mentor line */
+  instructor?: string;
+  /** "Hindi, English, Marathi" */
+  language?: string;
+  /** e.g. "New batch every month · weekday & weekend" */
+  batchNote?: string;
+  /** e.g. "Only 15 seats per batch" */
+  seatsNote?: string;
+  /** Third line of the price card, e.g. "2 instalments available" */
+  priceNote?: string;
+  /** Small stat chips under the headline */
+  heroStats?: string[];
+  aboutTitle?: string;
+  aboutParagraphs?: string[];
+  aboutImage?: string;
+  aboutImageAlt?: string;
+  tracks?: CourseTrack[];
+  benefits?: CourseBenefit[];
+  /** Tools / technologies covered */
+  tools?: string[];
+  /** "What you'll learn" list — falls back to `highlights` */
+  learn?: string[];
+  curriculum?: CourseModule[];
+  brochureTitle?: string;
+  brochureUrl?: string;
+  reviews?: CourseReview[];
+  faqs?: CourseFaqItem[];
+  ctaTitle?: string;
+  ctaText?: string;
+  ctaLabel?: string;
+  /** Pre-filled WhatsApp text for this course */
+  whatsappMessage?: string;
+  /** Optional search title / description override */
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 export interface Faq extends BaseItem {

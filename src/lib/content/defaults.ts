@@ -5,6 +5,7 @@ import type {
   SectionCopy,
   SectionKey,
 } from "@/lib/content/types";
+import { COURSE_SEEDS } from "@/lib/content/course-seeds";
 
 /* ────────────────────────────────────────────────────────────────────
    Default (seed) content for the Yantrix Technology website.
@@ -123,144 +124,7 @@ const collections: CollectionMap = {
     }),
   ],
 
-  courses: [
-    item(1, {
-      slug: "full-stack-development",
-      title: "Full Stack Development",
-      description:
-        "Become a complete developer — build responsive front-ends, REST APIs and databases, then deploy real applications end to end.",
-      duration: "5–6 Months (typical)",
-      fee: "On request",
-      level: "Beginner → Advanced",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "HTML, CSS, JavaScript",
-        "React & Node.js basics",
-        "Databases & REST APIs",
-        "Capstone live project",
-      ],
-      icon: "Layers",
-    }),
-    item(2, {
-      slug: "web-development",
-      title: "Web Development",
-      description:
-        "Learn modern website development from the ground up — semantic HTML, modern CSS, JavaScript and popular frameworks.",
-      duration: "3–4 Months (typical)",
-      fee: "On request",
-      level: "Beginner",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "HTML5 & modern CSS",
-        "JavaScript fundamentals",
-        "Responsive layouts",
-        "Portfolio website project",
-      ],
-      icon: "Globe",
-    }),
-    item(3, {
-      slug: "python-programming",
-      title: "Python Programming",
-      description:
-        "Start from zero and master Python — clean syntax, problem solving, automation and real-world mini projects.",
-      duration: "2–4 Months (typical)",
-      fee: "On request",
-      level: "Beginner",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "Core Python & OOP",
-        "File & error handling",
-        "Automation scripts",
-        "Hands-on mini projects",
-      ],
-      icon: "Braces",
-    }),
-    item(4, {
-      slug: "java-programming",
-      title: "Java Programming",
-      description:
-        "Build a strong base in Java — object-oriented programming, collections and the mindset needed for enterprise development.",
-      duration: "3–5 Months (typical)",
-      fee: "On request",
-      level: "Beginner → Intermediate",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "Core Java & OOP",
-        "Collections & generics",
-        "Exception handling",
-        "Console & mini apps",
-      ],
-      icon: "MousePointerClick",
-    }),
-    item(5, {
-      slug: "data-analytics",
-      title: "Data Analytics",
-      description:
-        "Turn raw data into insights — Excel, SQL and visualisation dashboards that businesses actually use to make decisions.",
-      duration: "3–5 Months (typical)",
-      fee: "On request",
-      level: "Beginner",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "Advanced Excel",
-        "SQL queries & joins",
-        "Power BI / dashboards",
-        "Analytics mini project",
-      ],
-      icon: "BarChart3",
-    }),
-    item(6, {
-      slug: "digital-marketing",
-      title: "Digital Marketing",
-      description:
-        "Learn practical digital marketing — SEO, social media, ads and analytics — with campaigns you plan and run yourself.",
-      duration: "2–3 Months (typical)",
-      fee: "On request",
-      level: "Beginner",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "SEO fundamentals",
-        "Social media marketing",
-        "Google Ads basics",
-        "Live campaign practice",
-      ],
-      icon: "Megaphone",
-    }),
-    item(7, {
-      slug: "ui-ux-design",
-      title: "UI/UX Design",
-      description:
-        "Design products people love to use — design thinking, wireframing, prototyping and a polished portfolio in Figma.",
-      duration: "3–4 Months (typical)",
-      fee: "On request",
-      level: "Beginner",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "Design thinking",
-        "Wireframes & prototypes",
-        "Figma hands-on",
-        "Portfolio case study",
-      ],
-      icon: "Palette",
-    }),
-    item(8, {
-      slug: "basic-computer-training",
-      title: "MS-CIT / Basic Computer Training",
-      description:
-        "A beginner-friendly course for absolute starters — computer fundamentals, MS Office, internet skills and exam readiness.",
-      duration: "2–3 Months (typical)",
-      fee: "On request",
-      level: "Absolute beginner",
-      modes: ["Online", "Offline"],
-      highlights: [
-        "Computer fundamentals",
-        "MS Office suite",
-        "Internet & email skills",
-        "Practice tests",
-      ],
-      icon: "MousePointerClick",
-    }),
-  ],
+  courses: COURSE_SEEDS.map((course, index) => item(index + 1, course)),
 
   faqs: [
     item(1, {

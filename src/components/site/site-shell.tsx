@@ -61,8 +61,16 @@ export function SiteShell({
   const seoPages = content.seo.pages;
   const ctaHidden = content.sections.cta.hidden;
 
-  /* A detail page stays up until the visitor navigates anywhere. */
-  const showDetail = Boolean(detail) && navId === 0;
+  /*
+   * A detail page stays up until the visitor navigates anywhere.
+   *
+   * `navId` is compared against the value at mount, not against 0: the zustand
+   * store survives client-side route changes, so a visitor who clicked through
+   * the header menu before opening a course would otherwise land on a detail
+   * URL that renders the list instead of the course.
+   */
+  const [baselineNavId] = useState(navId);
+  const showDetail = Boolean(detail) && navId === baselineNavId;
 
   /* Keep the active view in sync with the URL the visitor landed on (without counting as a navigation). */
   useEffect(() => {

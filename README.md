@@ -58,7 +58,7 @@ npm run start
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Dashboard          | Content counters, latest enquiries, SEO/AEO health score                                                                                                              |
 | Hero slides        | Slides, images, headlines, CTAs, trust chips                                                                                                                          |
-| Courses            | Course cards, duration, fees, level, modes, syllabus chips, icons                                                                                                     |
+| Courses            | Course cards **and** a full page per course: cover image, fee card, about copy, specialisations, outcomes, tools, module-by-module curriculum, reviews, FAQs, CTA, SEO |
 | FAQs               | Q&A list (also feeds `FAQPage` structured data)                                                                                                                       |
 | Page sections      | Heading/eyebrow/description for every section + hide a section; feature cards, stats, tech ticker, training modes, placement points, quick facts, after-enquiry steps |
 | Pages & navigation | Page-specific copy (home / courses / about / contact) and header/footer links                                                                                         |
@@ -66,6 +66,24 @@ npm run start
 | Enquiries          | Search, statuses (new → contacted → enrolled → closed), internal notes, CSV export                                                                                    |
 | Admin users        | Multiple admins with `owner` / `editor` / `viewer` roles                                                                                                              |
 | Site settings      | Brand, contact details, WhatsApp, social profiles, top bar, footer, legal text, password change, content reset                                                        |
+
+### Course pages
+
+Every course in **Admin → Courses** owns a public page at `/courses/<slug>`.
+The editor is split into five tabs so the page can be filled in gradually —
+anything left empty is simply not rendered:
+
+| Tab | What it controls |
+| --- | --- |
+| Basics | Name, slug, icon, badge, description, tagline, cover image, fee + fee note, duration, modes, batch/seats notes, instructor, language, headline stats, highlight chips, publish state |
+| About & highlights | "About this course" paragraphs and image, what-you'll-learn outcomes, benefit cards, specialisation tracks (MERN / Spring Boot / Django…), tools grid, brochure |
+| Curriculum | Syllabus modules — each one becomes an expandable row with its own topic list |
+| Reviews & FAQs | Student quotes, plus course-specific Q&A (also exported as FAQ structured data) |
+| CTA & SEO | Closing call to action, mobile sticky button label, WhatsApp message, search title and meta description |
+
+Slugs are generated from the course name (and de-duplicated with a `-2` suffix
+by the API), so two courses can never fight over the same URL. The course name
+is the only required field — the rest can be added later.
 
 ### Roles
 
