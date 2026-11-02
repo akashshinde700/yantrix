@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   Award,
@@ -25,6 +25,8 @@ import {
   Star,
   UserRound,
   Users,
+  FileText,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
@@ -296,7 +298,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       : []),
     ...(tools.length ? [{ id: "tools", label: t("cp.toolsEyebrow") }] : []),
     ...(learn.length ? [{ id: "learn", label: "What you'll learn" }] : []),
-    ...(curriculum.length ? [{ id: "curriculum", label: "Curriculum" }] : []),
+    ...(curriculum.length ? [{ id: "curriculum", label: t("cp.curriculumTitle") }] : []),
     ...(includes.length ? [{ id: "included", label: t("cp.includedEyebrow") }] : []),
     ...(course.certificateTitle || course.certificateText
       ? [{ id: "certificate", label: t("cp.certificateEyebrow") }]
@@ -778,6 +780,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {curriculum.length ? (
         <CurriculumSection
           courseTitle={course.title}
+          title={course.curriculumTitle}
           modules={curriculum}
           brochureTitle={course.brochureTitle}
           brochureUrl={course.brochureUrl}
@@ -1375,20 +1378,43 @@ function TrainerSection({
 
 function CurriculumSection({
   courseTitle,
+  title,
   modules,
   brochureTitle,
   brochureUrl,
   whatsappHref,
 }: {
   courseTitle: string;
-  modules: { title: string; topics: string[] }[];
+  /** Per-course heading override ("Course Curriculum" by default). */
+  title?: string;
+  modules: { title: string; topics: string[]; duration?: string }[];
   brochureTitle?: string;
   brochureUrl?: string;
   whatsappHref: string;
 }) {
   const t = useLabels();
   const [open, setOpen] = useState<number[]>([0]);
-  const allOpen = open.length === modules.length;
+  const [query, setQuery] = useState("");
+  const allOpen = modules.length > 0 && open.length === modules.length;
+
+  const sessions = modules.reduce((sum, module) => sum + (module.topics?.length ?? 0), 0);
+  const totalDuration = modules
+    .map((module) => (module.duration || "").trim())
+    .filter(Boolean)
+    .join(" · ");
+
+  /** Search filters modules by title or topic — handy for a 20-module syllabus. */
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return modules.map((module, index) => ({ module, index }));
+    return modules
+      .map((module, index) => ({ module, index }))
+      .filter(
+        ({ module }) =>
+          module.title.toLowerCase().includes(needle) ||
+          (module.topics ?? []).some((topic) => topic.toLowerCase().includes(needle))
+      );
+  }, [modules, query]);
 
   const toggle = (index: number) =>
     setOpen((current) =>
@@ -1399,33 +1425,60 @@ function CurriculumSection({
     <Section
       id="curriculum"
       eyebrow={t("cp.curriculumEyebrow")}
-      title={`${courseTitle} syllabus, module by module`}
-      description={`${modules.length} modules · ${modules.reduce((sum, m) => sum + (m.topics?.length ?? 0), 0)} topics. Expand any module to see what is covered.`}
+      title={title || t("cp.curriculumTitle")}
+      description={t("cp.curriculumText")}
     >
       <div className="mx-auto max-w-4xl">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            {modules.length} modules
-          </p>
-          <button
-            type="button"
-            onClick={() => setOpen(allOpen ? [] : modules.map((_, index) => index))}
-            className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-cyber-200 transition-colors hover:border-cyber-300/50 hover:text-white"
-          >
-            {allOpen ? "Collapse all" : "Expand all modules"}
-          </button>
+        {/* summary strip — modules | sessions, like the reference outline */}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="hud-chip">
+            {modules.length} {t("cp.curriculumModules")}
+          </span>
+          <span className="hud-chip">
+            {sessions} {t("cp.curriculumSessions")}
+          </span>
+          {totalDuration ? <span className="hud-chip">{totalDuration}</span> : null}
+          <span className="ml-auto flex flex-wrap items-center gap-2">
+            {modules.length > 4 ? (
+              <label className="relative">
+                <span className="sr-only">{t("cp.curriculumSearch")}</span>
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
+                  aria-hidden="true"
+                />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={t("cp.curriculumSearch")}
+                  className="h-9 w-44 rounded-full border border-white/12 bg-white/5 pl-8 pr-3 text-xs text-white placeholder:text-slate-500 focus:border-cyber-300/50 focus:outline-none sm:w-56"
+                />
+              </label>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setOpen(allOpen ? [] : modules.map((_, index) => index))}
+              className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-cyber-200 transition-colors hover:border-cyber-300/50 hover:text-white"
+            >
+              {allOpen ? t("cp.curriculumCollapse") : t("cp.curriculumExpand")}
+            </button>
+          </span>
         </div>
 
-        <ol className="space-y-3">
-          {modules.map((module, index) => {
+        <ol className="relative space-y-3">
+          {/* timeline spine */}
+          <span
+            aria-hidden="true"
+            className="absolute left-[19px] top-2 hidden h-[calc(100%-1rem)] w-px bg-gradient-to-b from-cyber-400/50 via-white/10 to-transparent sm:block"
+          />
+          {visible.map(({ module, index }) => {
             const expanded = open.includes(index);
             const topics = (module.topics ?? []).filter(Boolean);
             return (
               <li
                 key={`${module.title}-${index}`}
                 className={cn(
-                  "rounded-2xl border bg-[#0a1230]/80 transition-colors",
-                  expanded ? "border-cyber-400/40" : "border-white/10"
+                  "relative rounded-2xl border bg-[#0a1230]/80 transition-colors",
+                  expanded ? "border-cyber-400/40" : "border-white/10 hover:border-white/20"
                 )}
               >
                 <button
@@ -1437,9 +1490,9 @@ function CurriculumSection({
                 >
                   <span
                     className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-black",
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-mono text-[11px] font-black",
                       expanded
-                        ? "bg-gradient-to-br from-brand-600 to-cyber-500 text-white"
+                        ? "bg-gradient-to-br from-brand-600 to-cyber-500 text-white shadow-[0_0_18px_-4px_rgba(34,211,238,0.9)]"
                         : "border border-white/10 bg-white/5 text-slate-300"
                     )}
                   >
@@ -1449,8 +1502,16 @@ function CurriculumSection({
                     <span className="block text-sm font-extrabold text-white sm:text-base">
                       {module.title}
                     </span>
-                    <span className="mt-0.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                      {topics.length} topic{topics.length === 1 ? "" : "s"}
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                      <span>
+                        {topics.length} {t("cp.curriculumSessions")}
+                      </span>
+                      {module.duration ? (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span className="text-cyber-300">{module.duration}</span>
+                        </>
+                      ) : null}
                     </span>
                   </span>
                   <ChevronDown
@@ -1483,39 +1544,48 @@ function CurriculumSection({
           })}
         </ol>
 
+        {visible.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-slate-400">
+            {t("cp.curriculumEmpty")}
+          </p>
+        ) : null}
+
+        {/* syllabus PDF / brochure row */}
         <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:flex-row">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white">
-              <Download className="h-4.5 w-4.5" aria-hidden="true" />
+              <FileText className="h-4.5 w-4.5" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-sm font-extrabold text-white">{brochureTitle || "Course brochure"}</p>
-              <p className="text-xs text-slate-400">
-                {t("course.brochureText")}
+              <p className="text-sm font-extrabold text-white">
+                {brochureTitle || `${courseTitle} — ${t("cp.curriculumPdf")}`}
               </p>
+              <p className="text-xs text-slate-400">{t("course.brochureText")}</p>
             </div>
           </div>
-          {brochureUrl ? (
-            <a
-              href={brochureUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-cyber-300/40 bg-cyber-500/10 px-5 text-sm font-bold text-cyber-200 transition-colors hover:bg-cyber-500/20"
-            >
-              <Download className="h-4 w-4" aria-hidden="true" />
-              {t("course.downloadBrochure")}
-            </a>
-          ) : (
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-whatsapp inline-flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-bold text-white"
-            >
-              <WhatsAppIcon className="h-4 w-4" />
-              {t("course.getSyllabus")}
-            </a>
-          )}
+          <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+            {brochureUrl ? (
+              <a
+                href={brochureUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-futur inline-flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-bold text-white"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                {t("course.downloadBrochure")}
+              </a>
+            ) : (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-whatsapp inline-flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-bold text-white"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+                {t("course.getSyllabus")}
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </Section>

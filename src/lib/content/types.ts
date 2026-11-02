@@ -308,6 +308,8 @@ export interface CourseTrainer {
 export interface CourseModule {
   title: string;
   topics: string[];
+  /** Optional "3 weeks" / "8 sessions" chip beside the module title. */
+  duration?: string;
 }
 
 /** A student review shown on the course detail page. */
@@ -367,6 +369,8 @@ export interface Course extends BaseItem {
   audiencePoints?: string[];
   /** Heading override for the "What do we offer" benefits block. */
   offerTitle?: string;
+  /** Heading override for the curriculum block (default "Course Curriculum"). */
+  curriculumTitle?: string;
   aboutTitle?: string;
   aboutParagraphs?: string[];
   aboutImage?: string;

@@ -497,6 +497,7 @@ export function CourseEditor({
       curriculum: asRecords(values.curriculum)
         .map((module) => ({
           title: asString(module.title).trim(),
+          duration: asString(module.duration).trim(),
           topics: asList(module.topics).filter(Boolean),
         }))
         .filter((module) => module.title),
@@ -1161,15 +1162,26 @@ export function CourseEditor({
             title="Course curriculum"
             description={`${curriculumCount} module${curriculumCount === 1 ? "" : "s"} · ${topicCount} topic${topicCount === 1 ? "" : "s"}. Each module is one expandable row on the course page.`}
           >
+            <div className="mb-5 grid gap-5 sm:grid-cols-2">
+              <Field
+                label="Curriculum heading"
+                span={2}
+                hint="Leave empty to use “Course Curriculum”. A course-specific heading appears here instead."
+              >
+                {text("curriculumTitle", "Course Curriculum")}
+              </Field>
+            </div>
+
             <RecordListEditor
               items={asRecords(values.curriculum)}
               onChange={(next) => set("curriculum", next)}
-              template={{ title: "", topics: [] }}
+              template={{ title: "", topics: [], duration: "" }}
               addLabel="Add module"
               itemLabel="Module"
               fields={[
                 { key: "title", label: "Module title", placeholder: "React front end", span: 2 },
-                { key: "topics", label: "Topics", type: "list", placeholder: "Components, props and state" },
+                { key: "duration", label: "Duration / sessions label", placeholder: "3 weeks or 8 sessions" },
+                { key: "topics", label: "Topics (one per line)", type: "list", placeholder: "Components, props and state" },
               ]}
             />
           </Panel>

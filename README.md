@@ -145,7 +145,7 @@ when it has no content, so a half-filled course still looks finished:
 | **Who should attend?** (persona bullets) | Basics → "Who should attend" heading + bullets |
 | Tools covered | About & highlights → tools |
 | What you'll learn | About & highlights → outcomes |
-| Course curriculum (modules) | Curriculum |
+| **Course Curriculum** — summary strip (modules · sessions), search, show/hide all, numbered module timeline with per-module session count and optional duration chip, syllabus PDF row | Curriculum tab |
 | What's included (icon grid) | Projects & extras → inclusions |
 | **Stand out with an industry-recognized certification** | Projects & extras → Certification |
 | **Capstone projects** and **Mini projects** (separate headings + counts) | Projects & extras |
