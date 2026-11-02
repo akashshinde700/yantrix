@@ -155,6 +155,32 @@ All eyebrows, headings, intros, empty states and button labels on this page live
 in **Interface text → Course page headings**, so the wording can change without
 touching the per-course content.
 
+### Photos, frames and card effects
+
+- **Mentor portraits** are stored at `public/images/mentors/<slug>.jpg` (600×800).
+  The originals came with a bright royal-blue studio backdrop; they are re-painted
+  to the site navy by `scripts/recolor-portrait-bg.py`, which floods the backdrop
+  inwards from the image border (so hair, glasses and shoulders stay untouched),
+  paints a navy gradient with a cyan key light, and fades the last rows into the
+  page background so there is no seam at the jacket line.
+
+  ```bash
+  pip install pillow
+  python3 scripts/recolor-portrait-bg.py            # all portraits, in place
+  python3 scripts/recolor-portrait-bg.py --dry-run  # report coverage only
+  python3 scripts/recolor-portrait-bg.py path/a.jpg # specific files
+  ```
+
+  Run it again after adding a portrait that still has the old blue backdrop.
+- **`media-frame` / `media-tone`** (`src/app/globals.css`) give every photo the
+  page's own backdrop before it loads: navy gradient, cyan key light at the top,
+  a bottom vignette, and a cool grade on real photographs. The light/vignette is
+  drawn on `::before`, which paints *under* later positioned siblings, so
+  captions, badges and hover overlays keep their contrast.
+- **Animated card borders** (`.aurora-card`, `.sweep-card`) now render *above*
+  full-bleed photos (`.aurora-card::before` is `z-index: 3`). Previously cards
+  whose first child was an `<img>` hid the spinning conic ring completely.
+
 ### Course curricula (written syllabi + PDFs)
 
 Every course ships with a full written outline, not a six-line summary:

@@ -88,7 +88,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
       {/* ── cover ── */}
       <a href={href} tabIndex={-1} aria-hidden="true" className="relative block overflow-hidden">
-        <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-white/10">
+        <div className="media-frame media-tone relative aspect-[16/10] w-full overflow-hidden border-b border-white/10">
           <CourseCover course={course} variant={index} />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#040815]/85 via-[#040815]/10 to-transparent" />
           <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">

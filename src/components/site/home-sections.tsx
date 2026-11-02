@@ -168,7 +168,7 @@ export function CampusGallery() {
               type="button"
               onClick={() => setLightboxIndex(visible.indexOf(photo))}
               className={cn(
-                "aurora-card sweep-card group relative block h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]",
+                "aurora-card sweep-card media-frame media-tone group relative block h-full w-full overflow-hidden rounded-2xl border border-white/10",
                 index % 5 === 0 ? "aspect-[4/5]" : "aspect-[4/3]"
               )}
             >
@@ -470,7 +470,7 @@ export function VideosSection() {
           return (
             <Reveal key={video.id} delay={index * 0.06}>
               <article className="aurora-card group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80">
-                <div className="relative aspect-video w-full overflow-hidden bg-[#050914]">
+                <div className="media-frame aspect-video w-full">
                   {active && id ? (
                     <iframe
                       src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`}
@@ -489,7 +489,7 @@ export function VideosSection() {
                           ? `${t("videos.play")} ${video.title}`
                           : `${video.title} — ${t("videos.comingSoon")}`
                       }
-                      className="group/play relative block h-full w-full"
+                      className="media-tone group/play relative block h-full w-full"
                     >
                       {poster ? (
                         <img
@@ -918,15 +918,17 @@ export function CentresSection() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {centres.map((centre, index) => (
           <Reveal key={centre.id} delay={index * 0.05}>
-            <article className="aurora-card flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80">
+            <article className="aurora-card group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80">
               {centre.image ? (
-                <img
-                  src={centre.image}
-                  alt={`${centre.name} ${t("centres.imageAlt")}`}
-                  loading="lazy"
-                  decoding="async"
-                  className="aspect-[16/9] w-full object-cover"
-                />
+                <div className="media-frame media-tone aspect-[16/9] w-full">
+                  <img
+                    src={centre.image}
+                    alt={`${centre.name} ${t("centres.imageAlt")}`}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
               ) : (
                 <div
                   aria-hidden="true"

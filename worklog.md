@@ -571,3 +571,48 @@ renders 47 module panels, `47 Modules · 243 Sessions`, the brochure row and the
 syllabus link; the other seven pages render 23/24/25/24/25/22/14 panels; all
 eight PDFs return 200; the content API reports 47 modules + 1 syllabus file for
 `seed-4`.
+
+## Photo backdrops repainted, and the card animation that was hiding behind them
+
+The mentor portraits arrived with a bright royal-blue studio backdrop
+(`rgb(10, 69, 149)`). On the dark navy cards that read as a glowing blue
+rectangle, so the animated conic border around each card was invisible — the
+"animation is hiding behind the image" report.
+
+**Portrait backdrops**
+
+- `scripts/recolor-portrait-bg.py` floods the backdrop inwards from the image
+  borders using a strict royal-blue test (`b-g > 62`), so navy and charcoal
+  jackets are *not* eaten (an earlier looser test cut the shoulders). The person
+  is left pixel-for-pixel; the backdrop is repainted with the site's navy
+  gradient plus a cyan key light behind the head.
+- Two dead ends worth remembering: naive alpha compositing left a bright blue
+  chest because a soft mask only covers part of the person, and "unmixing" the
+  edge pixels amplified JPEG chroma into red/yellow outlines. A hard mask with a
+  0.9px feather is the clean answer.
+- The last 16% of each frame fades into the page background, so the studio floor
+  seam disappears and the portrait melts into the card.
+- All 17 portraits re-generated (600×800, 30–38 KB each, 624 KB total).
+
+**Frames instead of raw photo edges**
+
+- New `.media-frame` / `.media-tone` utilities in `globals.css`: navy gradient
+  base, cyan key light, bottom vignette, cool grade for real photographs.
+- Applied to gallery tiles, video posters, centre cards, course covers (listing,
+  hero and related cards) and mentor cards.
+- The light/vignette lives on `::before` and the grade is a `filter` on the image
+  only — captions, badges and hover overlays stay legible.
+
+**Animation visibility**
+
+- `.aurora-card::before` moved from `z-index: -1` to `3` (with
+  `pointer-events: none`). Because the ring is masked to the 1px border band,
+  drawing it above the photo covers nothing but the edge — and image-first cards
+  finally show their spinning ring.
+- `.sweep-card::after` pinned to `z-index: 2` for the same reason.
+
+**Verified**: `tsc`, `eslint`, `next build` clean; `/`, `/courses`,
+`/courses/full-stack-development` and `/about` all 200 with the frame classes
+present (26/8/4/17 occurrences); compiled CSS contains `.media-frame`,
+`.media-tone` and `aurora-card::before { z-index: 3 }`; portrait sheet reviewed
+image by image after the repaint.

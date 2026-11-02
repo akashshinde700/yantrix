@@ -1723,7 +1723,11 @@ body[data-scroll-locked] .placed-track {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
+  /* Above the photo: cards whose first child is an <img> used to hide the whole
+     spinning ring behind it, so the card looked static. The ring only paints in
+     the 1px border band (mask-composite below), so nothing else is covered. */
+  z-index: 3;
+  pointer-events: none;
   border-radius: inherit;
   padding: 1px;
   background: conic-gradient(
@@ -1786,6 +1790,7 @@ body[data-scroll-locked] .placed-track {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 2;
   background: linear-gradient(
     115deg,
     transparent 30%,
@@ -1799,6 +1804,53 @@ body[data-scroll-locked] .placed-track {
 }
 .sweep-card:hover::after {
   transform: translateX(120%);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   MEDIA FRAMES
+   ──────────────────────────────────────────────────────────────────────
+   Photos no longer sit on whatever the file happened to contain. A frame
+   supplies the page's own navy backdrop so letterboxing or a transparent PNG
+   never punches a bright rectangle through the section, plus a cyan key light
+   and a bottom vignette. `media-tone` grades real photographs (gallery,
+   classroom shots) towards the same blue so nothing looks pasted on.
+
+   Layering: the light/vignette lives on `::before`, which paints *under* later
+   positioned siblings — captions, badges and hover overlays keep their
+   contrast. `media-tone` only filters the image, never covers it.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.media-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 6%, rgba(34, 211, 238, 0.18), transparent 58%),
+    linear-gradient(180deg, #0c1836 0%, #070d22 100%);
+}
+
+.media-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(147, 197, 253, 0.16), transparent 55%),
+    linear-gradient(180deg, transparent 55%, rgba(4, 7, 15, 0.7) 100%);
+}
+
+.media-frame > img,
+.media-frame > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Cool grade so warm indoor photos sit in the navy palette. */
+.media-tone > img {
+  filter: saturate(0.88) contrast(1.06) brightness(0.95);
 }
 
 /* Decorative dotted grid behind a section. */
