@@ -647,6 +647,11 @@ export interface SiteContent {
    * `src/lib/content/labels.ts`); the store backfills new keys automatically.
    */
   labels: Record<string, string>;
+  /**
+   * Collections that have held data at least once. A never-filled, empty
+   * collection gets its seed data; a marked one stays empty if emptied.
+   */
+  seededCollections?: CollectionKey[];
 }
 
 /* ────────────────────────────── media ────────────────────────────── */

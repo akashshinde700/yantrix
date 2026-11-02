@@ -502,6 +502,7 @@ const collections: CollectionMap = {
 
 export const DEFAULT_CONTENT: SiteContent = {
   version: 1,
+  seededCollections: [],
   updatedAt: new Date("2024-01-01T00:00:00.000Z").toISOString(),
   settings: {
     name: "Yantrix Technology",

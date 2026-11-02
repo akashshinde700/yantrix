@@ -18,12 +18,11 @@
 import mysql, { type Pool, type RowDataPacket } from "mysql2/promise";
 import { randomUUID } from "node:crypto";
 import { DEFAULT_CONTENT } from "@/lib/content/defaults";
+import { normaliseContent } from "@/lib/content/normalise";
 import type {
   AdminAccount,
   AdminAuditEntry,
   AdminPatch,
-  CollectionKey,
-  ContentItem,
   Enquiry,
   MediaEntry,
   SiteContent,
@@ -164,53 +163,6 @@ function toIso(value: unknown): string {
 }
 
 /* ─────────────────────────── content ─────────────────────────── */
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** Deep-merges stored content over the defaults so new fields never break old data. */
-function mergeDeep<T>(defaults: T, stored: unknown): T {
-  if (Array.isArray(defaults)) {
-    return (Array.isArray(stored) ? stored : defaults) as T;
-  }
-  if (isObject(defaults)) {
-    if (!isObject(stored)) return defaults;
-    const out: Record<string, unknown> = { ...defaults };
-    for (const key of Object.keys(defaults)) {
-      out[key] = mergeDeep(
-        (defaults as Record<string, unknown>)[key],
-        (stored as Record<string, unknown>)[key]
-      );
-    }
-    // keep unknown keys from old data? no — schema is the source of truth
-    return out as T;
-  }
-  return (stored === undefined || stored === null ? defaults : stored) as T;
-}
-
-function normaliseContent(raw: unknown): SiteContent {
-  const merged = mergeDeep<SiteContent>(DEFAULT_CONTENT, raw);
-
-  // Collections: ensure every item has an id / sortOrder / active flag
-  for (const key of Object.keys(merged.collections) as CollectionKey[]) {
-    const list = merged.collections[key];
-    if (!Array.isArray(list)) {
-      merged.collections[key] = DEFAULT_CONTENT.collections[key];
-      continue;
-    }
-    merged.collections[key] = list.map((entry, index) => {
-      const record: Record<string, unknown> = isObject(entry) ? entry : {};
-      return {
-        ...record,
-        id: typeof record.id === "string" && record.id ? record.id : randomUUID(),
-        sortOrder: Number(record.sortOrder ?? index + 1),
-        active: record.active !== false,
-      } as ContentItem;
-    }) as SiteContent["collections"][CollectionKey];
-  }
-  return merged;
-}
 
 async function writeContent(content: SiteContent): Promise<void> {
   const conn = await db();
