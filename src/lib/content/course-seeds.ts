@@ -89,6 +89,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "full-stack-development",
     audience: "Designed for freshers, career switchers and working professionals",
+    audiencePoints: [
+      "Freshers who want their first developer job",
+      "Working professionals switching into web development",
+      "Backend or frontend developers who want to own the full stack",
+      "Freelancers who want to build and ship complete products",
+    ],
     miniProjects: [
       { title: "Quiz application", description: "Timed quiz with scoring and a result screen, built in vanilla JavaScript." },
       { title: "Calculator app", description: "Keyboard-friendly calculator that teaches DOM events and state." },
@@ -329,6 +335,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "web-development",
     audience: "Designed for beginners, designers moving into code and freelancers",
+    audiencePoints: [
+      "Absolute beginners starting with HTML, CSS and JavaScript",
+      "Designers who want to turn mockups into working pages",
+      "Freelancers building sites for clients",
+      "Students preparing for frontend internships",
+    ],
     miniProjects: [
       { title: "Personal portfolio page", description: "Single-page introduction with smooth scrolling and a contact form." },
       { title: "Landing page clone", description: "Rebuild a real product landing page pixel-sharp from a screenshot." },
@@ -455,6 +467,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "python-programming",
     audience: "Designed for absolute beginners, students and analysts moving to code",
+    audiencePoints: [
+      "Absolute beginners writing their first program",
+      "Students who need Python for college projects",
+      "Analysts moving from spreadsheets to automation",
+      "Testers and ops staff automating repetitive work",
+    ],
     miniProjects: [
       { title: "Number guessing game", description: "Loops, conditions and random numbers in one small program." },
       { title: "File organiser script", description: "Sort a messy downloads folder into type-based subfolders." },
@@ -571,6 +589,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "java-programming",
     audience: "Designed for beginners and students targeting enterprise roles",
+    audiencePoints: [
+      "Beginners targeting enterprise development roles",
+      "Students preparing for Java interviews and campus placements",
+      "Developers moving from scripting to structured, typed code",
+      "Working professionals adding Spring Boot to their toolkit",
+    ],
     miniProjects: [
       { title: "Console banking app", description: "Accounts, deposits, transfers and statements with clean OOP design." },
       { title: "Student record manager", description: "CRUD over collections with search and sorting." },
@@ -679,6 +703,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "data-analytics",
     audience: "Designed for graduates, MIS/ops staff and career switchers",
+    audiencePoints: [
+      "Graduates who want an analyst role",
+      "MIS and operations staff moving into analytics",
+      "Career switchers from non-technical backgrounds",
+      "Managers who need to read and question their own data",
+    ],
     miniProjects: [
       { title: "Excel sales dashboard", description: "Pivot tables, slicers and charts over a year of sales data." },
       { title: "SQL customer analysis", description: "Joins and aggregates to answer retention questions." },
@@ -801,6 +831,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "digital-marketing",
     audience: "Designed for freshers, business owners and sales professionals",
+    audiencePoints: [
+      "Freshers looking for a first marketing role",
+      "Business owners who want to run their own campaigns",
+      "Sales professionals moving into digital",
+      "Content creators who want measurable growth",
+    ],
     miniProjects: [
       { title: "Keyword research sprint", description: "Build a keyword map for a real local business." },
       { title: "Content calendar", description: "A month of posts with hooks, captions and hashtags." },
@@ -909,6 +945,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "ui-ux-design",
     audience: "Designed for beginners, developers and graphic designers",
+    audiencePoints: [
+      "Beginners starting a design career",
+      "Developers who want to design better interfaces",
+      "Graphic designers moving into product design",
+      "Founders who need to design their own product",
+    ],
     miniProjects: [
       { title: "Mobile app wireframe", description: "Low-fidelity screens for a booking flow." },
       { title: "Design system starter", description: "Colour, type, spacing and core components in Figma." },
@@ -1021,6 +1063,12 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
   shared({
     slug: "basic-computer-training",
     audience: "Designed for absolute beginners and first-time computer users",
+    audiencePoints: [
+      "Absolute beginners who have never used a computer",
+      "Students who need office tools for college and work",
+      "Homemakers and job seekers returning to the workforce",
+      "Senior citizens who want to use a computer confidently",
+    ],
     miniProjects: [
       { title: "Formatted resume", description: "A clean one-page resume in MS Word." },
       { title: "Household budget", description: "Excel sheet with formulas, totals and a simple chart." },

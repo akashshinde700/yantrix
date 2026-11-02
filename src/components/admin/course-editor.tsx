@@ -778,11 +778,39 @@ export function CourseEditor({
                 </Field>
 
                 <Field
-                  label="Who it is for"
+                  label="Who it is for (headline line)"
                   span={2}
                   hint="Shown with a people icon under the headline, e.g. freshers & working professionals."
                 >
                   {text("audience", "Designed for freshers, career switchers and working professionals")}
+                </Field>
+
+                <Field
+                  label="Who should attend — heading"
+                  span={2}
+                  hint="Leave empty to use the default “Is this course right for you?”."
+                >
+                  {text("audienceTitle", "Is this course right for you?")}
+                </Field>
+
+                <Field
+                  label="Who should attend — bullets"
+                  span={2}
+                  hint="One persona per line. This powers its own “Who should attend?” section on the course page."
+                >
+                  {stringList(
+                    "audiencePoints",
+                    "Freshers looking for their first IT job",
+                    "Add persona"
+                  )}
+                </Field>
+
+                <Field
+                  label="“What do we offer” heading"
+                  span={2}
+                  hint="Optional heading for the benefit cards. Leave empty for “What makes … different”."
+                >
+                  {text("offerTitle", "What do we offer")}
                 </Field>
               </div>
             </Panel>
@@ -1036,7 +1064,10 @@ export function CourseEditor({
               />
             </Panel>
 
-            <Panel title="Certificate" description="The certification block under the included grid.">
+            <Panel
+              title="Certification"
+              description="Its own “Stand out with an industry-recognized certification” section on the course page."
+            >
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Certificate title">{text("certificateTitle", "Certificate of completion")}</Field>
                 <Field label="Certificate text" span={2}>

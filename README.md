@@ -133,6 +133,28 @@ A label added in a newer release appears automatically for existing installs —
 the store backfills missing keys from `DEFAULT_CONTENT`, and the site falls back
 to the built-in default instead of rendering an empty button.
 
+### Course page sections
+
+Every course page is assembled from admin-managed blocks; each one hides itself
+when it has no content, so a half-filled course still looks finished:
+
+| Section | Editable in |
+| --- | --- |
+| About the course + specialisation tracks | Basics · About & highlights |
+| **What do we offer** (benefit cards) | About & highlights → benefit cards (`offerTitle` overrides the heading) |
+| **Who should attend?** (persona bullets) | Basics → "Who should attend" heading + bullets |
+| Tools covered | About & highlights → tools |
+| What you'll learn | About & highlights → outcomes |
+| Course curriculum (modules) | Curriculum |
+| What's included (icon grid) | Projects & extras → inclusions |
+| **Stand out with an industry-recognized certification** | Projects & extras → Certification |
+| **Capstone projects** and **Mini projects** (separate headings + counts) | Projects & extras |
+| Batches, placement, mentor, reviews, FAQs, related, CTA | their own tabs |
+
+All eyebrows, headings, intros, empty states and button labels on this page live
+in **Interface text → Course page headings**, so the wording can change without
+touching the per-course content.
+
 ### Mentors & partner companies
 
 - **Meet Your Mentors** — portrait cards (`aspect-[3/4]`) with the mentor's name,
