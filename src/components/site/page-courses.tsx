@@ -20,7 +20,7 @@ import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
 import { tiltHandlers } from "@/components/site/fx";
-import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { useCollection, useLabels, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { ContentIcon } from "@/components/site/content-icon";
 import { whatsappUrl } from "@/lib/content/helpers";
 import { coursePath } from "@/lib/seo";
@@ -66,6 +66,7 @@ function CourseCover({ course, variant = 0 }: { course: Course; variant?: number
 
 function CourseCard({ course, index }: { course: Course; index: number }) {
   const navigate = useSiteStore((s) => s.navigate);
+  const t = useLabels();
   const href = coursePath(course);
 
   return (
@@ -142,7 +143,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
         <dl className="mt-4 space-y-1.5 text-xs">
           <div className="flex items-center gap-1.5 text-slate-500">
             <Clock className="h-3.5 w-3.5 text-brand-600" aria-hidden="true" />
-            <dt className="sr-only">Duration</dt>
+            <dt className="sr-only">{t("courses.duration")}</dt>
             <dd className="font-semibold">{course.duration || "Duration on enquiry"}</dd>
           </div>
           <div className="flex items-center gap-1.5 text-slate-500">
@@ -154,14 +155,14 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
         <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Course fee</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t("courses.fee")}</p>
             <p className="text-base font-extrabold text-ink">{course.fee || "On request"}</p>
           </div>
           <a
             href={href}
             className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-brand-600 transition-colors hover:text-cyber-300"
           >
-            View details
+            {t("courses.viewDetails")}
             <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" aria-hidden="true" />
             <span className="sr-only"> for {course.title}</span>
           </a>
@@ -172,13 +173,13 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
             onClick={() => navigate("contact", { course: course.title })}
             className="btn-futur btn-shine h-10 flex-1 rounded-xl text-sm font-bold text-white"
           >
-            Enquire now
+            {t("courses.enquire")}
           </Button>
           <a
             href={href}
             className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-3.5 text-sm font-bold text-ink transition-colors hover:border-cyber-300/60 hover:bg-white/5"
           >
-            Details
+            {t("courses.details")}
             <ArrowRight className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
           </a>
         </div>
@@ -194,6 +195,7 @@ export function PageCourses() {
   const chips = useCollection<SimpleItem>("courseChips");
   const section = useSection("coursesPage");
   const settings = useSettings();
+  const t = useLabels();
   const copy = useSiteContent().pages.courses;
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
 
@@ -253,7 +255,7 @@ export function PageCourses() {
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           {/* The cards below are <h3>; this keeps the outline h1 → h2 → h3. */}
           <h2 id="course-grid-heading" className="sr-only">
-            All courses
+            {t("courses.all")}
           </h2>
 
           {/* Mode filter — mirrors the "online / offline" split on course listings */}
@@ -324,7 +326,7 @@ export function PageCourses() {
                 onClick={() => useSiteStore.getState().navigate("contact")}
                 className="font-bold text-brand-700 underline-offset-2 hover:underline"
               >
-                Talk to us
+                {t("courses.talkToUs")}
               </button>{" "}
               — we regularly add new programs.
             </p>
@@ -362,7 +364,7 @@ export function PageCourses() {
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-emerald-600"
               >
                 <WhatsAppIcon className="h-4.5 w-4.5" />
-                WhatsApp Us
+                {t("courses.whatsapp")}
               </a>
             </div>
           </div>

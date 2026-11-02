@@ -60,8 +60,10 @@ npm run start
 | Hero slides        | Slides, images, headlines, CTAs, trust chips                                                                                                                          |
 | Courses            | Course cards **and** a full page per course: cover image, fee card, about copy, specialisations, outcomes, tools, module-by-module curriculum, reviews, FAQs, CTA, SEO |
 | FAQs               | Q&A list (also feeds `FAQPage` structured data)                                                                                                                       |
-| Page sections      | Heading/eyebrow/description for every section + hide a section; feature cards, stats, tech ticker, training modes, placement points, quick facts, after-enquiry steps, **offer ticker, campus gallery, partners, videos, testimonials, centres** |
+| Page sections      | Heading/eyebrow/description for every section + hide a section; feature cards, stats, tech ticker, training modes, placement points, quick facts, after-enquiry steps, **offer ticker, campus gallery, partners, videos, testimonials, centres** — every list supports add / edit / **duplicate** / reorder / hide / delete |
 | Pages & navigation | Page-specific copy (home / courses / about / contact) and header/footer links                                                                                         |
+| Interface text     | Every button, badge and micro-copy line on the site (~120 strings) grouped by area: header/footer, shared buttons, hero & popup, home, courses, course detail page, contact, floating helpers, legal pages |
+| Media library      | Upload (drag & drop, auto-resized), preview, copy-URL and delete every image used across the site                                                                     |
 | SEO · AEO · GEO    | Titles, descriptions, keywords, canonicals, OpenGraph, verification tokens, analytics IDs, local SEO coordinates, JSON-LD toggles, `llms.txt` facts                   |
 | Enquiries          | Search, statuses (new → contacted → enrolled → closed), internal notes, CSV export                                                                                    |
 | Admin users        | Multiple admins with `owner` / `editor` / `viewer` roles                                                                                                              |
@@ -111,6 +113,32 @@ when it has no content, so nothing breaks before you fill it in.
 Footer quick links can point at any of these blocks by filling in the optional
 **section anchor** (`gallery`, `videos`, `testimonials`, `brochure`, `app`,
 `centres`) — handy for a "Gallery" or "Our centres" link.
+
+### Nothing is hard-coded
+
+Every visible string, image and list on the public site comes from the content
+document, so the site can be reworded end-to-end from the admin panel:
+
+- **Headings & intros** → Page sections / Pages & navigation
+- **Buttons, badges, form labels, empty states, aria labels** → Interface text
+  (`content.labels`, ~120 keys, defaults in `src/lib/content/labels.ts`)
+- **Lists** (courses, trainers, FAQs, gallery, videos, testimonials, centres…)
+  → their own admin screens, each with add / edit / duplicate / reorder / hide /
+  delete
+- **Images** → Media library (stored in the content store, served from
+  `/media/<id>`, so they survive redeploys)
+
+A label added in a newer release appears automatically for existing installs —
+the store backfills missing keys from `DEFAULT_CONTENT`, and the site falls back
+to the built-in default instead of rendering an empty button.
+
+### Design system (futuristic layer)
+
+The dark "universe" theme ships reusable effects in `src/app/globals.css`:
+`aurora-card` (rotating gradient ring), `sweep-card` (light sweep on hover),
+`hud-chip`, `grid-veil`, `glass`, `text-gradient-cyber`, `btn-futur`,
+`card-glow-dark` and the marquee `ticker-track`. All of them switch off for
+`prefers-reduced-motion`.
 
 ### Roles
 

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { DEFAULT_CONTENT } from "@/lib/content/defaults";
+import { defaultLabel } from "@/lib/content/labels";
 import { activeItems, allItems } from "@/lib/content/helpers";
 import type {
   BaseItem,
@@ -50,4 +51,22 @@ export function useAllItems(key: CollectionKey): BaseItem[] {
 /** Copy for one page section. */
 export function useSection(key: SectionKey): SectionCopy {
   return useContext(ContentContext).sections[key];
+}
+
+/**
+ * Interface text lookup: `const t = useLabels(); t("footer.explore")`.
+ *
+ * Falls back to the built-in default for a key that is not in the document yet
+ * (a label added in a newer release, before the admin saves anything), so a
+ * missing key can never render `undefined` on the site.
+ */
+export function useLabels() {
+  const labels = useContext(ContentContext).labels;
+  return useMemo(() => {
+    const table = labels ?? {};
+    return (key: string) => {
+      const value = table[key];
+      return typeof value === "string" && value.trim() ? value : defaultLabel(key);
+    };
+  }, [labels]);
 }

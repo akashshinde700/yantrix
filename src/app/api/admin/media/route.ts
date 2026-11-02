@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { canWrite, getSessionAdmin } from "@/lib/admin/auth";
-import { addAuditEntry, saveMedia } from "@/lib/content/store";
+import { addAuditEntry, deleteMedia, listMedia, saveMedia } from "@/lib/content/store";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +22,30 @@ function sniff(bytes: Buffer): string | null {
  * from /media/<id>, so they survive redeploys and work on read-only hosts.
  * The admin form resizes photos in the browser before uploading.
  */
+/** List every uploaded image so the media library can show them. */
+export async function GET() {
+  const admin = await getSessionAdmin();
+  if (!admin) {
+    return NextResponse.json({ ok: false, error: "Unauthorised" }, { status: 401 });
+  }
+  return NextResponse.json({ ok: true, items: await listMedia() });
+}
+
+/** Remove an image. Anything still pointing at it falls back to no image. */
+export async function DELETE(request: NextRequest) {
+  const admin = await getSessionAdmin();
+  if (!admin || !canWrite(admin.role)) {
+    return NextResponse.json({ ok: false, error: "Unauthorised" }, { status: 401 });
+  }
+  const id = new URL(request.url).searchParams.get("id")?.trim();
+  if (!id) {
+    return NextResponse.json({ ok: false, error: "No image selected." }, { status: 400 });
+  }
+  await deleteMedia(id);
+  await addAuditEntry({ actorEmail: admin.email, action: "deleteMedia", target: id });
+  return NextResponse.json({ ok: true, items: await listMedia() });
+}
+
 export async function POST(request: NextRequest) {
   const admin = await getSessionAdmin();
   if (!admin || !canWrite(admin.role)) {

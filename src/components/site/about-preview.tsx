@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { useSiteStore } from "@/lib/store";
-import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { useCollection, useLabels, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import type { SimpleItem } from "@/lib/content/types";
 
 export function AboutPreview() {
   const navigate = useSiteStore((s) => s.navigate);
   const settings = useSettings();
+  const t = useLabels();
   const section = useSection("about");
   const homeCopy = useSiteContent().pages.home;
   const checklist = useCollection<SimpleItem>("checklist").map((item) => item.label);
@@ -70,14 +71,14 @@ export function AboutPreview() {
               onClick={() => navigate("about")}
               className="btn-futur btn-shine h-11 rounded-full px-6 font-bold text-white"
             >
-              More About Us
+              {t("home.moreAbout")}
             </Button>
             <Button
               onClick={() => navigate("contact")}
               variant="outline"
               className="h-11 rounded-full border-brand-200 px-6 font-bold text-brand-700 hover:bg-brand-50 hover:text-brand-800"
             >
-              Talk to a Counsellor
+              {t("home.talkCounsellor")}
             </Button>
           </div>
         </div>

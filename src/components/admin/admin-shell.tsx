@@ -9,6 +9,7 @@ import {
   ChevronRight,
   ExternalLink,
   HelpCircle,
+  Images,
   LayoutDashboard,
   Layers,
   LogOut,
@@ -22,6 +23,7 @@ import {
   UserRound,
   Award,
   Send,
+  Type,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -44,6 +46,8 @@ const NAV: { href: string; label: string; icon: typeof LayoutDashboard; write?: 
   { href: "/admin/placed-students", write: true, label: "Placed students", icon: Award },
   { href: "/admin/sections", write: true, label: "Page sections", icon: Layers },
   { href: "/admin/pages", write: true, label: "Pages & navigation", icon: BarChart3 },
+  { href: "/admin/labels", write: true, label: "Interface text", icon: Type },
+  { href: "/admin/media", write: true, label: "Media library", icon: Images },
   { href: "/admin/seo", write: true, label: "SEO · AEO · GEO", icon: Search },
   { href: "/admin/enquiries", label: "Enquiries", icon: Mail },
   { href: "/admin/email", write: true, label: "Email notifications", icon: Send },

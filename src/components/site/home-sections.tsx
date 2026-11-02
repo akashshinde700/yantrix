@@ -21,7 +21,7 @@ import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { ContentIcon } from "@/components/site/content-icon";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
-import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { useCollection, useLabels, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
 import { useSiteStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -91,6 +91,7 @@ export function AnnouncementTicker() {
 /* ══════════════════════════════ gallery ══════════════════════════════ */
 
 export function CampusGallery() {
+  const t = useLabels();
   const photos = useCollection<GalleryPhoto>("gallery");
   const section = useSection("gallery");
   const [filter, setFilter] = useState("All");
@@ -129,6 +130,10 @@ export function CampusGallery() {
       id="gallery"
       className="relative mx-auto max-w-7xl scroll-mt-24 px-4 py-14 sm:px-6 sm:py-20"
     >
+      <div
+        aria-hidden="true"
+        className="grid-veil pointer-events-none absolute inset-x-4 top-8 -z-10 h-56 opacity-60 sm:inset-x-6"
+      />
       <SectionHeading
         dark
         align="center"
@@ -154,7 +159,7 @@ export function CampusGallery() {
                     : "border-white/12 bg-white/[0.04] text-slate-300 hover:border-cyber-300/50 hover:text-white"
                 )}
               >
-                {category}
+                {category === "All" ? t("gallery.photoLabel") : category}
               </button>
             );
           })}
@@ -168,7 +173,7 @@ export function CampusGallery() {
               type="button"
               onClick={() => setLightbox(photo)}
               className={cn(
-                "group relative block h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]",
+                "aurora-card sweep-card group relative block h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]",
                 index % 5 === 0 ? "aspect-[4/5]" : "aspect-[4/3]"
               )}
             >
@@ -208,7 +213,7 @@ export function CampusGallery() {
           <button
             type="button"
             onClick={() => setLightbox(null)}
-            aria-label="Close photo"
+            aria-label={t("gallery.close")}
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20"
           >
             <X className="h-5 w-5" />
@@ -300,12 +305,12 @@ export function PartnersSection() {
                   href={partner.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-full flex-col rounded-2xl border border-white/10 bg-[#0a1230]/80 p-4 transition-colors hover:border-cyber-300/40 hover:bg-white/[0.05]"
+                  className="aurora-card group flex h-full flex-col rounded-2xl border border-white/10 bg-[#0a1230]/80 p-4 transition-colors hover:border-cyber-300/40 hover:bg-white/[0.05]"
                 >
                   {inner}
                 </a>
               ) : (
-                <div className="group flex h-full flex-col rounded-2xl border border-white/10 bg-[#0a1230]/80 p-4">
+                <div className="aurora-card group flex h-full flex-col rounded-2xl border border-white/10 bg-[#0a1230]/80 p-4">
                   {inner}
                 </div>
               )}
@@ -335,6 +340,7 @@ function youtubeThumb(id: string): string {
 }
 
 export function VideosSection() {
+  const t = useLabels();
   const videos = useCollection<VideoItem>("videos");
   const section = useSection("videos");
   const settings = useSettings();
@@ -363,7 +369,7 @@ export function VideosSection() {
             className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 text-xs font-bold text-white transition-colors hover:border-cyber-300/60 hover:bg-white/10"
           >
             <Play className="h-3.5 w-3.5" aria-hidden="true" />
-            View more on YouTube
+            {t("videos.viewMore")}
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
         ) : null}
@@ -377,7 +383,7 @@ export function VideosSection() {
 
           return (
             <Reveal key={video.id} delay={index * 0.06}>
-              <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80">
+              <article className="aurora-card group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80">
                 <div className="relative aspect-video w-full overflow-hidden bg-[#050914]">
                   {active && id ? (
                     <iframe
@@ -392,7 +398,11 @@ export function VideosSection() {
                       type="button"
                       onClick={() => (id ? setPlaying(video.id) : undefined)}
                       disabled={!id}
-                      aria-label={id ? `Play ${video.title}` : `${video.title} — video coming soon`}
+                      aria-label={
+                        id
+                          ? `${t("videos.play")} ${video.title}`
+                          : `${video.title} — ${t("videos.comingSoon")}`
+                      }
                       className="group/play relative block h-full w-full"
                     >
                       {poster ? (
@@ -445,7 +455,7 @@ export function VideosSection() {
                   ) : null}
                   {!id ? (
                     <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                      Video coming soon
+                      {t("videos.comingSoon")}
                     </p>
                   ) : null}
                 </div>
@@ -461,6 +471,7 @@ export function VideosSection() {
 /* ══════════════════════════════ testimonials ══════════════════════════════ */
 
 export function TestimonialsSection() {
+  const t = useLabels();
   const testimonials = useCollection<Testimonial>("testimonials");
   const section = useSection("testimonials");
   const [playing, setPlaying] = useState<string | null>(null);
@@ -487,7 +498,7 @@ export function TestimonialsSection() {
 
           return (
             <Reveal key={testimonial.id} delay={index * 0.06}>
-              <figure className="flex h-full flex-col rounded-2xl border border-white/10 bg-[#0a1230]/80 p-5">
+              <figure className="aurora-card flex h-full flex-col rounded-2xl border border-white/10 bg-[#0a1230]/80 p-5">
                 {active && id ? (
                   <div className="mb-4 aspect-video w-full overflow-hidden rounded-xl">
                     <iframe
@@ -532,7 +543,7 @@ export function TestimonialsSection() {
                     className="mt-4 inline-flex items-center gap-2 self-start rounded-full border border-cyber-300/40 bg-cyber-500/10 px-3.5 py-1.5 text-[11px] font-bold text-cyber-200 transition-colors hover:bg-cyber-500/20"
                   >
                     <Play className="h-3 w-3" aria-hidden="true" />
-                    Watch story
+                    {t("testimonials.watch")}
                   </button>
                 ) : null}
 
@@ -571,6 +582,7 @@ export function TestimonialsSection() {
 /* ══════════════════════════════ brochure ══════════════════════════════ */
 
 export function BrochureSection() {
+  const t = useLabels();
   const section = useSection("brochure");
   const copy = useSiteContent().pages.home;
   const settings = useSettings();
@@ -587,7 +599,7 @@ export function BrochureSection() {
       aria-labelledby="brochure-heading"
       className="relative mx-auto max-w-7xl scroll-mt-24 px-4 py-14 sm:px-6 sm:py-16"
     >
-      <div className="grid items-center gap-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1738] via-[#081128] to-[#070d22] p-6 sm:p-9 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="aurora-card grid items-center gap-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1738] via-[#081128] to-[#070d22] p-6 sm:p-9 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.32em] text-cyber-300">
             {section.eyebrow}
@@ -631,7 +643,7 @@ export function BrochureSection() {
                 onClick={() => navigate("contact")}
                 className="btn-futur h-11 rounded-full px-6 text-sm font-bold text-white"
               >
-                Request the brochure
+                {t("brochure.request")}
                 <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
               </Button>
             )}
@@ -642,7 +654,7 @@ export function BrochureSection() {
               className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 text-sm font-bold text-white transition-colors hover:border-cyber-300/60 hover:bg-white/10"
             >
               <WhatsAppIcon className="h-4 w-4" />
-              Get it on WhatsApp
+              {t("brochure.whatsapp")}
             </a>
           </div>
         </div>
@@ -651,7 +663,7 @@ export function BrochureSection() {
           {copy.brochureImage ? (
             <img
               src={copy.brochureImage}
-              alt="Yantrix Technology brochure cover"
+              alt={t("brochure.coverAlt")}
               loading="lazy"
               decoding="async"
               className="max-h-72 w-auto rounded-xl border border-white/10 shadow-[0_24px_60px_-24px_rgba(2,8,23,0.9)]"
@@ -660,7 +672,7 @@ export function BrochureSection() {
             <div className="relative w-full max-w-[260px] rotate-2 rounded-2xl border border-white/15 bg-white/[0.06] p-5 shadow-[0_24px_60px_-24px_rgba(2,8,23,0.9)]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-cyber-300">
-                  Brochure
+                  {t("brochure.badge")}
                 </span>
                 <Download className="h-4 w-4 text-cyber-300" aria-hidden="true" />
               </div>
@@ -668,7 +680,7 @@ export function BrochureSection() {
                 {settings.shortName || settings.name}
               </p>
               <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
-                Programs · Batches · Fees · Placement
+                {t("brochure.coverLines")}
               </p>
               <div aria-hidden="true" className="mt-4 space-y-1.5">
                 {[90, 76, 84, 62, 70].map((width, index) => (
@@ -690,6 +702,7 @@ export function BrochureSection() {
 /* ══════════════════════════════ mobile app ══════════════════════════════ */
 
 export function AppSection() {
+  const t = useLabels();
   const section = useSection("app");
   const copy = useSiteContent().pages.home;
   const settings = useSettings();
@@ -704,7 +717,7 @@ export function AppSection() {
       aria-labelledby="app-heading"
       className="relative mx-auto max-w-7xl scroll-mt-24 px-4 py-14 sm:px-6 sm:py-16"
     >
-      <div className="grid items-center gap-8 overflow-hidden rounded-3xl border border-white/10 bg-[#0a1230]/80 p-6 sm:p-9 lg:grid-cols-[1fr_auto]">
+      <div className="aurora-card grid items-center gap-8 overflow-hidden rounded-3xl border border-white/10 bg-[#0a1230]/80 p-6 sm:p-9 lg:grid-cols-[1fr_auto]">
         <div>
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.32em] text-cyber-300">
             {section.eyebrow}
@@ -736,7 +749,7 @@ export function AppSection() {
                 onClick={() => navigate("contact")}
                 className="btn-futur h-11 rounded-full px-6 text-sm font-bold text-white"
               >
-                Ask about the app
+                {t("app.ask")}
                 <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
               </Button>
             )}
@@ -747,7 +760,7 @@ export function AppSection() {
               className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 text-sm font-bold text-white transition-colors hover:border-cyber-300/60 hover:bg-white/10"
             >
               <WhatsAppIcon className="h-4 w-4" />
-              Ask on WhatsApp
+              {t("app.whatsapp")}
             </a>
           </div>
         </div>
@@ -758,7 +771,7 @@ export function AppSection() {
               {copy.appImage ? (
                 <img
                   src={copy.appImage}
-                  alt="Yantrix learning app screenshot"
+                  alt={t("app.imageAlt")}
                   loading="lazy"
                   decoding="async"
                   className="h-[300px] w-full object-cover"
@@ -769,10 +782,10 @@ export function AppSection() {
                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-cyber-300">
                       {settings.shortName || "Yantrix"}
                     </p>
-                    <p className="mt-1 text-xs font-bold text-white">My batch</p>
+                    <p className="mt-1 text-xs font-bold text-white">{t("app.previewTitle")}</p>
                   </div>
                   <div className="space-y-2">
-                    {["Recorded classes", "Notes & PDFs", "Assignments", "Doubt support"].map(
+                    {[t("app.previewRow1"), t("app.previewRow2"), t("app.previewRow3"), t("app.previewRow4")].map(
                       (row) => (
                         <div
                           key={row}
@@ -784,7 +797,7 @@ export function AppSection() {
                       )
                     )}
                   </div>
-                  <p className="text-[9px] text-slate-500">App preview</p>
+                  <p className="text-[9px] text-slate-500">{t("app.previewNote")}</p>
                 </div>
               )}
             </div>
@@ -798,6 +811,7 @@ export function AppSection() {
 /* ══════════════════════════════ centres ══════════════════════════════ */
 
 export function CentresSection() {
+  const t = useLabels();
   const centres = useCollection<Centre>("centres");
   const section = useSection("centres");
   if (section.hidden || centres.length === 0) return null;
@@ -818,11 +832,11 @@ export function CentresSection() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {centres.map((centre, index) => (
           <Reveal key={centre.id} delay={index * 0.05}>
-            <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80">
+            <article className="aurora-card flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80">
               {centre.image ? (
                 <img
                   src={centre.image}
-                  alt={`${centre.name} centre`}
+                  alt={`${centre.name} ${t("centres.imageAlt")}`}
                   loading="lazy"
                   decoding="async"
                   className="aspect-[16/9] w-full object-cover"
@@ -868,7 +882,7 @@ export function CentresSection() {
                       className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-cyber-300/40 bg-cyber-500/10 px-3.5 text-xs font-bold text-cyber-200 transition-colors hover:bg-cyber-500/20"
                     >
                       <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-                      Directions
+                      {t("centres.call")}
                     </a>
                   ) : null}
                 </div>

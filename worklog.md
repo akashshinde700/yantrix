@@ -257,3 +257,59 @@ all admin-editable and all self-hiding when empty.
   round-trips through the admin API and appears/disappears on the page, footer
   hash links emit `/#gallery`, and tsc + eslint + next build are clean.
 - Shipped in PR #12, merged to `main` as `c9b5a00`.
+
+## Everything dynamic + media library + futuristic pass (PR #14)
+
+Goal: no user-facing string, image or list should need a developer. Plus the
+two items left over from the earlier audit (footer column headings and the
+course-page labels), a duplicate action for every list and a visual upgrade.
+
+**Interface text (`content.labels`)**
+
+- NEW `src/lib/content/labels.ts`: `LABEL_GROUPS` (the single source of truth for
+  both the defaults and the admin form) → **118 keys** across 9 groups: header &
+  footer, shared buttons, hero & popup, home page, courses page, course detail
+  page, contact page, floating helpers, legal pages.
+- `SiteContent` gained `labels: Record<string, string>`; `DEFAULT_CONTENT` seeds
+  it from `LABEL_DEFAULTS`. Because the store already merges defaults over saved
+  content, every existing install picks the new keys up on the next read.
+- NEW `useLabels()` in the provider: `const t = useLabels(); t("footer.explore")`,
+  falling back to the built-in default when a key is missing or blank — a missing
+  key can never render an empty button.
+- NEW admin screen **Interface text** (`/admin/labels`), generated from
+  `LABEL_GROUPS`. `SchemaForm` gained a `flatKeys` mode so `footer.exploreHeading`
+  is stored verbatim instead of being split into nested objects.
+- Wired through: header, footer, hero, CTA band, about, FAQ, both course lists,
+  the whole course detail page (including all 15 section eyebrows, headings and
+  intros), contact, placed students, trainers, gallery/videos/testimonials/
+  brochure/app/centres, welcome popup, WhatsApp bubble, guide, intro door, skip
+  link and the legal pages.
+
+**Duplicate**
+
+- New `duplicateItem` op in `/api/admin/content` + a copy button on every row of
+  the collection editor: the copy lands right after the original, gets a
+  "(copy)" suffix, its own id (and its own slug for courses), and starts
+  **hidden** so an accidental duplicate can never go live.
+
+**Media library**
+
+- `listMedia` / `deleteMedia` in both stores (MySQL `media` table, JSON
+  `data/media`), `GET` + `DELETE` on `/api/admin/media`, and a new admin screen
+  (`/admin/media`): drag-and-drop upload with browser-side resize, thumbnails,
+  copy-URL and delete.
+
+**Futuristic pass**
+
+- `globals.css`: `aurora-card` (rotating conic-gradient ring via `@property`),
+  `sweep-card` (hover light sweep), `hud-chip`, `grid-veil` — all disabled for
+  reduced-motion.
+- Applied to the gallery, partners, videos, testimonials, centres, brochure and
+  app blocks and to every card on the course detail page (18 on home, 25 on a
+  course page).
+
+**Verified**: `tsc --noEmit`, `eslint` and `next build` clean; all public routes
+200; an admin label edit ("Explore QA") rendered on both the home page and a
+course page, then reverted; gallery and course duplication round-tripped and
+cleaned up (hidden course copy 404s); media upload → list → serve → delete cycle
+checked end to end.

@@ -58,7 +58,14 @@ export interface AdminGroup {
 
 type Values = Record<string, unknown>;
 
-function getPath(values: Values, path: string): unknown {
+/**
+ * Flat mode: the field name IS the key, dots included.
+ * Used by the interface-text editor, where keys like `footer.exploreHeading`
+ * are stored verbatim in `content.labels` and must not be turned into nested
+ * objects.
+ */
+function getPath(values: Values, path: string, flat = false): unknown {
+  if (flat) return values[path];
   return path.split(".").reduce<unknown>((acc, key) => {
     if (acc && typeof acc === "object") return (acc as Values)[key];
     return undefined;
@@ -91,15 +98,18 @@ export function SchemaForm({
   intro,
   onSubmit,
   layout = "page",
+  flatKeys = false,
 }: {
   groups: AdminGroup[];
   initial: Values;
-  op?: "updateSettings" | "updateSeo" | "updateSections" | "updatePages";
+  op?: "updateSettings" | "updateSeo" | "updateSections" | "updatePages" | "updateLabels";
   submitLabel?: string;
   intro?: string;
   /** Custom save handler (used by the collection editor dialogs). */
   onSubmit?: (values: Values) => Promise<{ ok: boolean; error?: string }>;
   layout?: "page" | "dialog";
+  /** Treat field names as literal keys instead of dot-notation paths. */
+  flatKeys?: boolean;
 }) {
   const [values, setValues] = useState<Values>(initial);
   const [saving, setSaving] = useState(false);
@@ -109,7 +119,9 @@ export function SchemaForm({
   const router = useRouter();
 
   const update = (name: string, value: unknown) => {
-    setValues((current) => setPath(current, name, value));
+    setValues((current) =>
+      flatKeys ? { ...current, [name]: value } : setPath(current, name, value)
+    );
     setDirty(true);
   };
 
@@ -123,7 +135,7 @@ export function SchemaForm({
     for (const group of groups) {
       for (const field of group.fields) {
         if (!field.pattern) continue;
-        const raw = getPath(values, field.name);
+        const raw = getPath(values, field.name, flatKeys);
         const text = typeof raw === "string" ? raw.trim() : "";
         if (!text) continue; // empty is allowed
         try {
@@ -179,7 +191,7 @@ export function SchemaForm({
           </header>
           <div className="grid gap-5 sm:grid-cols-2">
             {group.fields.map((field) => {
-              const value = getPath(values, field.name);
+              const value = getPath(values, field.name, flatKeys);
               return (
                 <div
                   key={field.name}

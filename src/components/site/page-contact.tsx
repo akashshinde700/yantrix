@@ -28,7 +28,7 @@ import { Reveal } from "@/components/site/reveal";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { HeroDecor } from "@/components/site/svg-decor";
 import { useSiteStore } from "@/lib/store";
-import { useCollection, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { useCollection, useLabels, useSection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { emailHref, fullAddress, phoneHref, whatsappUrl } from "@/lib/content/helpers";
 import type { Course, SimpleItem } from "@/lib/content/types";
 
@@ -65,6 +65,7 @@ type ContactFormValues = z.input<typeof contactFormSchema>;
 
 export function PageContact() {
   const settings = useSettings();
+  const t = useLabels();
   const copy = useSiteContent().pages.contact;
   const section = useSection("contactPage");
   const courses = useCollection<Course>("courses");
@@ -171,14 +172,14 @@ export function PageContact() {
                       className="inline-flex h-11 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-bold text-white transition-colors hover:bg-emerald-600"
                     >
                       <WhatsAppIcon className="h-4.5 w-4.5" />
-                      Chat on WhatsApp
+                      {t("contact.chatWhatsapp")}
                     </a>
                     <Button
                       variant="outline"
                       onClick={() => setSubmitted(false)}
                       className="h-11 rounded-full border-brand-200 px-6 font-bold text-brand-700 hover:bg-brand-50"
                     >
-                      Send Another Enquiry
+                      {t("contact.sendAnother")}
                     </Button>
                   </div>
                 </div>
@@ -293,7 +294,7 @@ export function PageContact() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>
-                              Message <span className="text-xs font-normal text-muted-foreground">(optional)</span>
+                              {t("contact.message")} <span className="text-xs font-normal text-muted-foreground">(optional)</span>
                             </FormLabel>
                             <FormControl>
                               <Textarea
@@ -331,7 +332,7 @@ export function PageContact() {
                         ) : (
                           <>
                             <Send className="mr-2 h-4.5 w-4.5" aria-hidden="true" />
-                            Send Enquiry
+                            {t("contact.send")}
                           </>
                         )}
                       </Button>
@@ -394,7 +395,7 @@ export function PageContact() {
                   className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-emerald-700 shadow-md transition-all hover:-translate-y-0.5 hover:bg-emerald-50"
                 >
                   <WhatsAppIcon className="h-5 w-5" />
-                  Start WhatsApp Chat
+                  {t("contact.startWhatsapp")}
                 </a>
               </div>
             </Reveal>

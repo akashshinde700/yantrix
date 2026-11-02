@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSettings } from "@/lib/content/provider";
+import { useLabels, useSettings } from "@/lib/content/provider";
 import { ENTERED_EVENT, ENTERED_KEY } from "@/components/site/universe/chapters";
 import { cn } from "@/lib/utils";
 import { soundPreference, startAmbient } from "@/components/site/universe/ambient-sound";
@@ -277,6 +277,7 @@ function DoorPanel({ side, phase }: { side: "left" | "right"; phase: Phase }) {
 
 export function DoorIntro() {
   const settings = useSettings();
+  const t = useLabels();
   const [phase, setPhase] = useState<Phase>("idle");
   const [visible, setVisible] = useState(true);
   const [autoLeft, setAutoLeft] = useState(AUTO_OPEN_SECONDS);
@@ -446,10 +447,10 @@ export function DoorIntro() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-cyan-300" />
           </span>
-          Open the door
+          {t("door.open")}
         </button>
         <p className="text-xs text-slate-400" aria-live="polite">
-          {phase === "idle" && autoLeft > 0 ? <>Opens automatically in <span className="font-semibold text-[#e8cf98]">{autoLeft}s</span> · </> : null}
+          {phase === "idle" && autoLeft > 0 ? <>{t("door.autoOpen")} <span className="font-semibold text-[#e8cf98]">{autoLeft}s</span> · </> : null}
           Press <kbd className="rounded border border-white/15 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">Enter</kbd> to open ·{" "}
           <kbd className="rounded border border-white/15 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">Esc</kbd> to skip
         </p>

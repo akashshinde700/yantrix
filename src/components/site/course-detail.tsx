@@ -31,7 +31,7 @@ import { ContentIcon } from "@/components/site/content-icon";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { CtaBand } from "@/components/site/cta-band";
 import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
-import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { useCollection, useLabels, useSettings, useSiteContent } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
 import { courseFaqs, courseHeadline, coursePath } from "@/lib/seo";
 import { getIcon } from "@/lib/content/icons";
@@ -42,7 +42,7 @@ import { cn } from "@/lib/utils";
 /* ─────────────────────────────── shared bits ─────────────────────────────── */
 
 const CARD =
-  "relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80 backdrop-blur-sm";
+  "aurora-card sweep-card relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]/80 backdrop-blur-sm";
 
 function Section({
   id,
@@ -175,6 +175,7 @@ function UrgencyStrip({
   onEnquire: () => void;
 }) {
   const left = useCountdown(startDate);
+  const t = useLabels();
   if (!note && !left) return null;
 
   const units = left
@@ -202,7 +203,7 @@ function UrgencyStrip({
         {units.length > 0 ? (
           <div className="flex items-center gap-1.5">
             <span className="mr-1 hidden text-[11px] font-bold uppercase tracking-wider text-slate-400 sm:inline">
-              Batch starts in
+              {t("course.batchStarts")}
             </span>
             {units.map((unit) => (
               <span
@@ -242,6 +243,7 @@ function UrgencyStrip({
  */
 export function CourseDetail({ slug }: { slug: string }) {
   const content = useSiteContent();
+  const t = useLabels();
   const settings = useSettings();
   const courses = useCollection<Course>("courses");
   const navigate = useSiteStore((s) => s.navigate);
@@ -326,7 +328,7 @@ export function CourseDetail({ slug }: { slug: string }) {
               <li aria-hidden="true">/</li>
               <li>
                 <a href="/courses" className="transition-colors hover:text-white">
-                  Courses
+                  {t("course.breadcrumb")}
                 </a>
               </li>
               <li aria-hidden="true">/</li>
@@ -388,20 +390,20 @@ export function CourseDetail({ slug }: { slug: string }) {
                 {course.instructor ? (
                   <div className="flex items-center gap-2">
                     <UserRound className="h-4 w-4 text-cyber-300" aria-hidden="true" />
-                    <dt className="sr-only">Instructor</dt>
+                    <dt className="sr-only">{t("course.instructor")}</dt>
                     <dd>{course.instructor}</dd>
                   </div>
                 ) : null}
                 {course.language ? (
                   <div className="flex items-center gap-2">
                     <Languages className="h-4 w-4 text-cyber-300" aria-hidden="true" />
-                    <dt className="sr-only">Language</dt>
+                    <dt className="sr-only">{t("course.language")}</dt>
                     <dd>{course.language}</dd>
                   </div>
                 ) : null}
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-cyber-300" aria-hidden="true" />
-                  <dt className="sr-only">Location</dt>
+                  <dt className="sr-only">{t("course.location")}</dt>
                   <dd>
                     {modes.includes("Offline") ? `Classroom in ${city || "Pune"}` : "Live online"} ·{" "}
                     {modes.join(" / ")}
@@ -414,7 +416,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                   onClick={() => navigate("contact", { course: course.title })}
                   className="btn-futur h-12 rounded-full px-7 text-base font-bold text-white"
                 >
-                  Enquire for this course
+                  {t("course.enquire")}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                 </Button>
                 <a
@@ -424,7 +426,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                   className="btn-whatsapp inline-flex h-12 items-center gap-2 rounded-full px-6 text-base font-bold text-white"
                 >
                   <WhatsAppIcon className="h-5 w-5" />
-                  Ask on WhatsApp
+                  {t("course.askWhatsapp")}
                 </a>
               </div>
             </div>
@@ -461,7 +463,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyber-300">
-                      Course fee
+                      {t("course.fee")}
                     </p>
                     <p className="mt-1 text-3xl font-extrabold leading-none text-white">
                       {course.fee || "On request"}
@@ -479,7 +481,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                   onClick={() => navigate("contact", { course: course.title })}
                   className="btn-futur mt-4 h-11 w-full rounded-xl text-sm font-bold text-white"
                 >
-                  Enquire now
+                  {t("course.enquireNow")}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                 </Button>
 
@@ -552,7 +554,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ OVERVIEW / ABOUT ═══════════════ */}
       <Section
         id="overview"
-        eyebrow="About the course"
+        eyebrow={t("cp.aboutEyebrow")}
         title={course.aboutTitle || `About the ${course.title} course`}
       >
         <div className={cn("grid gap-8", course.aboutImage ? "lg:grid-cols-[1.1fr_0.9fr]" : "")}>
@@ -581,7 +583,7 @@ export function CourseDetail({ slug }: { slug: string }) {
         {/* tracks / specialisations */}
         {tracks.length ? (
           <div className="mt-10">
-            <h3 className="text-lg font-extrabold text-white">Specialisations inside this program</h3>
+            <h3 className="text-lg font-extrabold text-white">{t("course.specialisations")}</h3>
             <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {tracks.map((track, index) => (
                 <Reveal key={track.title} delay={index * 0.06}>
@@ -616,7 +618,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {benefits.length ? (
         <Section
           id="why"
-          eyebrow="Why this course"
+          eyebrow={t("cp.whyEyebrow")}
           title={`What makes ${course.title} at ${settings.shortName || settings.name} different`}
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -658,9 +660,9 @@ export function CourseDetail({ slug }: { slug: string }) {
       {tools.length ? (
         <Section
           id="tools"
-          eyebrow="Tools covered"
-          title="The stack you will work with"
-          description="Everything here is introduced in class and used in a project — no theory-only tours."
+          eyebrow={t("cp.toolsEyebrow")}
+          title={t("cp.toolsTitle")}
+          description={t("cp.toolsText")}
         >
           <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {tools.filter(Boolean).map((tool, index) => (
@@ -681,9 +683,9 @@ export function CourseDetail({ slug }: { slug: string }) {
       {learn.length ? (
         <Section
           id="learn"
-          eyebrow="Learning outcomes"
+          eyebrow={t("cp.outcomesEyebrow")}
           title={`What you'll learn in ${course.title}`}
-          description="Each point below is something you will have built, practised or shipped by the end of the program."
+          description={t("cp.outcomesText")}
         >
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {learn.filter(Boolean).map((item, index) => (
@@ -754,9 +756,9 @@ export function CourseDetail({ slug }: { slug: string }) {
       {reviews.length ? (
         <Section
           id="reviews"
-          eyebrow="Student reviews"
-          title="What our students say"
-          description="Feedback from learners who completed this program."
+          eyebrow={t("cp.reviewsEyebrow")}
+          title={t("cp.reviewsTitle")}
+          description={t("cp.reviewsText")}
         >
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {reviews.map((review, index) => (
@@ -788,9 +790,9 @@ export function CourseDetail({ slug }: { slug: string }) {
       {faqs.length ? (
         <Section
           id="faqs"
-          eyebrow="FAQ"
+          eyebrow={t("cp.faqEyebrow")}
           title={`${course.title} — questions students ask`}
-          description="Straight answers. If yours is not here, message us on WhatsApp and we will reply the same day."
+          description={t("cp.faqText")}
         >
           <div className="mx-auto max-w-3xl space-y-3">
             {faqs.map((qa, index) => (
@@ -813,7 +815,7 @@ export function CourseDetail({ slug }: { slug: string }) {
 
           <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center justify-between gap-4 rounded-2xl border border-white/10 bg-gradient-to-r from-[#0c1738] to-[#070d22] p-5 sm:flex-row">
             <div>
-              <p className="text-sm font-extrabold text-white">Still have questions?</p>
+              <p className="text-sm font-extrabold text-white">{t("course.helpTitle")}</p>
               <p className="mt-1 text-xs text-slate-400">
                 Talk to our team about fees, batch timings and whether this course fits your goal.
               </p>
@@ -823,7 +825,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                 onClick={() => navigate("contact", { course: course.title })}
                 className="btn-futur h-10 flex-1 rounded-xl px-5 text-sm font-bold text-white sm:flex-none"
               >
-                Contact us
+                {t("course.contactUs")}
               </Button>
               <a
                 href={whatsappUrl(settings, waMessage)}
@@ -832,7 +834,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                 className="btn-whatsapp inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold text-white sm:flex-none"
               >
                 <WhatsAppIcon className="h-4 w-4" />
-                WhatsApp
+                {t("course.whatsapp")}
               </a>
             </div>
           </div>
@@ -843,7 +845,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {related.length ? (
         <Section
           id="related"
-          eyebrow="Keep exploring"
+          eyebrow={t("cp.relatedEyebrow")}
           title={`Other courses at ${settings.shortName || settings.name}`}
         >
           <div className="grid gap-4 md:grid-cols-3">
@@ -869,7 +871,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                   <span className="mt-2 text-lg font-extrabold text-white">{other.title}</span>
                   <span className="mt-1 line-clamp-2 text-sm text-slate-400">{other.description}</span>
                   <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold uppercase tracking-wider text-cyber-300">
-                    View course
+                    {t("course.viewCourse")}
                     <ArrowRight
                       className="h-3 w-3 transition-transform group-hover:translate-x-1"
                       aria-hidden="true"
@@ -911,12 +913,13 @@ function ProjectsSection({
   projects: { title: string; description: string; image?: string }[];
   miniProjects: { title: string; description: string; image?: string }[];
 }) {
+  const t = useLabels();
   return (
     <Section
       id="projects"
-      eyebrow="Projects"
+      eyebrow={t("cp.projectsEyebrow")}
       title={`Projects you build in ${courseTitle}`}
-      description="Build-along practice projects during the modules, then one portfolio-grade capstone you can demo in interviews."
+      description={t("cp.projectsText")}
     >
       {projects.length ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -943,7 +946,7 @@ function ProjectsSection({
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-cyber-400/25 bg-cyber-500/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyber-200">
-                    Capstone
+                    {t("course.capstone")}
                   </span>
                   <h3 className="mt-2.5 text-base font-extrabold text-white">{project.title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
@@ -959,7 +962,7 @@ function ProjectsSection({
       {miniProjects.length ? (
         <div className="mt-8">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-300">
-            Mini projects along the way
+            {t("course.miniProjects")}
           </h3>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {miniProjects.map((project, index) => (
@@ -996,15 +999,16 @@ function IncludedSection({
   certificateText?: string;
   certificateImage?: string;
 }) {
+  const t = useLabels();
   if (!includes.length && !certificateTitle) return null;
   const Icon = getIcon;
 
   return (
     <Section
       id="included"
-      eyebrow="What's included"
-      title="Everything that comes with the program"
-      description="Not just lectures — the notes, practice, feedback and support that turn classes into skills."
+      eyebrow={t("cp.includedEyebrow")}
+      title={t("cp.includedTitle")}
+      description={t("cp.includedText")}
     >
       {includes.length ? (
         <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
@@ -1068,14 +1072,15 @@ function BatchesSection({
   }[];
   onEnquire: (label: string) => void;
 }) {
+  const t = useLabels();
   if (!batches.length) return null;
 
   return (
     <Section
       id="batches"
-      eyebrow="Batches & timings"
-      title="Pick the batch that fits your week"
-      description="Seats are limited per batch so every learner gets attention. Ask us before a batch fills up."
+      eyebrow={t("cp.batchesEyebrow")}
+      title={t("cp.batchesTitle")}
+      description={t("cp.batchesText")}
     >
       <div className="space-y-3">
         {batches.map((batch, index) => (
@@ -1110,7 +1115,7 @@ function BatchesSection({
                 variant="outline"
                 className="h-9 shrink-0 rounded-lg border-white/20 bg-white/5 text-xs font-bold text-white hover:bg-white/10 hover:text-white"
               >
-                Book a seat
+                {t("course.bookSeat")}
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
               </Button>
             </div>
@@ -1133,13 +1138,14 @@ function PlacementSection({
   points: string[];
   onEnquire: () => void;
 }) {
+  const t = useLabels();
   if (!points.length && !title) return null;
 
   return (
     <Section
       id="placement"
-      eyebrow="Career support"
-      title={title || "Placement & career support"}
+      eyebrow={t("cp.careerEyebrow")}
+      title={title || t("cp.careerTitle")}
       description={text}
     >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -1161,7 +1167,7 @@ function PlacementSection({
           onClick={onEnquire}
           className="ml-1 font-bold text-cyber-300 underline-offset-2 hover:underline"
         >
-          Talk to us about the support
+          {t("course.talkSupport")}
         </button>
       </p>
     </Section>
@@ -1178,11 +1184,12 @@ function TrainerSection({
   fallback?: string;
   city?: string;
 }) {
+  const t = useLabels();
   if (!trainer?.name && !fallback) return null;
   const name = trainer?.name || fallback || "";
 
   return (
-    <Section id="trainer" eyebrow="Your mentor" title="Who teaches this course">
+    <Section id="trainer" eyebrow={t("cp.trainerEyebrow")} title={t("cp.trainerTitle")}>
       <div className={cn(CARD, "flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:p-6")}>
         <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-brand-600 to-cyber-500 text-2xl font-black text-white">
           {trainer?.photo ? (
@@ -1210,7 +1217,7 @@ function TrainerSection({
           <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
             <span className="inline-flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5 text-cyber-300" aria-hidden="true" />
-              Small batches, personal feedback
+              {t("course.smallBatches")}
             </span>
             {city ? (
               <span className="inline-flex items-center gap-1.5">
@@ -1240,6 +1247,7 @@ function CurriculumSection({
   brochureUrl?: string;
   whatsappHref: string;
 }) {
+  const t = useLabels();
   const [open, setOpen] = useState<number[]>([0]);
   const allOpen = open.length === modules.length;
 
@@ -1251,7 +1259,7 @@ function CurriculumSection({
   return (
     <Section
       id="curriculum"
-      eyebrow="Course curriculum"
+      eyebrow={t("cp.curriculumEyebrow")}
       title={`${courseTitle} syllabus, module by module`}
       description={`${modules.length} modules · ${modules.reduce((sum, m) => sum + (m.topics?.length ?? 0), 0)} topics. Expand any module to see what is covered.`}
     >
@@ -1344,7 +1352,7 @@ function CurriculumSection({
             <div>
               <p className="text-sm font-extrabold text-white">{brochureTitle || "Course brochure"}</p>
               <p className="text-xs text-slate-400">
-                Module list, tools and project details in one PDF.
+                {t("course.brochureText")}
               </p>
             </div>
           </div>
@@ -1356,7 +1364,7 @@ function CurriculumSection({
               className="inline-flex h-10 items-center gap-2 rounded-xl border border-cyber-300/40 bg-cyber-500/10 px-5 text-sm font-bold text-cyber-200 transition-colors hover:bg-cyber-500/20"
             >
               <Download className="h-4 w-4" aria-hidden="true" />
-              Download brochure
+              {t("course.downloadBrochure")}
             </a>
           ) : (
             <a
@@ -1366,7 +1374,7 @@ function CurriculumSection({
               className="btn-whatsapp inline-flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-bold text-white"
             >
               <WhatsAppIcon className="h-4 w-4" />
-              Get the syllabus
+              {t("course.getSyllabus")}
             </a>
           )}
         </div>
