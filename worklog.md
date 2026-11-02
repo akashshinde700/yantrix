@@ -313,3 +313,43 @@ course-page labels), a duplicate action for every list and a visual upgrade.
 course page, then reverted; gallery and course duplication round-tripped and
 cleaned up (hidden course copy 404s); media upload → list → serve → delete cycle
 checked end to end.
+
+## Meet Your Mentors + partner company wall
+
+Reference: the mentor wall and partner strip on skillected.com. The **layout** is
+replicated; the people and the partnerships are not — those have to be real.
+
+**Mentors**
+
+- `Trainer` gained `company` (current employer / institution, e.g. "Reliance
+  Jio", "IIT Bombay") and `specialisation` (short track label used by the cards
+  and the filter), both editable in **Admin → Mentors**.
+- Rebuilt `/components/site/trainers-section.tsx` to the reference anatomy:
+  portrait `aspect-[3/4]` photo, uppercase name, company line with an icon, an
+  "N+ yrs" badge, a specialisation chip, a two-line bio and a "View full profile"
+  trigger that opens the existing detail dialog (now also showing company +
+  specialisation + years).
+- Added a live count strip (`6 mentors · 47+ years of experience · 6
+  specialisations`) and specialisation filter chips that only appear with more
+  than three mentors and more than one specialisation.
+- Section defaults are now eyebrow "Mentors", title "Meet Your Mentors".
+- New `src/lib/content/trainer-seeds.ts` with six clearly-marked **sample**
+  profiles (photo-less, so they render as monogram cards until real photos are
+  uploaded). Admin copy now says to replace them before go-live.
+
+**Partners**
+
+- `PartnersSection` now leads with a scrolling company wall — logo when one is
+  uploaded, otherwise a monogram + name tile — with the label revealed on hover
+  and a footnote label (`partners.note`) under it. The descriptive cards stay
+  below. Titles: "Our partner companies & certifications".
+- Partners remain fully admin-managed (name, label/kind, logo, description, link).
+
+**Labels added**: partners.note, trainers.years, trainers.yearsShort,
+trainers.yearsLabel, trainers.countLabel, trainers.tracksLabel,
+trainers.filterAll, trainers.sectionLabel.
+
+**Verified**: tsc, eslint and `next build` clean; home + about render the mentor
+wall (6 cards, count chips, filter chips) and the partner wall; a mentor created
+through the admin API with company/specialisation appeared on both pages and was
+deleted again.

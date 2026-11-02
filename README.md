@@ -59,6 +59,7 @@ npm run start
 | Dashboard          | Content counters, latest enquiries, SEO/AEO health score                                                                                                              |
 | Hero slides        | Slides, images, headlines, CTAs, trust chips                                                                                                                          |
 | Courses            | Course cards **and** a full page per course: cover image, fee card, about copy, specialisations, outcomes, tools, module-by-module curriculum, reviews, FAQs, CTA, SEO |
+| Mentors            | The "Meet Your Mentors" wall: photo, name, **company / institution**, years of experience, **specialisation**, bio, skill chips, LinkedIn, plus the full profile dialog (experience timeline, education, domains) |
 | FAQs               | Q&A list (also feeds `FAQPage` structured data)                                                                                                                       |
 | Page sections      | Heading/eyebrow/description for every section + hide a section; feature cards, stats, tech ticker, training modes, placement points, quick facts, after-enquiry steps, **offer ticker, campus gallery, partners, videos, testimonials, centres** — every list supports add / edit / **duplicate** / reorder / hide / delete |
 | Pages & navigation | Page-specific copy (home / courses / about / contact) and header/footer links                                                                                         |
@@ -131,6 +132,23 @@ document, so the site can be reworded end-to-end from the admin panel:
 A label added in a newer release appears automatically for existing installs —
 the store backfills missing keys from `DEFAULT_CONTENT`, and the site falls back
 to the built-in default instead of rendering an empty button.
+
+### Mentors & partner companies
+
+- **Meet Your Mentors** — portrait cards (`aspect-[3/4]`) with the mentor's name,
+  company/institution, years of experience and specialisation, a live count strip
+  (mentors · combined years · specialisations) and filter chips that appear once
+  there are more than three mentors and more than one specialisation. Clicking a
+  card opens the full profile. Everything, including the chips' behaviour, is
+  driven by the Mentors collection in the admin panel.
+- **Partners & collaborations** — a scrolling company wall (uploaded logo, or a
+  monogram + name when there is no logo yet) above the descriptive partner cards.
+  Add each partner with its label and optional link in **Page sections →
+  Partners & certifications**.
+
+⚠️ The six mentor profiles that ship with the site are **samples**. Replace them
+with your real mentors (with their permission) from **Admin → Mentors** before
+go-live, and only list partnerships you can back up.
 
 ### Design system (futuristic layer)
 

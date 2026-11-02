@@ -242,7 +242,57 @@ export function CampusGallery() {
 export function PartnersSection() {
   const partners = useCollection<Partner>("partners");
   const section = useSection("partners");
+  const t = useLabels();
   if (section.hidden || partners.length === 0) return null;
+
+  /** One logo tile: uploaded logo, or a clean monogram + name when there is none. */
+  const tile = (partner: Partner, duplicate: boolean) => {
+    const body = (
+      <>
+        {partner.logo ? (
+          <img
+            src={partner.logo}
+            alt={duplicate ? "" : partner.name}
+            loading="lazy"
+            decoding="async"
+            className="h-9 w-auto max-w-[132px] object-contain opacity-85 transition-opacity group-hover/tile:opacity-100"
+          />
+        ) : (
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/[0.07] text-xs font-black text-cyber-200">
+              {partner.name.trim().charAt(0).toUpperCase()}
+            </span>
+            <span className="whitespace-nowrap text-sm font-extrabold text-slate-200">
+              {partner.name}
+            </span>
+          </span>
+        )}
+        <span className="pointer-events-none absolute inset-x-0 -bottom-6 text-center text-[9px] font-bold uppercase tracking-[0.18em] text-cyber-300 opacity-0 transition-opacity group-hover/tile:opacity-100">
+          {partner.kind}
+        </span>
+      </>
+    );
+
+    const className =
+      "group/tile relative flex h-[74px] min-w-[168px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-5 transition-colors hover:border-cyber-300/45 hover:bg-white/[0.08]";
+
+    return partner.link && !duplicate ? (
+      <a
+        key={`${partner.id}-${duplicate}`}
+        href={partner.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        aria-label={`${partner.name} — ${partner.kind}`}
+      >
+        {body}
+      </a>
+    ) : (
+      <span key={`${partner.id}-${duplicate}`} className={className} aria-hidden={duplicate || undefined}>
+        {body}
+      </span>
+    );
+  };
 
   return (
     <section
@@ -257,7 +307,27 @@ export function PartnersSection() {
         description={section.description}
       />
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Scrolling company wall — the part the reference site leads with. */}
+      <div className="relative mt-8 overflow-hidden rounded-3xl border border-white/10 bg-[#070d22]/60 py-4">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#070d22] to-transparent"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#070d22] to-transparent"
+        />
+        <div className="ticker-track" style={{ animationDuration: "38s" }}>
+          <div className="flex shrink-0 items-center gap-3 pr-3">
+            {partners.map((partner) => tile(partner, false))}
+          </div>
+          <div className="flex shrink-0 items-center gap-3 pr-3" aria-hidden="true">
+            {partners.map((partner) => tile(partner, true))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {partners.map((partner, index) => {
           const inner = (
             <>
@@ -318,6 +388,10 @@ export function PartnersSection() {
           );
         })}
       </div>
+
+      <p className="mt-5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+        {t("partners.note")}
+      </p>
     </section>
   );
 }
