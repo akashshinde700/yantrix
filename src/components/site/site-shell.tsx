@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { Header } from "@/components/site/header";
 import { AnnouncementTicker } from "@/components/site/home-sections";
 import { Footer } from "@/components/site/footer";
@@ -12,6 +12,7 @@ import { CosmicPopup } from "@/components/site/cosmic-popup";
 import { YantrixGuide } from "@/components/site/yantrix-guide";
 import { ChapterDock } from "@/components/site/universe/chapter-dock";
 import { SmoothScroll } from "@/components/site/smooth-scroll";
+import { scrollToId, scrollToTop } from "@/components/site/scroll-lock";
 import { resumeAmbientOnFirstGesture } from "@/components/site/universe/ambient-sound";
 import { PageHome } from "@/components/site/page-home";
 import { PageCourses } from "@/components/site/page-courses";
@@ -125,14 +126,10 @@ export function SiteShell({
 
     if (pendingSection) {
       // Wait a tick for the view to become visible, then scroll to the section
-      requestAnimationFrame(() => {
-        document
-          .getElementById(pendingSection)
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      requestAnimationFrame(() => scrollToId(pendingSection));
       clearPendingSection();
     } else {
-      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+      scrollToTop("instant");
     }
   }, [view, pendingSection, clearPendingSection, seoPages, showDetail]);
 
@@ -154,7 +151,16 @@ export function SiteShell({
   };
 
   return (
-    <div className="universe flex min-h-screen flex-col bg-[#02040c] text-white">
+    /*
+     * `reducedMotion="user"` makes every framer-motion animation on the public
+     * site honour prefers-reduced-motion: transforms and layout animations are
+     * skipped, opacity still fades so nothing pops in.
+     */
+    <MotionConfig reducedMotion="user">
+    {/* overflow-x-clip: decorative blobs and rings poke past the viewport edge;
+        clipping here stops the whole page scrolling sideways on phones without
+        creating a scroll container (which would break the sticky header). */}
+    <div className="universe flex min-h-svh flex-col overflow-x-clip bg-[#02040c] text-white">
       {/* CSS backdrop until (or instead of, without WebGL) the 3D universe */}
       <div aria-hidden="true" className="universe-backdrop pointer-events-none fixed inset-0 z-0" />
       <UniverseScene view={activeView} />
@@ -198,5 +204,6 @@ export function SiteShell({
       <YantrixGuide />
       <CosmicPopup />
     </div>
+    </MotionConfig>
   );
 }

@@ -50,6 +50,9 @@ function Button({
   return (
     <Comp
       data-slot="button"
+      /* A button inside a form defaults to type="submit"; only an explicit
+         submit button should ever post. Explicit props still win. */
+      type={asChild ? undefined : "button"}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

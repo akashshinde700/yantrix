@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -14,7 +14,6 @@ import {
   Smartphone,
   Sparkles,
   Star,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/site/section-heading";
@@ -25,6 +24,8 @@ import { useCollection, useLabels, useSection, useSettings, useSiteContent } fro
 import { whatsappUrl } from "@/lib/content/helpers";
 import { useSiteStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useMarqueeSpeed, usePauseOffscreen } from "@/components/site/use-marquee";
+import { GalleryLightbox } from "@/components/site/gallery-lightbox";
 import type {
   Announcement,
   Centre,
@@ -43,6 +44,8 @@ import type {
  */
 export function AnnouncementTicker() {
   const items = useCollection<Announcement>("announcements");
+  const [marqueeRef, marqueeStyle] = useMarqueeSpeed(52);
+  const [observerRef, onScreen] = usePauseOffscreen<HTMLDivElement>();
   if (!items.length) return null;
 
   const row = (ariaHidden: boolean) => (
@@ -80,7 +83,14 @@ export function AnnouncementTicker() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#04070f] to-transparent"
       />
-      <div className="ticker-track group">
+      <div
+        ref={(node) => {
+          marqueeRef(node);
+          observerRef(node);
+        }}
+        style={{ ...marqueeStyle, animationPlayState: onScreen ? undefined : "paused" }}
+        className="ticker-track group"
+      >
         {row(false)}
         {row(true)}
       </div>
@@ -95,7 +105,7 @@ export function CampusGallery() {
   const photos = useCollection<GalleryPhoto>("gallery");
   const section = useSection("gallery");
   const [filter, setFilter] = useState("All");
-  const [lightbox, setLightbox] = useState<GalleryPhoto | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -107,21 +117,6 @@ export function CampusGallery() {
     () => (filter === "All" ? photos : photos.filter((photo) => photo.category === filter)),
     [photos, filter]
   );
-
-  // Lightbox: Escape closes it and the page behind stops scrolling.
-  useEffect(() => {
-    if (!lightbox) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setLightbox(null);
-    };
-    document.addEventListener("keydown", onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [lightbox]);
 
   if (section.hidden || photos.length === 0) return null;
 
@@ -171,7 +166,7 @@ export function CampusGallery() {
           <Reveal key={photo.id} delay={(index % 4) * 0.05}>
             <button
               type="button"
-              onClick={() => setLightbox(photo)}
+              onClick={() => setLightboxIndex(visible.indexOf(photo))}
               className={cn(
                 "aurora-card sweep-card group relative block h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0a1230]",
                 index % 5 === 0 ? "aspect-[4/5]" : "aspect-[4/3]"
@@ -201,38 +196,13 @@ export function CampusGallery() {
         ))}
       </div>
 
-      {/* lightbox */}
-      {lightbox ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={lightbox.title || "Campus photo"}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
-          onClick={() => setLightbox(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            aria-label={t("gallery.close")}
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <figure className="max-h-full w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
-            <img
-              src={lightbox.image}
-              alt={lightbox.alt || lightbox.title}
-              className="max-h-[80vh] w-full rounded-2xl object-contain"
-            />
-            <figcaption className="mt-3 text-center text-sm font-semibold text-slate-200">
-              {lightbox.title}
-              {lightbox.category ? (
-                <span className="ml-2 text-xs font-normal text-slate-400">· {lightbox.category}</span>
-              ) : null}
-            </figcaption>
-          </figure>
-        </div>
-      ) : null}
+      <GalleryLightbox
+        photos={visible}
+        index={lightboxIndex}
+        onIndexChange={setLightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+      />
+
     </section>
   );
 }
@@ -243,6 +213,8 @@ export function PartnersSection() {
   const partners = useCollection<Partner>("partners");
   const section = useSection("partners");
   const t = useLabels();
+  const [marqueeRef, marqueeStyle] = useMarqueeSpeed(48);
+  const [observerRef, onScreen] = usePauseOffscreen<HTMLDivElement>();
   if (section.hidden || partners.length === 0) return null;
 
   /** One logo tile: uploaded logo, or a clean monogram + name when there is none. */
@@ -317,7 +289,14 @@ export function PartnersSection() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#070d22] to-transparent"
         />
-        <div className="ticker-track" style={{ animationDuration: "38s" }}>
+        <div
+          ref={(node) => {
+            marqueeRef(node);
+            observerRef(node);
+          }}
+          style={{ ...marqueeStyle, animationPlayState: onScreen ? undefined : "paused" }}
+          className="ticker-track"
+        >
           <div className="flex shrink-0 items-center gap-3 pr-3">
             {partners.map((partner) => tile(partner, false))}
           </div>

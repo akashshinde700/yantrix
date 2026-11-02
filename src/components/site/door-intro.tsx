@@ -100,30 +100,30 @@ function playDoorSound() {
   }
 }
 
-function Emblem({ lit }: { lit: boolean }) {
+function Emblem({ lit, side }: { lit: boolean; side: "left" | "right" }) {
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden="true">
       <defs>
-        <radialGradient id="door-core" cx="42%" cy="38%" r="65%">
+        <radialGradient id={`door-core-${side}`} cx="42%" cy="38%" r="65%">
           <stop offset="0%" stopColor="#ffffff" />
           <stop offset="35%" stopColor="#7dd3fc" />
           <stop offset="75%" stopColor="#1d4ed8" />
           <stop offset="100%" stopColor="#0b1230" />
         </radialGradient>
-        <linearGradient id="door-gold" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={`door-gold-${side}`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#f6e3b4" />
           <stop offset="45%" stopColor="#c9a25e" />
           <stop offset="100%" stopColor="#8a6a32" />
         </linearGradient>
-        <linearGradient id="door-energy" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={`door-energy-${side}`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#22d3ee" />
           <stop offset="100%" stopColor="#8b5cf6" />
         </linearGradient>
       </defs>
       {/* plate */}
       <circle cx="100" cy="100" r="97" fill="#060a1c" />
-      <circle cx="100" cy="100" r="96" fill="none" stroke="url(#door-gold)" strokeWidth="2" />
-      <circle cx="100" cy="100" r="90" fill="none" stroke="url(#door-gold)" strokeOpacity="0.45" strokeWidth="0.75" />
+      <circle cx="100" cy="100" r="96" fill="none" stroke={`url(#door-gold-${side})`} strokeWidth="2" />
+      <circle cx="100" cy="100" r="90" fill="none" stroke={`url(#door-gold-${side})`} strokeOpacity="0.45" strokeWidth="0.75" />
       {/* tick ring */}
       <g className={cn("emblem-spin", lit && "emblem-spin-fast")} style={{ transformOrigin: "100px 100px" }}>
         {Array.from({ length: 48 }, (_, i) => (
@@ -142,44 +142,44 @@ function Emblem({ lit }: { lit: boolean }) {
       </g>
       {/* energy ring */}
       <g className={cn("emblem-spin-rev", lit && "emblem-spin-fast")} style={{ transformOrigin: "100px 100px" }}>
-        <circle cx="100" cy="100" r="72" fill="none" stroke="url(#door-energy)" strokeWidth="2.5" strokeDasharray="70 18 6 18" strokeLinecap="round" />
+        <circle cx="100" cy="100" r="72" fill="none" stroke={`url(#door-energy-${side})`} strokeWidth="2.5" strokeDasharray="70 18 6 18" strokeLinecap="round" />
       </g>
       {/* hexagon */}
-      <polygon points="100,44 148.5,72 148.5,128 100,156 51.5,128 51.5,72" fill="none" stroke="url(#door-gold)" strokeOpacity="0.8" strokeWidth="1.2" />
+      <polygon points="100,44 148.5,72 148.5,128 100,156 51.5,128 51.5,72" fill="none" stroke={`url(#door-gold-${side})`} strokeOpacity="0.8" strokeWidth="1.2" />
       {/* core: dark lens with a blue glow, holding the official Yantrix icon */}
       <circle
         cx="100"
         cy="100"
         r="40"
         fill="#050a1e"
-        stroke="url(#door-core)"
+        stroke={`url(#door-core-${side})`}
         strokeWidth="2"
         className="transition-[filter] duration-700"
         style={{ filter: lit ? "drop-shadow(0 0 24px #67e8f9) brightness(1.3)" : "drop-shadow(0 0 10px rgba(34,211,238,0.7))" }}
       />
       <svg x="73" y="73" width="54" height="54" viewBox="84 146 835 835">
         <defs>
-          <linearGradient id="di-v" gradientUnits="userSpaceOnUse" x1="200" y1="186" x2="700" y2="480">
+          <linearGradient id={`di-v-${side}`} gradientUnits="userSpaceOnUse" x1="200" y1="186" x2="700" y2="480">
             <stop offset="0" stopColor="#03adff" />
             <stop offset="1" stopColor="#1228d8" />
           </linearGradient>
-          <linearGradient id="di-l" gradientUnits="userSpaceOnUse" x1="124" y1="248" x2="455" y2="891">
+          <linearGradient id={`di-l-${side}`} gradientUnits="userSpaceOnUse" x1="124" y1="248" x2="455" y2="891">
             <stop offset="0" stopColor="#e9eaf5" />
             <stop offset="1" stopColor="#b0b6cd" />
           </linearGradient>
-          <linearGradient id="di-r" gradientUnits="userSpaceOnUse" x1="540" y1="260" x2="879" y2="520">
+          <linearGradient id={`di-r-${side}`} gradientUnits="userSpaceOnUse" x1="540" y1="260" x2="879" y2="520">
             <stop offset="0" stopColor="#d9dcea" />
             <stop offset="1" stopColor="#bcc1d6" />
           </linearGradient>
-          <linearGradient id="di-b" gradientUnits="userSpaceOnUse" x1="510" y1="560" x2="660" y2="800">
+          <linearGradient id={`di-b-${side}`} gradientUnits="userSpaceOnUse" x1="510" y1="560" x2="660" y2="800">
             <stop offset="0" stopColor="#14b0ff" />
             <stop offset="1" stopColor="#1640e2" />
           </linearGradient>
         </defs>
-        <polygon points="124,248 124,344 340,572 340,792 455,891 455,523" fill="url(#di-l)" />
-        <polygon points="879,240 524,496 562,519 712,519 879,352" fill="url(#di-r)" />
-        <polygon points="170,186 503,479 839,186 655,186 504,323 360,186" fill="url(#di-v)" />
-        <polygon points="659,524 545,535 510,590 510,935 659,796" fill="url(#di-b)" />
+        <polygon points="124,248 124,344 340,572 340,792 455,891 455,523" fill={`url(#di-l-${side})`} />
+        <polygon points="879,240 524,496 562,519 712,519 879,352" fill={`url(#di-r-${side})`} />
+        <polygon points="170,186 503,479 839,186 655,186 504,323 360,186" fill={`url(#di-v-${side})`} />
+        <polygon points="659,524 545,535 510,590 510,935 659,796" fill={`url(#di-b-${side})`} />
       </svg>
     </svg>
   );
@@ -269,7 +269,7 @@ function DoorPanel({ side, phase }: { side: "left" | "right"; phase: Phase }) {
         className="door-emblem absolute -translate-y-1/2"
         style={{ [left ? "right" : "left"]: "calc(var(--emblem) / -2)" }}
       >
-        <Emblem lit={lit} />
+        <Emblem lit={lit} side={side} />
       </div>
     </div>
   );

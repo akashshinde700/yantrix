@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { scrollToId } from "@/components/site/scroll-lock";
 import { CHAPTERS } from "@/components/site/universe/chapters";
 import { SoundButton } from "@/components/site/sound-button";
 import { cn } from "@/lib/utils";
@@ -50,9 +51,8 @@ export function ChapterDock() {
   }, []);
 
   const go = (i: number) => {
-    document
-      .getElementById(CHAPTERS[i].id)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // via Lenis, so the easing engine does not fight the native scroll
+    scrollToId(CHAPTERS[i].id);
   };
 
   return (
@@ -63,7 +63,7 @@ export function ChapterDock() {
         orb below 1024px — at those widths the three used to overlap each
         other. From lg up there is room for everything on one line.
       */
-      className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 lg:bottom-5"
+      className="fixed bottom-[var(--fab-bottom-2)] left-1/2 z-40 -translate-x-1/2 lg:bottom-5"
     >
       <div className="relative flex items-center gap-1 overflow-hidden rounded-full border border-white/10 bg-[#050a1c]/70 p-1 pl-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8),0_0_30px_-12px_rgba(34,211,238,0.5)] backdrop-blur-xl">
         {/* overall progress */}

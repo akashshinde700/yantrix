@@ -79,6 +79,7 @@ export function PageAbout() {
               eyebrow={storySection.eyebrow}
               title={copy.storyTitle || storySection.title}
               description={copy.storyParagraphs[0] ?? storySection.description}
+            id="about-story-heading"
             />
             <div className="mt-5 space-y-4 text-[15px] leading-relaxed text-slate-700">
               {copy.storyParagraphs.slice(1).map((paragraph, index) => (
@@ -121,6 +122,7 @@ export function PageAbout() {
           <SectionHeading
             eyebrow="Mission & Vision"
             title="What drives us every day"
+            id="mission-vision-heading"
           />
           <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
             <Reveal>
@@ -163,6 +165,7 @@ export function PageAbout() {
             eyebrow="Training Approach"
             title="How we take you from beginner to job-ready"
             description="A proven four-step journey that every Yantrix student follows."
+            id="approach-heading"
           />
           <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {approachSteps.map((step, i) => (

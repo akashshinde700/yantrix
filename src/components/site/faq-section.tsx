@@ -29,6 +29,7 @@ export function FaqSection() {
             eyebrow={section.eyebrow}
             title={section.title}
             description={section.description}
+            id="faq-heading"
           />
           <Reveal delay={0.1}>
             <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">

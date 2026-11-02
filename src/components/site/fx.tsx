@@ -11,6 +11,7 @@ import {
   useSpring,
 } from "framer-motion";
 import { ArrowUp } from "lucide-react";
+import { scrollToTop } from "@/components/site/scroll-lock";
 
 /* ────────────────────────────────────────────────────────────────────
    Interaction FX helpers — mouse spotlight, 3D tilt, animated counter,
@@ -114,9 +115,9 @@ export function BackToTop() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.6, y: 16 }}
           transition={{ type: "spring", stiffness: 300, damping: 22 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => scrollToTop("smooth")}
           aria-label="Back to top"
-          className="group fixed bottom-5 left-5 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-700 shadow-xl shadow-brand-950/15 ring-1 ring-slate-200 transition-colors hover:bg-brand-50 sm:bottom-6 sm:left-6"
+          className="group fixed bottom-[var(--fab-bottom-2)] right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand-700 shadow-xl shadow-brand-950/40 ring-1 ring-white/40 transition-colors hover:bg-brand-50 sm:right-6"
         >
           <svg viewBox="0 0 48 48" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true">
             <circle cx="24" cy="24" r="20" fill="none" stroke="#e2e8f0" strokeWidth="3" />

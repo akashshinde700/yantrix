@@ -217,8 +217,8 @@ export function YantrixGuide() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-controls="yantra-guide"
-        className="group fixed bottom-4 left-4 z-40 flex items-center gap-2.5 rounded-full border border-white/10 bg-[#050a1c]/70 p-1.5 pr-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] backdrop-blur-xl transition-all hover:border-cyan-300/40 sm:bottom-5 sm:left-5 sm:pr-4"
+        aria-controls={open ? "yantra-guide" : undefined}
+        className="group fixed bottom-[var(--fab-bottom)] left-4 z-50 flex items-center gap-2.5 rounded-full border border-white/10 bg-[#050a1c]/70 p-1.5 pr-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] backdrop-blur-xl transition-all hover:border-cyan-300/40 sm:left-5 sm:pr-4"
       >
         <span className="yantra-orb relative h-9 w-9 rounded-full" aria-hidden="true" />
         <span className="hidden text-sm font-semibold text-white sm:inline">{t("guide.title")}</span>
@@ -235,7 +235,7 @@ export function YantrixGuide() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 320, damping: 30 }}
-            className="fixed bottom-20 left-3 right-3 z-50 flex max-h-[min(560px,calc(100svh-7rem))] flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#060b1e]/85 text-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9),0_0_60px_-20px_rgba(34,211,238,0.45)] backdrop-blur-2xl sm:bottom-24 sm:left-5 sm:right-auto sm:w-[380px]"
+            className="fixed bottom-[var(--fab-panel-bottom)] left-3 right-3 z-50 flex max-h-[min(560px,calc(100svh-9rem))] flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#060b1e]/85 text-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9),0_0_60px_-20px_rgba(34,211,238,0.45)] backdrop-blur-2xl sm:left-5 sm:right-auto sm:w-[380px]"
           >
             <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
               <span className="yantra-orb relative h-10 w-10 shrink-0 rounded-full" aria-hidden="true" />

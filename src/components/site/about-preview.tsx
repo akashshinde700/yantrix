@@ -57,6 +57,7 @@ export function AboutPreview() {
               section.description ||
               `${settings.name} was started in ${settings.foundedYear} with one simple belief — students learn best by doing. Our programs combine clear fundamentals, hands-on practice and live projects so learners walk out with skills they can actually use on the job.`
             }
+            id="home-about-heading"
           />
           <ul className="mt-6 space-y-3.5">
             {checklist.map((item, index) => (

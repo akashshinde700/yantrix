@@ -180,6 +180,27 @@ The dark "universe" theme ships reusable effects in `src/app/globals.css`:
 `card-glow-dark` and the marquee `ticker-track`. All of them switch off for
 `prefers-reduced-motion`.
 
+### Motion, focus and the floating stack
+
+Three rules keep the animated UI from fighting itself:
+
+- **One floating stack.** Everything pinned to the bottom of the viewport reads
+  `--fab-bottom`, `--fab-bottom-2` and `--fab-panel-bottom` (globals.css) instead
+  of hard-coded `bottom-*` values: guide launcher and WhatsApp on row one,
+  back-to-top and the page dock on row two, popovers above row one. The course
+  page's mobile enquiry bar sets `data-mobile-cta` on `<html>`, which lifts the
+  whole stack above it — no more buttons covering each other.
+- **Reduced motion is honoured twice.** `<MotionConfig reducedMotion="user">`
+  in the site shell covers every Framer Motion animation, and a global
+  `prefers-reduced-motion` block collapses CSS transitions/animations. Marquees
+  measure their own width (`use-marquee.ts`) so speed stays constant, and pause
+  while off screen.
+- **Focus is always visible.** A single `:focus-visible` rule in globals.css
+  gives every link, button and field a high-contrast ring (cyan on dark, blue on
+  light); dialogs and the photo lightbox trap focus and hand it back when they
+  close, and scrolling helpers in `scroll-lock.ts` drive Lenis so programmatic
+  jumps are not undone by the smooth-scroll loop.
+
 ### Roles
 
 | Role     | Can do                                                              |

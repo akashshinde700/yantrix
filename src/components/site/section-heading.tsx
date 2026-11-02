@@ -9,6 +9,8 @@ interface SectionHeadingProps {
   dark?: boolean;
   /** Use "h1" for the main heading of a page. */
   as?: "h1" | "h2";
+  /** id for the heading element, so a section can point `aria-labelledby` at it. */
+  id?: string;
 }
 
 export function SectionHeading({
@@ -18,6 +20,7 @@ export function SectionHeading({
   align = "center",
   dark = false,
   as: Heading = "h2",
+  id,
 }: SectionHeadingProps) {
   return (
     <div
@@ -45,6 +48,7 @@ export function SectionHeading({
         </span>
       ) : null}
       <Heading
+        id={id}
         className={cn(
           "text-3xl font-extrabold tracking-tight text-balance sm:text-4xl",
           dark ? "text-white" : "text-ink"

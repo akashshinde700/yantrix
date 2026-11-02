@@ -17,7 +17,7 @@ export function WhatsAppFloat() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Chat with ${settings.name} on WhatsApp`}
-        className="group fixed bottom-5 right-5 z-50 flex items-center gap-0 rounded-full bg-whatsapp p-4 text-white shadow-xl shadow-emerald-600/30 transition-all hover:scale-105 hover:bg-whatsapp-dark sm:bottom-6 sm:right-6"
+        className="group fixed bottom-[var(--fab-bottom)] right-4 z-50 flex items-center gap-0 rounded-full bg-whatsapp p-4 text-white shadow-xl shadow-emerald-600/30 transition-all hover:scale-105 hover:bg-whatsapp-dark sm:right-6"
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1, type: "spring", stiffness: 260, damping: 18 }}

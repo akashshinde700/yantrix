@@ -88,6 +88,16 @@ export function ImmersiveSpaceHero() {
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
+      /* arrow keys move between slides when the carousel has focus */
+      onKeyDown={(event) => {
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          go(-1);
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          go(1);
+        }
+      }}
     >
       {/* The 3D universe (site shell) shows through; keep the copy side readable */}
       <div
@@ -101,6 +111,9 @@ export function ImmersiveSpaceHero() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`text-${index}`}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`Slide ${Math.min(index, total - 1) + 1} of ${total}`}
                 variants={textContainer}
                 initial={reducedMotion ? false : "hidden"}
                 animate="show"
@@ -180,6 +193,7 @@ export function ImmersiveSpaceHero() {
             {total > 1 && (
               <div className="mt-10 flex items-center gap-4">
                 <button
+                  type="button"
                   onClick={() => go(-1)}
                   aria-label="Previous slide"
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-slate-200 transition-colors hover:border-cyber-300/60 hover:text-white"
@@ -190,6 +204,7 @@ export function ImmersiveSpaceHero() {
                   {heroSlides.map((_, i) => (
                     <button
                       key={i}
+                      type="button"
                       onClick={() => setIndex(i)}
                       aria-label={`Go to slide ${i + 1}`}
                       aria-current={i === index ? "true" : undefined}
@@ -208,6 +223,7 @@ export function ImmersiveSpaceHero() {
                   ))}
                 </div>
                 <button
+                  type="button"
                   onClick={() => go(1)}
                   aria-label="Next slide"
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-slate-200 transition-colors hover:border-cyber-300/60 hover:text-white"

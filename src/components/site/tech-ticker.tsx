@@ -7,6 +7,7 @@ import { Aurora, HexRing, PulseGrid } from "@/components/site/svg-decor";
 import { HudCorners } from "@/components/site/ai-decor";
 import { ContentIcon } from "@/components/site/content-icon";
 import { useCollection, useSection } from "@/lib/content/provider";
+import { useMarqueeSpeed } from "@/components/site/use-marquee";
 import type { SimpleItem, Stat } from "@/lib/content/types";
 
 /* ────────────────────────────────────────────────────────────────────
@@ -17,6 +18,7 @@ import type { SimpleItem, Stat } from "@/lib/content/types";
 
 export function TechTicker() {
   const items = useCollection<SimpleItem>("techStack");
+  const [marqueeRef, marqueeStyle] = useMarqueeSpeed(46);
   if (items.length === 0) return null;
   const techStack = items.map((item) => item.label);
   const row = [...techStack, ...techStack]; // duplicated for a seamless -50% loop
@@ -29,7 +31,7 @@ export function TechTicker() {
         </p>
       </div>
       <div className="marquee-mask marquee-hover overflow-hidden">
-        <div className="animate-marquee flex w-max items-center gap-3 pr-3">
+        <div ref={marqueeRef} style={marqueeStyle} className="animate-marquee flex w-max items-center gap-3 pr-3">
           {row.map((tech, i) => (
             <span
               key={`${tech}-${i}`}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -42,6 +42,34 @@ export function Header() {
     setMobileOpen(false);
     navigate(v);
   };
+
+  /*
+   * The mobile menu used to stay open until the visitor tapped the hamburger
+   * again: Escape did nothing, tapping the page behind it did nothing, and
+   * rotating a phone to landscape left it hanging over the desktop layout.
+   */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileOpen(false);
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && !target.closest("[data-mobile-menu-root]")) setMobileOpen(false);
+    };
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const onBreakpoint = () => {
+      if (desktop.matches) setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    desktop.addEventListener("change", onBreakpoint);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+      desktop.removeEventListener("change", onBreakpoint);
+    };
+  }, [mobileOpen]);
 
   /**
    * Navigation used to be <button onClick> only, so the primary menu was
@@ -151,7 +179,7 @@ export function Header() {
             ))}
           </ul>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5" data-mobile-menu-root>
             <SoundButton className="h-10 w-10 ring-1 ring-white/10" />
             <a
               href={waHref}
@@ -174,7 +202,7 @@ export function Header() {
               className="flex h-11 w-11 items-center justify-center rounded-xl text-ink ring-1 ring-slate-200 transition-colors hover:bg-slate-50 lg:hidden"
               onClick={() => setMobileOpen((o) => !o)}
               aria-expanded={mobileOpen}
-              aria-controls="mobile-menu"
+              aria-controls={mobileOpen ? "mobile-menu" : undefined}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
               {mobileOpen ? (
@@ -191,6 +219,7 @@ export function Header() {
           {mobileOpen ? (
             <motion.div
               id="mobile-menu"
+              data-mobile-menu-root
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
