@@ -19,7 +19,7 @@ import { PageAbout } from "@/components/site/page-about";
 import { PageContact } from "@/components/site/page-contact";
 import { ScrollProgress, BackToTop } from "@/components/site/fx";
 import { useSiteStore } from "@/lib/store";
-import { useSiteContent } from "@/lib/content/provider";
+import { useLabels, useSiteContent } from "@/lib/content/provider";
 import type { SiteView } from "@/lib/content/types";
 
 /* The 3D universe is client-only and loads after first paint. */
@@ -59,6 +59,7 @@ export function SiteShell({
   const pendingSection = useSiteStore((s) => s.pendingSection);
   const clearPendingSection = useSiteStore((s) => s.clearPendingSection);
   const content = useSiteContent();
+  const t = useLabels();
   const seoPages = content.seo.pages;
   const ctaHidden = content.sections.cta.hidden;
 
@@ -163,7 +164,7 @@ export function SiteShell({
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-2 focus:text-white"
       >
-        Skip to main content
+        {t("common.skipToContent")}
       </a>
       <ScrollProgress />
       <AnnouncementTicker />

@@ -618,6 +618,22 @@ export interface SiteContent {
   sections: Record<SectionKey, SectionCopy>;
   pages: PageCopy;
   collections: CollectionMap;
+  /**
+   * Interface text — buttons, badges and micro-copy. Keyed flat (see
+   * `src/lib/content/labels.ts`); the store backfills new keys automatically.
+   */
+  labels: Record<string, string>;
+}
+
+/* ────────────────────────────── media ────────────────────────────── */
+
+/** A file in the media library (`/media/<id>`). */
+export interface MediaEntry {
+  id: string;
+  url: string;
+  mime: string;
+  bytes: number;
+  createdAt: string;
 }
 
 /* ───────────────────────────── enquiry ───────────────────────────── */

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { X, Star, Zap, Users, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useSettings } from "@/lib/content/provider";
+import { useLabels, useSettings } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
 import { ENTERED_EVENT } from "@/components/site/universe/chapters";
 
@@ -79,6 +79,7 @@ function readDismissed(): boolean {
 export function CosmicPopup() {
   const router = useRouter();
   const settings = useSettings();
+  const t = useLabels();
   const [isOpen, setIsOpen] = useState(false);
   // Read the session flag while initialising state instead of in an effect, so the
   // popup never renders once just to be dismissed (set-state-in-effect).
@@ -292,7 +293,7 @@ export function CosmicPopup() {
                     <span className="mr-2 flex h-5 w-5 items-center justify-center">
                       <Zap className="h-4 w-4" />
                     </span>
-                    Talk to Us on WhatsApp
+                    {t("popup.title")}
                   </Button>
                 </motion.div>
 
@@ -309,7 +310,7 @@ export function CosmicPopup() {
                     variant="outline"
                     className="h-11 w-full rounded-xl border-white/20 bg-white/5 px-6 text-base font-semibold text-white transition-all hover:bg-white/10 hover:border-white/40"
                   >
-                    Explore Courses
+                    {t("popup.explore")}
                   </Button>
                 </motion.div>
               </div>
@@ -318,7 +319,7 @@ export function CosmicPopup() {
             {/* Footer dismiss hint */}
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-500">
               <Star className="h-3 w-3 fill-cyan-400 text-cyan-400/60" />
-              <span>You can dismiss anytime</span>
+              <span>{t("popup.dismiss")}</span>
               <Star className="h-3 w-3 fill-cyan-400 text-cyan-400/60" />
             </div>
           </motion.div>

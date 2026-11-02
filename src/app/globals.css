@@ -1693,3 +1693,129 @@ body[data-scroll-locked] .placed-track {
     display: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   FUTURISTIC CARD SYSTEM
+   Animated conic border, HUD chips and hover sweeps used by the home page
+   blocks (gallery, testimonials, centres, brochure, app, partners).
+   Everything degrades gracefully: no animation for reduced-motion users and
+   no effects at all in browsers without `@property` support.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@property --aurora-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes aurora-spin {
+  to {
+    --aurora-angle: 360deg;
+  }
+}
+
+/* Card with a slowly rotating gradient ring; the ring brightens on hover. */
+.aurora-card {
+  position: relative;
+  isolation: isolate;
+}
+.aurora-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--aurora-angle),
+    rgba(34, 211, 238, 0) 0deg,
+    rgba(34, 211, 238, 0.75) 70deg,
+    rgba(129, 140, 248, 0.7) 150deg,
+    rgba(34, 211, 238, 0) 240deg,
+    rgba(34, 211, 238, 0) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.45;
+  animation: aurora-spin 9s linear infinite;
+  transition: opacity 0.4s ease;
+}
+.aurora-card:hover::before,
+.aurora-card:focus-within::before {
+  opacity: 1;
+}
+
+/* Small mono chip with a glowing dot — used for counts and states. */
+.hud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 15, 36, 0.7);
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(165 243 252);
+  backdrop-filter: blur(6px);
+}
+.hud-chip::before {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgb(34 211 238);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.9);
+}
+
+/* Diagonal light sweep across a card on hover. */
+.sweep-card {
+  position: relative;
+  overflow: hidden;
+}
+.sweep-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.14) 48%,
+    rgba(34, 211, 238, 0.18) 52%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.sweep-card:hover::after {
+  transform: translateX(120%);
+}
+
+/* Decorative dotted grid behind a section. */
+.grid-veil {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.16) 1px, transparent 0);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 25%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 25%, transparent 75%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-card::before {
+    animation: none;
+    opacity: 0.6;
+  }
+  .sweep-card::after {
+    display: none;
+  }
+}

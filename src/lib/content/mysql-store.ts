@@ -25,6 +25,7 @@ import type {
   CollectionKey,
   ContentItem,
   Enquiry,
+  MediaEntry,
   SiteContent,
 } from "@/lib/content/types";
 
@@ -366,6 +367,26 @@ export async function getMedia(id: string): Promise<{ mime: string; data: Buffer
   const conn = await db();
   const [rows] = await conn.query<RowDataPacket[]>("SELECT mime, data FROM media WHERE id = ?", [id]);
   return rows.length ? { mime: rows[0].mime as string, data: rows[0].data as Buffer } : null;
+}
+
+/** Every uploaded image, newest first (MySQL backend). */
+export async function listMedia(): Promise<MediaEntry[]> {
+  const conn = await db();
+  const [rows] = await conn.query<RowDataPacket[]>(
+    "SELECT id, mime, LENGTH(data) AS bytes, created_at FROM media ORDER BY created_at DESC"
+  );
+  return rows.map((row) => ({
+    id: row.id as string,
+    url: `/media/${row.id as string}`,
+    mime: (row.mime as string) || "image/webp",
+    bytes: Number(row.bytes ?? 0),
+    createdAt: new Date(row.created_at as string | number | Date).toISOString(),
+  }));
+}
+
+export async function deleteMedia(id: string): Promise<void> {
+  const conn = await db();
+  await conn.query("DELETE FROM media WHERE id = ?", [id]);
 }
 
 /* ─────────────────────────── admin users ─────────────────────────── */

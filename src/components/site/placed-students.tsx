@@ -6,7 +6,7 @@ import { ArrowRight, BadgeCheck, Quote, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SectionHeading } from "@/components/site/section-heading";
 import { PersonPhoto } from "@/components/site/trainers-section";
-import { useCollection, useSection } from "@/lib/content/provider";
+import { useCollection, useLabels, useSection } from "@/lib/content/provider";
 import type { PlacedStudent } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 
@@ -80,6 +80,7 @@ const FIRST_BATCH = 15;
  * remaining ones glide into their new places.
  */
 function PlacedGrid({ shown, reduced }: { shown: PlacedStudent[]; reduced: boolean }) {
+  const t = useLabels();
   const [limit, setLimit] = useState(FIRST_BATCH);
   useEffect(() => {
     const t = setTimeout(() => setLimit(Number.POSITIVE_INFINITY), 650);
@@ -113,7 +114,7 @@ function PlacedGrid({ shown, reduced }: { shown: PlacedStudent[]; reduced: boole
       </AnimatePresence>
       {shown.length === 0 && (
         <motion.li initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full py-12 text-center text-sm text-slate-400">
-          No students match your search.
+          {t("placed.empty")}
         </motion.li>
       )}
     </ul>
@@ -122,6 +123,7 @@ function PlacedGrid({ shown, reduced }: { shown: PlacedStudent[]; reduced: boole
 
 /** Every placed student, searchable by name or company, with quick company filters. */
 function AllPlacedDialog({ students }: { students: PlacedStudent[] }) {
+  const t = useLabels();
   const [query, setQuery] = useState("");
   const [company, setCompany] = useState<string | null>(null);
   const reduced = useReducedMotion();
@@ -158,9 +160,9 @@ function AllPlacedDialog({ students }: { students: PlacedStudent[] }) {
           className="flex flex-wrap items-end justify-between gap-3 pr-8"
         >
           <div>
-            <DialogTitle className="text-2xl font-extrabold">All placed students</DialogTitle>
+            <DialogTitle className="text-2xl font-extrabold">{t("placed.filterAll")}</DialogTitle>
             <DialogDescription className="mt-1 text-sm text-slate-400">
-              Search by name or company, or pick a company below.
+              {t("placed.searchHelp")}
             </DialogDescription>
           </div>
           <p className="text-sm text-slate-400" aria-live="polite">
@@ -186,7 +188,7 @@ function AllPlacedDialog({ students }: { students: PlacedStudent[] }) {
         >
           <div className="relative">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
-            <label htmlFor="placed-search" className="sr-only">Search placed students</label>
+            <label htmlFor="placed-search" className="sr-only">{t("placed.searchPlaceholder")}</label>
             <input
               id="placed-search"
               value={query}
@@ -218,7 +220,7 @@ function AllPlacedDialog({ students }: { students: PlacedStudent[] }) {
                         transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       />
                     )}
-                    <span className="relative">{c ?? "All"}</span>
+                    <span className="relative">{c ?? t("placed.filterAll")}</span>
                   </button>
                 );
               })}

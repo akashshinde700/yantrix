@@ -9,7 +9,7 @@ import {
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
-import { useCollection, useSection, useSettings } from "@/lib/content/provider";
+import { useCollection, useLabels, useSection, useSettings } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
 import type { Faq } from "@/lib/content/types";
 
@@ -17,6 +17,7 @@ export function FaqSection() {
   const faqs = useCollection<Faq>("faqs");
   const section = useSection("faq");
   const settings = useSettings();
+  const t = useLabels();
   if (section.hidden || faqs.length === 0) return null;
 
   return (
@@ -31,7 +32,7 @@ export function FaqSection() {
           />
           <Reveal delay={0.1}>
             <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
-              <p className="text-sm font-semibold text-emerald-900">Still have a question?</p>
+              <p className="text-sm font-semibold text-emerald-900">{t("faq.helpTitle")}</p>
               <p className="mt-1 text-sm leading-relaxed text-emerald-800">
                 Message us on WhatsApp — we usually reply within a few hours during working days.
               </p>
@@ -42,7 +43,7 @@ export function FaqSection() {
                 className="mt-3 inline-flex h-10 items-center gap-2 rounded-full bg-emerald-500 px-5 text-sm font-bold text-white transition-colors hover:bg-emerald-600"
               >
                 <WhatsAppIcon className="h-4.5 w-4.5" />
-                Ask on WhatsApp
+                {t("common.askWhatsapp")}
               </a>
             </div>
           </Reveal>

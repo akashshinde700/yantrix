@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useSiteStore } from "@/lib/store";
 import {
   useCollection,
+  useLabels,
   useSettings,
   useSiteContent,
 } from "@/lib/content/provider";
@@ -34,6 +35,7 @@ const textItem: Variants = {
 export function ImmersiveSpaceHero() {
   const navigate = useSiteStore((s) => s.navigate);
   const settings = useSettings();
+  const t = useLabels();
   const heroSlides = useCollection<HeroSlide>("heroSlides");
   const trustChips = useCollection<TrustChip>("trustChips");
   const stats = useCollection<Stat>("stats");
@@ -251,7 +253,7 @@ export function ImmersiveSpaceHero() {
         className="pointer-events-none absolute bottom-20 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex"
       >
         <span className="font-mono text-[10px] uppercase tracking-[0.35em] text-slate-400">
-          Scroll to explore
+          {t("hero.scrollHint")}
         </span>
         <span className="relative h-9 w-5 rounded-full border border-white/25">
           <span className="scroll-cue-dot absolute left-1/2 top-1.5 h-2 w-0.5 -translate-x-1/2 rounded-full bg-cyber-300" />

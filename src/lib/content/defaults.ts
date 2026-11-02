@@ -14,6 +14,7 @@ import {
   TESTIMONIAL_SEEDS,
   VIDEO_SEEDS,
 } from "@/lib/content/home-extras-seeds";
+import { LABEL_DEFAULTS } from "@/lib/content/labels";
 
 /* ────────────────────────────────────────────────────────────────────
    Default (seed) content for the Yantrix Technology website.
@@ -767,4 +768,5 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
   },
   collections,
+  labels: LABEL_DEFAULTS,
 };

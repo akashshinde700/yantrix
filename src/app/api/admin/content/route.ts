@@ -136,12 +136,19 @@ export async function POST(request: NextRequest) {
   const op = String(body.op ?? "");
 
   try {
-    if (op === "updateSettings" || op === "updateSeo" || op === "updateSections" || op === "updatePages") {
+    if (
+      op === "updateSettings" ||
+      op === "updateSeo" ||
+      op === "updateSections" ||
+      op === "updatePages" ||
+      op === "updateLabels"
+    ) {
       const keyMap = {
         updateSettings: "settings",
         updateSeo: "seo",
         updateSections: "sections",
         updatePages: "pages",
+        updateLabels: "labels",
       } as const;
       const key = keyMap[op as keyof typeof keyMap];
       const content = await updateContent((current) => {
@@ -223,6 +230,64 @@ export async function POST(request: NextRequest) {
       });
       await addAuditEntry({ actorEmail: admin.email, action: "deleteItem", target: collection });
       return NextResponse.json({ ok: true, content });
+    }
+
+    /*
+     * Duplicate: copy an item, put the copy right after the original and give
+     * it a "(copy)" suffix so two identical rows are never confusable. Courses
+     * go through the slug helper so the copy gets its own URL instead of
+     * clashing with the original.
+     */
+    if (op === "duplicateItem") {
+      if (!isCollectionKey(body.collection) || typeof body.id !== "string") {
+        return NextResponse.json({ ok: false, error: "Unknown collection or item." }, { status: 400 });
+      }
+      const collection = body.collection;
+      const id = body.id;
+      let created: string | null = null;
+      const content = await updateContent((current) => {
+        const list = [...current.collections[collection]].sort(
+          (a, b) => a.sortOrder - b.sortOrder
+        );
+        const index = list.findIndex((item) => item.id === id);
+        if (index === -1) return current;
+
+        const source = list[index] as unknown as Record<string, unknown>;
+        const copy: Record<string, unknown> = { ...source };
+        delete copy.id;
+        const labelKey =
+          typeof copy.title === "string" && copy.title
+            ? "title"
+            : typeof copy.name === "string" && copy.name
+              ? "name"
+              : typeof copy.label === "string" && copy.label
+                ? "label"
+                : typeof copy.text === "string" && copy.text
+                  ? "text"
+                  : null;
+        if (labelKey) copy[labelKey] = `${String(copy[labelKey])} (copy)`;
+        // A copy starts hidden — it is a draft until the admin publishes it, so
+        // duplicating can never put a half-edited item live by accident.
+        copy.active = false;
+        if (collection === "courses") {
+          // the slug helper needs a title; the labelKey pass already suffixed it
+          const prepared = withCourseSlug(copy, current.collections.courses, null);
+          Object.assign(copy, prepared);
+        }
+        created = randomUUID();
+        copy.id = created;
+        copy.sortOrder = (list[index].sortOrder ?? index + 1) + 0.5;
+
+        const next = [...list];
+        next.splice(index + 1, 0, copy as (typeof list)[number]);
+        current.collections[collection] = next.map((entry, i) => ({
+          ...entry,
+          sortOrder: i + 1,
+        })) as typeof current.collections[typeof collection];
+        return current;
+      });
+      await addAuditEntry({ actorEmail: admin.email, action: "duplicateItem", target: collection });
+      return NextResponse.json({ ok: true, content, id: created });
     }
 
     if (op === "moveItem") {

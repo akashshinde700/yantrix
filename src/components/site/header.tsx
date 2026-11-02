@@ -15,7 +15,7 @@ import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { SoundButton } from "@/components/site/sound-button";
 import { useSiteStore } from "@/lib/store";
-import { useCollection, useSettings } from "@/lib/content/provider";
+import { useCollection, useLabels, useSettings } from "@/lib/content/provider";
 import { phoneHref, whatsappUrl } from "@/lib/content/helpers";
 import type { NavLink, SiteView } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,7 @@ export function Header() {
   const navigate = useSiteStore((s) => s.navigate);
   const [mobileOpen, setMobileOpen] = useState(false);
   const settings = useSettings();
+  const t = useLabels();
   const navItems = useCollection<NavLink>("navHeader");
   const waHref = whatsappUrl(settings);
   const telHref = phoneHref(settings);
@@ -165,7 +166,7 @@ export function Header() {
               asChild
               className="btn-futur btn-shine hidden h-10 rounded-full px-5 text-sm font-bold text-white sm:inline-flex"
             >
-              <a {...navLinkProps("contact")}>Contact for Admission</a>
+              <a {...navLinkProps("contact")}>{t("header.ctaContact")}</a>
             </Button>
 
             {/* Mobile hamburger */}
@@ -218,7 +219,7 @@ export function Header() {
                     asChild
                     className="btn-futur h-12 rounded-xl text-base font-bold text-white"
                   >
-                    <a {...navLinkProps("contact")}>Contact for Admission</a>
+                    <a {...navLinkProps("contact")}>{t("header.ctaContact")}</a>
                   </Button>
                   <a
                     href={waHref}
@@ -227,7 +228,7 @@ export function Header() {
                     className="flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-500 text-base font-bold text-white hover:bg-emerald-600"
                   >
                     <WhatsAppIcon className="h-5 w-5" />
-                    Chat on WhatsApp
+                    {t("header.ctaWhatsapp")}
                   </a>
                 </li>
               </ul>

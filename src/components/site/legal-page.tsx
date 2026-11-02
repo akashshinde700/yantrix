@@ -48,6 +48,7 @@ export async function LegalPage({ kind }: { kind: LegalKind }) {
   const content = await getContent();
   const { settings } = content;
   const legal = settings.legal;
+  const legalContact = content.labels["legal.contact"] || "Contact us about this page";
   const title =
     kind === "privacy" ? legal.privacyTitle : kind === "refund" ? legal.refundTitle : legal.termsTitle;
   const body =
@@ -140,7 +141,7 @@ export async function LegalPage({ kind }: { kind: LegalKind }) {
           )}
         </div>
         <h2 className="mt-12 text-lg font-extrabold text-white">
-          Contact us about this page
+          {legalContact}
         </h2>
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-slate-300">
           <p className="font-bold text-white">{settings.name}</p>

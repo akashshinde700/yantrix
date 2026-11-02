@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowDown,
   ArrowUp,
+  Copy,
   Eye,
   EyeOff,
   Loader2,
@@ -212,6 +213,26 @@ export function CollectionEditor({
                       }
                     >
                       {inactive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title="Duplicate"
+                      onClick={async () => {
+                        setBusyId(item.id);
+                        await run(
+                          { op: "duplicateItem", collection, id: item.id },
+                          "Copy created (hidden) — edit it, then publish"
+                        );
+                        setBusyId(null);
+                      }}
+                    >
+                      {busyId === item.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
                     </Button>
                     <Button
                       variant="ghost"

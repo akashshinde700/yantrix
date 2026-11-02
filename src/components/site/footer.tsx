@@ -22,7 +22,7 @@ import {
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { useSiteStore } from "@/lib/store";
-import { useCollection, useSettings } from "@/lib/content/provider";
+import { useCollection, useLabels, useSettings } from "@/lib/content/provider";
 import {
   emailHref,
   fullAddress,
@@ -193,6 +193,7 @@ function FooterLink({
 export function Footer({ showCta = true }: { showCta?: boolean }) {
   const navigate = useSiteStore((s) => s.navigate);
   const settings = useSettings();
+  const t = useLabels();
   const quickLinks = useCollection<NavLink>("navFooter");
   const courses = useCollection<Course>("courses");
   const status = useOpenStatus(settings);
@@ -270,7 +271,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
                   onClick={() => navigate("courses")}
                   className="h-11 rounded-full bg-white px-6 text-sm font-bold text-brand-900 transition-transform hover:-translate-y-0.5"
                 >
-                  Explore Courses
+                  {t("footer.ctaExplore")}
                 </button>
                 <a
                   href={waHref}
@@ -279,7 +280,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
                   className="btn-whatsapp flex h-11 items-center gap-2 rounded-full px-6 text-sm font-bold text-white"
                 >
                   <WhatsAppIcon className="h-4.5 w-4.5" />
-                  WhatsApp Us
+                  {t("footer.ctaWhatsapp")}
                 </a>
               </div>
             </div>
@@ -325,7 +326,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
               )}
             </div>
             {social.length > 0 && (
-              <ul className="flex gap-2" aria-label="Social media">
+              <ul className="flex gap-2" aria-label={t("footer.followHeading")}>
                 {social.map(({ key, label, Icon }) => (
                   <li key={key}>
                     <a
@@ -350,7 +351,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
             aria-label="Footer navigation"
           >
             <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.3em] text-cyber-300">
-              Explore
+              {t("footer.exploreHeading")}
             </h3>
             <ul className="mt-5 space-y-3">
               {quickLinks.map((link) => (
@@ -370,7 +371,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
           {/* Courses — real course pages (crawlable links) */}
           <motion.nav custom={2} variants={column} aria-label="Popular courses">
             <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.3em] text-cyber-300">
-              Courses
+              {t("footer.coursesHeading")}
             </h3>
             <ul className="mt-5 space-y-3">
               {courses.slice(0, 6).map((course) => (
@@ -386,7 +387,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
           {/* Contact */}
           <motion.div custom={3} variants={column}>
             <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.3em] text-cyber-300">
-              Visit or call
+              {t("footer.visitHeading")}
             </h3>
             <ul className="mt-5 space-y-2.5 text-sm">
               {[
@@ -520,14 +521,14 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
                 href="/admin"
                 className="font-semibold text-slate-600 underline-offset-4 transition-colors hover:text-white hover:underline"
               >
-                Admin
+                {t("footer.adminLink")}
               </a>
               <button
                 type="button"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1 font-semibold text-slate-300 transition-colors hover:border-cyan-300/50 hover:text-white"
               >
-                Back to orbit
+                {t("footer.backToOrbit")}
                 <ArrowUp
                   className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5"
                   aria-hidden="true"

@@ -26,6 +26,7 @@ import type {
   AdminAuditEntry,
   AdminPatch,
   Enquiry,
+  MediaEntry,
   SiteContent,
 } from "@/lib/content/types";
 
@@ -282,6 +283,17 @@ export function getMedia(id: string): Promise<{ mime: string; data: Buffer } | n
   return run(
     () => mysqlStore.getMedia(id),
     () => jsonStore.getMedia(id)
+  );
+}
+
+export function listMedia(): Promise<MediaEntry[]> {
+  return run(mysqlStore.listMedia, jsonStore.listMedia);
+}
+
+export function deleteMedia(id: string): Promise<void> {
+  return run(
+    () => mysqlStore.deleteMedia(id),
+    () => jsonStore.deleteMedia(id)
   );
 }
 

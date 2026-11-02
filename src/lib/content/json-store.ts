@@ -24,6 +24,7 @@ import type {
   CollectionKey,
   ContentItem,
   Enquiry,
+  MediaEntry,
   SiteContent,
 } from "@/lib/content/types";
 
@@ -301,6 +302,48 @@ export async function getMedia(id: string): Promise<{ mime: string; data: Buffer
   } catch {
     return null;
   }
+}
+
+/** Every uploaded image, newest first (JSON backend). */
+export async function listMedia(): Promise<MediaEntry[]> {
+  const dir = path.join(DATA_DIR, "media");
+  let names: string[] = [];
+  try {
+    names = await fs.readdir(/* turbopackIgnore: true */ dir);
+  } catch {
+    return [];
+  }
+  const ids = names.filter((name) => !name.endsWith(".type"));
+  const rows = await Promise.all(
+    ids.map(async (id) => {
+      try {
+        const [stat, mime] = await Promise.all([
+          fs.stat(/* turbopackIgnore: true */ path.join(dir, id)),
+          fs.readFile(/* turbopackIgnore: true */ path.join(dir, `${id}.type`), "utf8"),
+        ]);
+        return {
+          id,
+          url: `/media/${id}`,
+          mime: mime.trim() || "image/webp",
+          bytes: stat.size,
+          createdAt: stat.mtime.toISOString(),
+        } satisfies MediaEntry;
+      } catch {
+        return null;
+      }
+    })
+  );
+  return rows
+    .filter((row): row is MediaEntry => row !== null)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function deleteMedia(id: string): Promise<void> {
+  const dir = path.join(DATA_DIR, "media");
+  await Promise.allSettled([
+    fs.unlink(/* turbopackIgnore: true */ path.join(dir, id)),
+    fs.unlink(/* turbopackIgnore: true */ path.join(dir, `${id}.type`)),
+  ]);
 }
 
 export async function getAdmins(): Promise<AdminAccount[]> {

@@ -2,11 +2,12 @@
 
 import { motion } from "framer-motion";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
-import { useSettings } from "@/lib/content/provider";
+import { useLabels, useSettings } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
 
 export function WhatsAppFloat() {
   const settings = useSettings();
+  const t = useLabels();
   return (
     /* <aside> gives this floating action a landmark: without it axe reports
        page content that is not contained by any landmark. */
@@ -29,7 +30,7 @@ export function WhatsAppFloat() {
         />
         <WhatsAppIcon className="h-7 w-7 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />
         <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-bold transition-all duration-300 group-hover:ml-2 group-hover:max-w-[140px]">
-          Chat with us
+          {t("float.chat")}
         </span>
       </motion.a>
     </aside>

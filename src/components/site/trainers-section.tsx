@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Briefcase, Building2, Code2, GraduationCap, Linkedin } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SectionHeading } from "@/components/site/section-heading";
-import { useCollection, useSection } from "@/lib/content/provider";
+import { useCollection, useLabels, useSection } from "@/lib/content/provider";
 import type { Trainer } from "@/lib/content/types";
 
 export function initials(name: string): string {
@@ -64,6 +64,7 @@ function ProfileBlock({ icon: Icon, title, children }: { icon: typeof Briefcase;
 }
 
 function TrainerProfile({ trainer }: { trainer: Trainer }) {
+  const t = useLabels();
   const has = (list?: string[]) => Array.isArray(list) && list.filter(Boolean).length > 0;
   return (
     <div className="grid gap-6 sm:grid-cols-[180px_1fr]">
@@ -82,7 +83,7 @@ function TrainerProfile({ trainer }: { trainer: Trainer }) {
             className="flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-slate-200 transition-colors hover:border-cyan-300/50 hover:text-white"
           >
             <Linkedin className="h-4 w-4" aria-hidden="true" />
-            LinkedIn
+            {t("trainers.linkedin")}
             <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
         )}
@@ -132,6 +133,7 @@ function TrainerProfile({ trainer }: { trainer: Trainer }) {
 export function TrainersSection() {
   const section = useSection("trainers");
   const trainers = useCollection<Trainer>("trainers");
+  const t = useLabels();
   if (section.hidden || trainers.length === 0) return null;
 
   return (
@@ -177,7 +179,7 @@ export function TrainersSection() {
                           type="button"
                           className="mt-auto inline-flex items-center gap-1.5 self-start pt-2 text-sm font-bold text-cyber-300 transition-colors hover:text-white"
                         >
-                          View full profile
+                          {t("trainers.profile")}
                           <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
                           <span className="sr-only"> of {trainer.name}</span>
                         </button>

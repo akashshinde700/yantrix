@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Send, X } from "lucide-react";
-import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
+import { useCollection, useLabels, useSettings, useSiteContent } from "@/lib/content/provider";
 import { fullAddress, phoneHref, whatsappUrl } from "@/lib/content/helpers";
 import { useSiteStore } from "@/lib/store";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
@@ -45,6 +45,7 @@ const QUICK = ["Which courses do you offer?", "What are the fees?", "Placement h
 
 export function YantrixGuide() {
   const settings = useSettings();
+  const t = useLabels();
   const content = useSiteContent();
   const courses = useCollection<Course>("courses");
   const faqs = useCollection<Faq>("faqs");
@@ -220,8 +221,8 @@ export function YantrixGuide() {
         className="group fixed bottom-4 left-4 z-40 flex items-center gap-2.5 rounded-full border border-white/10 bg-[#050a1c]/70 p-1.5 pr-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] backdrop-blur-xl transition-all hover:border-cyan-300/40 sm:bottom-5 sm:left-5 sm:pr-4"
       >
         <span className="yantra-orb relative h-9 w-9 rounded-full" aria-hidden="true" />
-        <span className="hidden text-sm font-semibold text-white sm:inline">Ask Yantra</span>
-        <span className="sr-only sm:hidden">Ask Yantra, the course guide</span>
+        <span className="hidden text-sm font-semibold text-white sm:inline">{t("guide.title")}</span>
+        <span className="sr-only sm:hidden">{t("guide.placeholder")}</span>
       </button>
 
       <AnimatePresence>
@@ -240,7 +241,7 @@ export function YantrixGuide() {
               <span className="yantra-orb relative h-10 w-10 shrink-0 rounded-full" aria-hidden="true" />
               <div className="flex-1">
                 <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-cyan-300">Yantra</p>
-                <p className="text-sm font-semibold text-slate-100">Your course guide</p>
+                <p className="text-sm font-semibold text-slate-100">{t("guide.subtitle")}</p>
               </div>
               <button
                 type="button"
@@ -316,7 +317,7 @@ export function YantrixGuide() {
               className="flex items-center gap-2 border-t border-white/10 p-3"
             >
               <label htmlFor="yantra-input" className="sr-only">
-                Ask a question
+                {t("guide.ask")}
               </label>
               <input
                 id="yantra-input"
