@@ -12,9 +12,102 @@
 
 const LANGUAGE = "Hindi · English · Marathi";
 
+/* ────────────────────── blocks shared by every course ────────────────────── */
+
+/** "What's included" icon grid — the same promises on every program. */
+const INCLUDES = [
+  { label: "Live interactive classes", icon: "Monitor" },
+  { label: "Recorded video lectures", icon: "Video" },
+  { label: "Curated notes & PDFs", icon: "FileText" },
+  { label: "Assignments", icon: "Wrench" },
+  { label: "Assessments & quizzes", icon: "CheckCircle2" },
+  { label: "Taught by industry experts", icon: "Users" },
+  { label: "Structured learning path", icon: "BookOpen" },
+  { label: "Certificate on completion", icon: "Award" },
+  { label: "Doubt support", icon: "MessagesSquare" },
+  { label: "Live tests", icon: "Trophy" },
+  { label: "Placement preparation", icon: "Briefcase" },
+  { label: "Portfolio review", icon: "Star" },
+];
+
+const CERTIFICATE = {
+  certificateTitle: "Certificate of completion",
+  certificateText:
+    "Finish the modules, assignments and your final project to receive a Yantrix Technology certificate you can add to your resume and LinkedIn profile.",
+};
+
+const PLACEMENT = {
+  placementTitle: "Placement & career support",
+  placementText:
+    "Training is only half the job — the other half is getting interviews and clearing them. Every program includes structured career support from our team.",
+};
+
+const TRAINER = {
+  name: "Yantrix Technology mentors",
+  role: "Working developers & trainers",
+  bio: "Sessions are led by mentors who build software professionally, so every topic comes with the context of how it is used on a real team.",
+  photo: "",
+};
+
+/**
+ * Merge the shared blocks into one course entry. Per-course values win, so a
+ * course can override anything it needs.
+ */
+const shared = (course: Record<string, unknown>): Record<string, unknown> => ({
+  includes: INCLUDES,
+  ...CERTIFICATE,
+  ...PLACEMENT,
+  trainer: TRAINER,
+  batches: [
+    {
+      label: "Weekday batch",
+      timing: "Mon–Fri · 2 hours/day",
+      starts: "Next month",
+      seats: "15 seats",
+      mode: "Offline",
+    },
+    {
+      label: "Weekend batch",
+      timing: "Sat–Sun · 3 hours/day",
+      starts: "Every month",
+      seats: "15 seats",
+      mode: "Offline",
+    },
+    {
+      label: "Online batch",
+      timing: "Mon–Thu · evening",
+      starts: "Every month",
+      seats: "20 seats",
+      mode: "Online",
+    },
+  ],
+  urgencyNote: "Admissions open — limited seats per batch",
+  ...course,
+});
+
 export const COURSE_SEEDS: Record<string, unknown>[] = [
-  {
+  shared({
     slug: "full-stack-development",
+    audience: "Designed for freshers, career switchers and working professionals",
+    miniProjects: [
+      { title: "Quiz application", description: "Timed quiz with scoring and a result screen, built in vanilla JavaScript." },
+      { title: "Calculator app", description: "Keyboard-friendly calculator that teaches DOM events and state." },
+      { title: "Weather app", description: "Live weather from a public API with loading and error states." },
+      { title: "Movie search app", description: "Search, debounce and render results from an external API." },
+    ],
+    projects: [
+      { title: "E-commerce website", description: "Product listing, cart, checkout, order history and an admin panel." },
+      { title: "Realtime chat app", description: "Authenticated rooms and direct messages over WebSockets." },
+      { title: "Learning management system", description: "Courses, video lessons, quizzes, progress tracking and certificates." },
+      { title: "Generative AI chatbot", description: "OpenAI or Gemini powered assistant with context memory and a knowledge base." },
+    ],
+    placementPoints: [
+      "Resume and GitHub portfolio review with line-by-line feedback",
+      "Mock technical interviews followed by a written improvement plan",
+      "Weekly coding practice so you can explain code, not just write it",
+      "HR round practice: self-introduction, projects, salary questions",
+      "Job alerts from our hiring partners while you are still studying",
+    ],
     title: "Full Stack Development",
     icon: "Layers",
     badge: "Most popular",
@@ -231,10 +324,27 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "Full Stack Development Course in Pune — Fees, Syllabus & Batches",
     seoDescription:
       "Learn full stack development in Pune with hands-on projects: HTML, CSS, JavaScript, React, Node.js, MongoDB and deployment. Online and classroom batches with placement assistance.",
-  },
+  }),
 
-  {
+  shared({
     slug: "web-development",
+    audience: "Designed for beginners, designers moving into code and freelancers",
+    miniProjects: [
+      { title: "Personal portfolio page", description: "Single-page introduction with smooth scrolling and a contact form." },
+      { title: "Landing page clone", description: "Rebuild a real product landing page pixel-sharp from a screenshot." },
+      { title: "To-do list app", description: "Add, complete and filter tasks with local storage." },
+    ],
+    projects: [
+      { title: "Multi-page business website", description: "Home, services, gallery and contact pages with a shared header and footer." },
+      { title: "Restaurant website", description: "Digital menu, table booking form and Google Maps embed." },
+      { title: "Live dashboard UI", description: "Responsive dashboard that pulls real data from a public API." },
+    ],
+    placementPoints: [
+      "Portfolio review before you start applying",
+      "Frontend interview questions on HTML, CSS and JavaScript",
+      "Freelance handover checklist: scope, hosting and invoicing basics",
+      "Guidance on choosing between design, frontend and full stack roles",
+    ],
     title: "Web Development",
     icon: "Globe",
     badge: "",
@@ -340,10 +450,27 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "Web Development Course in Pune — HTML, CSS & JavaScript",
     seoDescription:
       "Learn web development from scratch in Pune: HTML5, modern CSS, JavaScript and responsive design, ending with a deployed portfolio website.",
-  },
+  }),
 
-  {
+  shared({
     slug: "python-programming",
+    audience: "Designed for absolute beginners, students and analysts moving to code",
+    miniProjects: [
+      { title: "Number guessing game", description: "Loops, conditions and random numbers in one small program." },
+      { title: "File organiser script", description: "Sort a messy downloads folder into type-based subfolders." },
+      { title: "CSV report generator", description: "Read a spreadsheet, summarise it and write a clean report." },
+    ],
+    projects: [
+      { title: "Expense tracker", description: "Command-line tracker with categories, totals and CSV export." },
+      { title: "Web scraper to Excel", description: "Collect data from a public site and save it as a formatted sheet." },
+      { title: "Flask mini web app", description: "A small API plus page that puts your Python logic on the web." },
+    ],
+    placementPoints: [
+      "Coding-round practice with the patterns interviews reuse",
+      "Explain-your-code sessions to build confidence in technical rounds",
+      "Guidance on the next step: analytics, backend or AI/ML",
+      "Resume review focused on projects rather than certificates",
+    ],
     title: "Python Programming",
     icon: "Braces",
     badge: "",
@@ -439,10 +566,27 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "Python Programming Course in Pune — Beginner to Advanced",
     seoDescription:
       "Learn Python programming in Pune from scratch: core syntax, data structures, OOP, automation and mini projects. Online and classroom batches.",
-  },
+  }),
 
-  {
+  shared({
     slug: "java-programming",
+    audience: "Designed for beginners and students targeting enterprise roles",
+    miniProjects: [
+      { title: "Console banking app", description: "Accounts, deposits, transfers and statements with clean OOP design." },
+      { title: "Student record manager", description: "CRUD over collections with search and sorting." },
+      { title: "Quiz console", description: "Question bank, scoring and result summary using classes." },
+    ],
+    projects: [
+      { title: "Library management system", description: "JDBC + MySQL with layered architecture and issue/return records." },
+      { title: "Employee payroll application", description: "Salaries, deductions, payslips and a printable summary." },
+      { title: "REST API with Spring Boot", description: "CRUD API with validation, error handling and Postman tests." },
+    ],
+    placementPoints: [
+      "Core Java, collections and exception interview drills",
+      "OOP design questions explained with your own project examples",
+      "Mock interviews with written feedback",
+      "A clear path into Spring Boot and backend roles",
+    ],
     title: "Java Programming",
     icon: "MousePointerClick",
     badge: "",
@@ -530,10 +674,27 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "Java Programming Course in Pune — Core Java & OOP",
     seoDescription:
       "Learn Core Java and object-oriented programming in Pune: collections, generics, exceptions, JDBC and JUnit, with a project-based curriculum.",
-  },
+  }),
 
-  {
+  shared({
     slug: "data-analytics",
+    audience: "Designed for graduates, MIS/ops staff and career switchers",
+    miniProjects: [
+      { title: "Excel sales dashboard", description: "Pivot tables, slicers and charts over a year of sales data." },
+      { title: "SQL customer analysis", description: "Joins and aggregates to answer retention questions." },
+      { title: "HR attrition report", description: "Clean messy HR data, then visualise what drives attrition." },
+    ],
+    projects: [
+      { title: "Retail sales analysis", description: "End-to-end: cleaning, SQL exploration, dashboard and findings." },
+      { title: "Marketing funnel dashboard", description: "Channel-wise spend, leads and conversion in Power BI." },
+      { title: "Operations KPI report", description: "Delivery times and cost leaks, presented as a one-page report." },
+    ],
+    placementPoints: [
+      "Portfolio of three dashboards you can walk an interviewer through",
+      "SQL interview practice with real business questions",
+      "Case-study practice: 'this metric dropped, why?'",
+      "Resume positioning for analyst, MIS and business analyst roles",
+    ],
     title: "Data Analytics",
     icon: "BarChart3",
     badge: "",
@@ -635,10 +796,27 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "Data Analytics Course in Pune — Excel, SQL & Power BI",
     seoDescription:
       "Data Analytics course in Pune: Excel, SQL, Power BI dashboards and a real-data capstone. Online and classroom batches with placement assistance.",
-  },
+  }),
 
-  {
+  shared({
     slug: "digital-marketing",
+    audience: "Designed for freshers, business owners and sales professionals",
+    miniProjects: [
+      { title: "Keyword research sprint", description: "Build a keyword map for a real local business." },
+      { title: "Content calendar", description: "A month of posts with hooks, captions and hashtags." },
+      { title: "Ad copy A/B set", description: "Write and critique two versions of the same ad." },
+    ],
+    projects: [
+      { title: "SEO audit & action plan", description: "Technical and on-page audit of a live site with a fix list." },
+      { title: "Live ads campaign", description: "Set up, run and optimise a small Meta or Google campaign." },
+      { title: "GA4 dashboard & report", description: "Track conversions with UTMs and write a monthly client report." },
+    ],
+    placementPoints: [
+      "A documented case study you can show a client or employer",
+      "Interview practice on funnels, budgets and reporting",
+      "Freelance proposal and pricing basics",
+      "Guidance on agency vs in-house vs freelance paths",
+    ],
     title: "Digital Marketing",
     icon: "Megaphone",
     badge: "",
@@ -726,10 +904,27 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "Digital Marketing Course in Pune — SEO, Ads & Analytics",
     seoDescription:
       "Practical digital marketing course in Pune: SEO, social media, Google and Meta ads, GA4 analytics and a live campaign project.",
-  },
+  }),
 
-  {
+  shared({
     slug: "ui-ux-design",
+    audience: "Designed for beginners, developers and graphic designers",
+    miniProjects: [
+      { title: "Mobile app wireframe", description: "Low-fidelity screens for a booking flow." },
+      { title: "Design system starter", description: "Colour, type, spacing and core components in Figma." },
+      { title: "Onboarding prototype", description: "Clickable three-step onboarding with validation states." },
+    ],
+    projects: [
+      { title: "Food delivery app case study", description: "Research, flows, prototype and a usability test summary." },
+      { title: "Dashboard redesign", description: "Take a cluttered admin screen and make it readable." },
+      { title: "Figma portfolio", description: "Three case studies presented the way design interviews expect." },
+    ],
+    placementPoints: [
+      "Portfolio and case-study reviews every month",
+      "Mock design interviews including whiteboard challenges",
+      "Feedback rounds that mirror a real design team critique",
+      "Guidance on UI, UX and product design role differences",
+    ],
     title: "UI/UX Design",
     icon: "Palette",
     badge: "",
@@ -821,10 +1016,27 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "UI/UX Design Course in Pune — Figma & Portfolio",
     seoDescription:
       "UI/UX design course in Pune: design thinking, wireframing, Figma prototyping and three portfolio case studies. Online and classroom batches.",
-  },
+  }),
 
-  {
+  shared({
     slug: "basic-computer-training",
+    audience: "Designed for absolute beginners and first-time computer users",
+    miniProjects: [
+      { title: "Formatted resume", description: "A clean one-page resume in MS Word." },
+      { title: "Household budget", description: "Excel sheet with formulas, totals and a simple chart." },
+      { title: "Presentation", description: "A five-slide deck on a topic you choose." },
+    ],
+    projects: [
+      { title: "Personal expense tracker", description: "Monthly tracker with categories and a summary sheet." },
+      { title: "Small business invoice sheet", description: "Invoice plus stock register built in Excel." },
+      { title: "Digital portfolio folder", description: "Organised documents with cloud backup and sharing." },
+    ],
+    placementPoints: [
+      "Office-readiness checklist: files, email etiquette, printing",
+      "Typing speed and accuracy practice",
+      "Basic interview practice and self-introduction",
+      "Guidance on the next course to take after this one",
+    ],
     title: "MS-CIT / Basic Computer Training",
     icon: "Laptop",
     badge: "",
@@ -911,5 +1123,5 @@ export const COURSE_SEEDS: Record<string, unknown>[] = [
     seoTitle: "MS-CIT & Basic Computer Course in Pune for Beginners",
     seoDescription:
       "Beginner computer course in Pune: Windows, MS Word, Excel, PowerPoint, internet and email, with MS-CIT style practice tests.",
-  },
+  }),
 ];

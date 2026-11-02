@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  Award,
   BarChart3,
   BookOpen,
+  Briefcase,
+  CalendarDays,
   CheckCircle2,
   ChevronDown,
   Clock,
@@ -15,9 +18,12 @@ import {
   MapPin,
   Monitor,
   Quote,
+  Rocket,
   ShieldCheck,
   Sparkles,
+  Star,
   UserRound,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
@@ -28,6 +34,7 @@ import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
 import { useCollection, useSettings, useSiteContent } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
 import { courseFaqs, courseHeadline, coursePath } from "@/lib/seo";
+import { getIcon } from "@/lib/content/icons";
 import { useSiteStore } from "@/lib/store";
 import type { Course } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
@@ -124,6 +131,107 @@ function CoverArt({
   );
 }
 
+/* ─────────────────────────── urgency strip ─────────────────────────── */
+
+/** Live countdown to the next batch start. Renders nothing until mounted, so
+ *  the server and client markup always match on first paint. */
+function useCountdown(target?: string) {
+  const [left, setLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!target) return;
+    const end = new Date(`${target}T00:00:00`).getTime();
+    if (Number.isNaN(end)) return;
+    const tick = () => setLeft(Math.max(0, end - Date.now()));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [target]);
+
+  if (left === null || left <= 0) return null;
+  const totalSeconds = Math.floor(left / 1000);
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+  };
+}
+
+/**
+ * The announcement strip that sits above the course page (the "batch closing
+ * in" strip these course pages usually carry). The countdown only appears when
+ * the admin set a batch start date.
+ */
+function UrgencyStrip({
+  note,
+  startDate,
+  fee,
+  onEnquire,
+}: {
+  note?: string;
+  startDate?: string;
+  fee?: string;
+  onEnquire: () => void;
+}) {
+  const left = useCountdown(startDate);
+  if (!note && !left) return null;
+
+  const units = left
+    ? [
+        { value: left.days, label: "days" },
+        { value: left.hours, label: "hrs" },
+        { value: left.minutes, label: "min" },
+        { value: left.seconds, label: "sec" },
+      ]
+    : [];
+
+  return (
+    <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-cyber-400/25 bg-gradient-to-r from-[#0b1a3a] via-[#081128] to-[#0b1a3a] px-4 py-3 shadow-[0_16px_40px_-24px_rgba(34,211,238,0.6)] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        <span className="relative flex h-2.5 w-2.5 shrink-0">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyber-400 opacity-70" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-cyber-300" />
+        </span>
+        <p className="text-xs font-bold uppercase tracking-wider text-cyber-200 sm:text-[13px]">
+          {note || "Admissions open"}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        {units.length > 0 ? (
+          <div className="flex items-center gap-1.5">
+            <span className="mr-1 hidden text-[11px] font-bold uppercase tracking-wider text-slate-400 sm:inline">
+              Batch starts in
+            </span>
+            {units.map((unit) => (
+              <span
+                key={unit.label}
+                className="flex min-w-[46px] flex-col items-center rounded-lg border border-white/10 bg-black/30 px-2 py-1"
+              >
+                <span className="font-mono text-sm font-extrabold leading-none text-white">
+                  {String(unit.value).padStart(2, "0")}
+                </span>
+                <span className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                  {unit.label}
+                </span>
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        <Button
+          onClick={onEnquire}
+          className="btn-futur h-9 rounded-full px-4 text-xs font-bold text-white"
+        >
+          {fee && !/request|enquir/i.test(fee) ? `Enroll · ${fee}` : "Enroll now"}
+          <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 /* ─────────────────────────────── page ─────────────────────────────── */
 
 /**
@@ -149,6 +257,13 @@ export function CourseDetail({ slug }: { slug: string }) {
   const benefits = course.benefits ?? [];
   const tracks = course.tracks ?? [];
   const reviews = course.reviews ?? [];
+  const includes = course.includes ?? [];
+  const miniProjects = course.miniProjects ?? [];
+  const projects = course.projects ?? [];
+  const batches = course.batches ?? [];
+  const placementPoints = course.placementPoints ?? [];
+  const hasPlacement = Boolean(course.placementTitle || placementPoints.length);
+  const hasTrainer = Boolean(course.trainer?.name || course.instructor);
   const faqs = courseFaqs(content, course);
   const related = courses.filter((c) => c.slug !== slug).slice(0, 3);
   const about = course.aboutParagraphs?.length ? course.aboutParagraphs : [course.description];
@@ -172,9 +287,15 @@ export function CourseDetail({ slug }: { slug: string }) {
 
   const anchors = [
     { id: "overview", label: "Overview" },
+    ...(benefits.length ? [{ id: "why", label: "Why this course" }] : []),
+    ...(tools.length ? [{ id: "tools", label: "Tools covered" }] : []),
     ...(learn.length ? [{ id: "learn", label: "What you'll learn" }] : []),
     ...(curriculum.length ? [{ id: "curriculum", label: "Curriculum" }] : []),
-    ...(tools.length ? [{ id: "tools", label: "Tools" }] : []),
+    ...(includes.length || course.certificateTitle ? [{ id: "included", label: "What's included" }] : []),
+    ...(projects.length || miniProjects.length ? [{ id: "projects", label: "Projects" }] : []),
+    ...(batches.length ? [{ id: "batches", label: "Batches" }] : []),
+    ...(hasPlacement ? [{ id: "placement", label: "Placement" }] : []),
+    ...(hasTrainer ? [{ id: "trainer", label: "Trainer" }] : []),
     ...(reviews.length ? [{ id: "reviews", label: "Reviews" }] : []),
     ...(faqs.length ? [{ id: "faqs", label: "FAQs" }] : []),
   ];
@@ -188,6 +309,13 @@ export function CourseDetail({ slug }: { slug: string }) {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_78%_10%,rgba(34,211,238,0.16),transparent_65%),radial-gradient(ellipse_55%_45%_at_10%_35%,rgba(37,99,235,0.2),transparent_70%)]"
         />
         <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6 sm:pt-10">
+          <UrgencyStrip
+            note={course.urgencyNote}
+            startDate={course.batchStartDate}
+            fee={course.fee}
+            onEnquire={() => navigate("contact", { course: course.title })}
+          />
+
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-slate-400">
               <li>
@@ -247,6 +375,13 @@ export function CourseDetail({ slug }: { slug: string }) {
                     </li>
                   ))}
                 </ul>
+              ) : null}
+
+              {course.audience ? (
+                <p className="mt-5 flex items-start gap-2 text-sm font-semibold text-slate-300">
+                  <Users className="mt-0.5 h-4 w-4 shrink-0 text-cyber-300" aria-hidden="true" />
+                  {course.audience}
+                </p>
               ) : null}
 
               <dl className="mt-6 flex flex-wrap gap-x-7 gap-y-2 text-sm text-slate-400">
@@ -486,38 +621,36 @@ export function CourseDetail({ slug }: { slug: string }) {
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {benefits.map((benefit, index) => (
-              <Reveal key={benefit.title} delay={index * 0.06}>
+              <Reveal key={`${benefit.title}-${index}`} delay={index * 0.06}>
                 <div className={cn(CARD, "group h-full p-5")}>
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyber-400/25 bg-cyber-500/10 text-cyber-300">
-                    <Sparkles className="h-4.5 w-4.5" aria-hidden="true" />
-                  </span>
-                  <h3 className="mt-3 text-base font-extrabold text-white">{benefit.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{benefit.description}</p>
+                  {benefit.stat ? (
+                    <>
+                      <p className="text-2xl font-extrabold leading-none text-gradient-cyber sm:text-3xl">
+                        {benefit.stat}
+                      </p>
+                      <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-cyber-400/25 bg-cyber-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-cyber-200">
+                        {benefit.tag || "Highlight"}
+                      </span>
+                      <h3 className="mt-3 text-sm font-extrabold text-white">{benefit.title}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                        {benefit.description}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyber-400/25 bg-cyber-500/10 text-cyber-300">
+                        <Sparkles className="h-4.5 w-4.5" aria-hidden="true" />
+                      </span>
+                      <h3 className="mt-3 text-base font-extrabold text-white">{benefit.title}</h3>
+                      <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
+                        {benefit.description}
+                      </p>
+                    </>
+                  )}
                 </div>
               </Reveal>
             ))}
           </div>
-        </Section>
-      ) : null}
-
-      {/* ═══════════════ WHAT YOU'LL LEARN ═══════════════ */}
-      {learn.length ? (
-        <Section
-          id="learn"
-          eyebrow="Learning outcomes"
-          title={`What you'll learn in ${course.title}`}
-          description="Each point below is something you will have built, practised or shipped by the end of the program."
-        >
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {learn.filter(Boolean).map((item, index) => (
-              <Reveal key={item} delay={index * 0.04}>
-                <li className={cn(CARD, "flex h-full items-start gap-3 p-4")}>
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyber-300" aria-hidden="true" />
-                  <span className="text-sm font-semibold leading-relaxed text-slate-100">{item}</span>
-                </li>
-              </Reveal>
-            ))}
-          </ul>
         </Section>
       ) : null}
 
@@ -544,6 +677,27 @@ export function CourseDetail({ slug }: { slug: string }) {
         </Section>
       ) : null}
 
+      {/* ═══════════════ WHAT YOU'LL LEARN ═══════════════ */}
+      {learn.length ? (
+        <Section
+          id="learn"
+          eyebrow="Learning outcomes"
+          title={`What you'll learn in ${course.title}`}
+          description="Each point below is something you will have built, practised or shipped by the end of the program."
+        >
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {learn.filter(Boolean).map((item, index) => (
+              <Reveal key={item} delay={index * 0.04}>
+                <li className={cn(CARD, "flex h-full items-start gap-3 p-4")}>
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyber-300" aria-hidden="true" />
+                  <span className="text-sm font-semibold leading-relaxed text-slate-100">{item}</span>
+                </li>
+              </Reveal>
+            ))}
+          </ul>
+        </Section>
+      ) : null}
+
       {/* ═══════════════ CURRICULUM ═══════════════ */}
       {curriculum.length ? (
         <CurriculumSection
@@ -557,6 +711,44 @@ export function CourseDetail({ slug }: { slug: string }) {
           )}
         />
       ) : null}
+
+      {/* ═══════════════ WHAT'S INCLUDED + CERTIFICATE ═══════════════ */}
+      <IncludedSection
+        includes={includes}
+        certificateTitle={course.certificateTitle}
+        certificateText={course.certificateText}
+        certificateImage={course.certificateImage}
+      />
+
+      {/* ═══════════════ PROJECTS ═══════════════ */}
+      {projects.length || miniProjects.length ? (
+        <ProjectsSection
+          courseTitle={course.title}
+          projects={projects}
+          miniProjects={miniProjects}
+        />
+      ) : null}
+
+      {/* ═══════════════ BATCHES ═══════════════ */}
+      <BatchesSection
+        batches={batches}
+        onEnquire={(batch) => navigate("contact", { course: `${course.title} — ${batch}` })}
+      />
+
+      {/* ═══════════════ PLACEMENT ═══════════════ */}
+      <PlacementSection
+        title={course.placementTitle}
+        text={course.placementText}
+        points={placementPoints}
+        onEnquire={() => navigate("contact", { course: course.title })}
+      />
+
+      {/* ═══════════════ TRAINER ═══════════════ */}
+      <TrainerSection
+        trainer={course.trainer}
+        fallback={course.instructor}
+        city={city}
+      />
 
       {/* ═══════════════ REVIEWS ═══════════════ */}
       {reviews.length ? (
@@ -704,6 +896,332 @@ export function CourseDetail({ slug }: { slug: string }) {
         label={course.ctaLabel || "Enquire now"}
       />
     </article>
+  );
+}
+
+/* ─────────────────────────── page sections ─────────────────────────── */
+
+/** Capstone + mini projects — the "what you will build" part of the page. */
+function ProjectsSection({
+  courseTitle,
+  projects,
+  miniProjects,
+}: {
+  courseTitle: string;
+  projects: { title: string; description: string; image?: string }[];
+  miniProjects: { title: string; description: string; image?: string }[];
+}) {
+  return (
+    <Section
+      id="projects"
+      eyebrow="Projects"
+      title={`Projects you build in ${courseTitle}`}
+      description="Build-along practice projects during the modules, then one portfolio-grade capstone you can demo in interviews."
+    >
+      {projects.length ? (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {projects.map((project, index) => (
+            <Reveal key={`${project.title}-${index}`} delay={index * 0.05}>
+              <article className={cn(CARD, "group flex h-full flex-col")}>
+                <div className="aspect-[16/9] w-full overflow-hidden border-b border-white/10">
+                  {project.image ? (
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.22),transparent_58%),radial-gradient(circle_at_80%_80%,rgba(37,99,235,0.28),transparent_58%),linear-gradient(135deg,#070d22,#0b1433)]"
+                    >
+                      <Rocket className="h-10 w-10 text-cyber-300/80" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-cyber-400/25 bg-cyber-500/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyber-200">
+                    Capstone
+                  </span>
+                  <h3 className="mt-2.5 text-base font-extrabold text-white">{project.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
+                    {project.description}
+                  </p>
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      ) : null}
+
+      {miniProjects.length ? (
+        <div className="mt-8">
+          <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-300">
+            Mini projects along the way
+          </h3>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {miniProjects.map((project, index) => (
+              <Reveal key={`${project.title}-${index}`} delay={index * 0.04}>
+                <div className="flex h-full items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-600/80 to-cyber-500/80 text-white">
+                    <Rocket className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-white">{project.title}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-slate-400">
+                      {project.description}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </Section>
+  );
+}
+
+/** "What's included" icon grid + certification block. */
+function IncludedSection({
+  includes,
+  certificateTitle,
+  certificateText,
+  certificateImage,
+}: {
+  includes: { label: string; icon?: string }[];
+  certificateTitle?: string;
+  certificateText?: string;
+  certificateImage?: string;
+}) {
+  if (!includes.length && !certificateTitle) return null;
+  const Icon = getIcon;
+
+  return (
+    <Section
+      id="included"
+      eyebrow="What's included"
+      title="Everything that comes with the program"
+      description="Not just lectures — the notes, practice, feedback and support that turn classes into skills."
+    >
+      {includes.length ? (
+        <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+          {includes.map((item, index) => {
+            const ItemIcon = Icon(item.icon);
+            return (
+              <Reveal key={`${item.label}-${index}`} delay={index * 0.03}>
+                <li className="flex h-full flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-4 text-center transition-colors hover:border-cyber-300/40 hover:bg-white/[0.06]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyber-400/25 bg-cyber-500/10 text-cyber-300">
+                    <ItemIcon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span className="text-[11px] font-bold leading-tight text-slate-200">
+                    {item.label}
+                  </span>
+                </li>
+              </Reveal>
+            );
+          })}
+        </ul>
+      ) : null}
+
+      {certificateTitle ? (
+        <div className="mt-6 grid items-center gap-5 rounded-2xl border border-white/10 bg-gradient-to-r from-[#0c1738] to-[#070d22] p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto]">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-cyber-500 text-white">
+            <Award className="h-7 w-7" aria-hidden="true" />
+          </span>
+          <div>
+            <h3 className="text-base font-extrabold text-white">{certificateTitle}</h3>
+            {certificateText ? (
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-400">
+                {certificateText}
+              </p>
+            ) : null}
+          </div>
+          {certificateImage ? (
+            <img
+              src={certificateImage}
+              alt="Yantrix Technology course certificate"
+              loading="lazy"
+              decoding="async"
+              className="h-24 w-auto rounded-lg border border-white/10 object-contain"
+            />
+          ) : null}
+        </div>
+      ) : null}
+    </Section>
+  );
+}
+
+/** Upcoming batches table. */
+function BatchesSection({
+  batches,
+  onEnquire,
+}: {
+  batches: {
+    label: string;
+    timing: string;
+    starts: string;
+    seats: string;
+    mode?: string;
+  }[];
+  onEnquire: (label: string) => void;
+}) {
+  if (!batches.length) return null;
+
+  return (
+    <Section
+      id="batches"
+      eyebrow="Batches & timings"
+      title="Pick the batch that fits your week"
+      description="Seats are limited per batch so every learner gets attention. Ask us before a batch fills up."
+    >
+      <div className="space-y-3">
+        {batches.map((batch, index) => (
+          <Reveal key={`${batch.label}-${index}`} delay={index * 0.05}>
+            <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-[#0a1230]/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyber-300">
+                  {batch.mode === "Online" ? (
+                    <Monitor className="h-5 w-5" aria-hidden="true" />
+                  ) : (
+                    <CalendarDays className="h-5 w-5" aria-hidden="true" />
+                  )}
+                </span>
+                <div>
+                  <p className="flex flex-wrap items-center gap-2 text-sm font-extrabold text-white">
+                    {batch.label}
+                    {batch.mode ? (
+                      <span className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                        {batch.mode}
+                      </span>
+                    ) : null}
+                  </p>
+                  <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
+                    {batch.timing ? <span>{batch.timing}</span> : null}
+                    {batch.starts ? <span>Starts: {batch.starts}</span> : null}
+                    {batch.seats ? <span>{batch.seats}</span> : null}
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => onEnquire(`${batch.label} — ${batch.timing}`)}
+                variant="outline"
+                className="h-9 shrink-0 rounded-lg border-white/20 bg-white/5 text-xs font-bold text-white hover:bg-white/10 hover:text-white"
+              >
+                Book a seat
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              </Button>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+/** Placement & career support. */
+function PlacementSection({
+  title,
+  text,
+  points,
+  onEnquire,
+}: {
+  title?: string;
+  text?: string;
+  points: string[];
+  onEnquire: () => void;
+}) {
+  if (!points.length && !title) return null;
+
+  return (
+    <Section
+      id="placement"
+      eyebrow="Career support"
+      title={title || "Placement & career support"}
+      description={text}
+    >
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {points.filter(Boolean).map((point, index) => (
+          <Reveal key={`${point}-${index}`} delay={index * 0.04}>
+            <div className="flex h-full items-start gap-3 rounded-2xl border border-white/10 bg-[#0a1230]/80 p-4">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-600 to-cyber-500 text-white">
+                <Briefcase className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <p className="text-sm leading-relaxed text-slate-200">{point}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+      <p className="mt-4 text-xs leading-relaxed text-slate-500">
+        Placement assistance includes resume, portfolio, mock interviews and job-search guidance.
+        Yantrix Technology provides assistance and does not guarantee a job.
+        <button
+          onClick={onEnquire}
+          className="ml-1 font-bold text-cyber-300 underline-offset-2 hover:underline"
+        >
+          Talk to us about the support
+        </button>
+      </p>
+    </Section>
+  );
+}
+
+/** Trainer / mentor card. */
+function TrainerSection({
+  trainer,
+  fallback,
+  city,
+}: {
+  trainer?: { name: string; role: string; photo?: string; bio?: string } | null;
+  fallback?: string;
+  city?: string;
+}) {
+  if (!trainer?.name && !fallback) return null;
+  const name = trainer?.name || fallback || "";
+
+  return (
+    <Section id="trainer" eyebrow="Your mentor" title="Who teaches this course">
+      <div className={cn(CARD, "flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:p-6")}>
+        <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-brand-600 to-cyber-500 text-2xl font-black text-white">
+          {trainer?.photo ? (
+            <img
+              src={trainer.photo}
+              alt={name}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            name.trim().charAt(0).toUpperCase()
+          )}
+        </span>
+        <div>
+          <h3 className="text-lg font-extrabold text-white">{name}</h3>
+          {trainer?.role ? (
+            <p className="mt-0.5 text-xs font-bold uppercase tracking-wider text-cyber-300">
+              {trainer.role}
+            </p>
+          ) : null}
+          {trainer?.bio ? (
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">{trainer.bio}</p>
+          ) : null}
+          <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+            <span className="inline-flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5 text-cyber-300" aria-hidden="true" />
+              Small batches, personal feedback
+            </span>
+            {city ? (
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-cyber-300" aria-hidden="true" />
+                Classroom in {city} · live online
+              </span>
+            ) : null}
+          </p>
+        </div>
+      </div>
+    </Section>
   );
 }
 
