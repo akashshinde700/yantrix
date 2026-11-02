@@ -66,6 +66,9 @@ export interface SiteSettings {
     privacyText: string;
     termsTitle: string;
     termsText: string;
+    refundEnabled: boolean;
+    refundTitle: string;
+    refundText: string;
   };
 }
 

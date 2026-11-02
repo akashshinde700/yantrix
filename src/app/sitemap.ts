@@ -41,5 +41,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly" as const,
       priority: 0.3,
     },
+    ...(content.settings.legal.refundEnabled
+      ? [
+          {
+            url: absoluteUrl(content, "/refund-policy"),
+            lastModified,
+            changeFrequency: "yearly" as const,
+            priority: 0.3,
+          },
+        ]
+      : []),
   ];
 }

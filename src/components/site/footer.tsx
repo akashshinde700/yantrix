@@ -502,6 +502,14 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
               >
                 {settings.legal.termsTitle}
               </a>
+              {settings.legal.refundEnabled ? (
+                <a
+                  href="/refund-policy"
+                  className="underline-offset-4 hover:text-white hover:underline"
+                >
+                  {settings.legal.refundTitle}
+                </a>
+              ) : null}
               <a
                 href="/admin"
                 className="font-semibold text-slate-600 underline-offset-4 transition-colors hover:text-white hover:underline"

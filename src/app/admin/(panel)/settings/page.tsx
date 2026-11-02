@@ -136,6 +136,18 @@ export default async function SettingsAdminPage() {
                 label: "Terms text",
                 type: "textarea",
               },
+              {
+                name: "legal.refundEnabled",
+                label: "Show refund policy on the website",
+                type: "boolean",
+                help: "Off hides the page, its footer link and its sitemap entry.",
+              },
+              { name: "legal.refundTitle", label: "Refund policy heading" },
+              {
+                name: "legal.refundText",
+                label: "Refund policy text (start a line with * for a bullet point)",
+                type: "textarea",
+              },
             ],
           },
         ]}

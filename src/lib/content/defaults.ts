@@ -639,6 +639,10 @@ export const DEFAULT_CONTENT: SiteContent = {
       termsTitle: "Terms of Use",
       termsText:
         "The information on this website is provided for general guidance about our courses and batches. Course durations, schedules and fees may change. Yantrix Technology provides placement assistance and does not guarantee employment.",
+      refundEnabled: true,
+      refundTitle: "Refund Policy",
+      refundText:
+        "14. No Refund Policy\n* All fees paid towards admission, registration, training, course content, batch access, certification or any other service are non-refundable and non-transferable.\n* No refund will be given for reasons such as personal or family circumstances, change of mind, relocation, health issues, lack of time, poor attendance, non-participation, dissatisfaction with the pace or mode of training, or securing a job elsewhere.\n* No refund will be given if the student does not attend classes, does not complete the course, or is unable to meet attendance, assignment, project or certification requirements.\n* Placement support is not guaranteed; failure to get placed or selected by a company is not a ground for a refund.\n* Fees paid for batch change or any other additional service are also non-refundable.\n* Any exception to this policy is at the sole discretion of the institute management and must be approved in writing.",
     },
   },
   seo: {

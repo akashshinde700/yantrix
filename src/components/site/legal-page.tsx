@@ -10,14 +10,50 @@ import { serializeJsonLd } from "@/lib/seo";
  * header or footer — the shell already provides them, along with the dark
  * "universe" theme and the site navigation.
  */
-export async function LegalPage({ kind }: { kind: "privacy" | "terms" }) {
+export type LegalKind = "privacy" | "terms" | "refund";
+
+const PATHS: Record<LegalKind, string> = {
+  privacy: "/privacy",
+  terms: "/terms",
+  refund: "/refund-policy",
+};
+
+type Block = { type: "p" | "h"; text: string } | { type: "ul"; items: string[] };
+
+/**
+ * Plain-text body -> blocks. Lines starting with "*", "-" or "•" become bullet
+ * points (consecutive ones share a list); a short numbered line such as
+ * "14. No Refund Policy" becomes a sub-heading; anything else is a paragraph.
+ */
+function toBlocks(body: string): Block[] {
+  const blocks: Block[] = [];
+  for (const raw of body.split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    const bullet = line.match(/^[*\-•]\s+(.*)$/);
+    const last = blocks[blocks.length - 1];
+    if (bullet) {
+      if (last?.type === "ul") last.items.push(bullet[1]);
+      else blocks.push({ type: "ul", items: [bullet[1]] });
+    } else if (/^\d+[.)]\s+\S/.test(line) && line.length <= 80 && !/[.:;,]$/.test(line)) {
+      blocks.push({ type: "h", text: line });
+    } else {
+      blocks.push({ type: "p", text: line });
+    }
+  }
+  return blocks;
+}
+
+export async function LegalPage({ kind }: { kind: LegalKind }) {
   const content = await getContent();
   const { settings } = content;
   const legal = settings.legal;
-  const title = kind === "privacy" ? legal.privacyTitle : legal.termsTitle;
-  const body = kind === "privacy" ? legal.privacyText : legal.termsText;
+  const title =
+    kind === "privacy" ? legal.privacyTitle : kind === "refund" ? legal.refundTitle : legal.termsTitle;
+  const body =
+    kind === "privacy" ? legal.privacyText : kind === "refund" ? legal.refundText : legal.termsText;
   const base = settings.url.replace(/\/$/, "");
-  const path = kind === "privacy" ? "/privacy" : "/terms";
+  const path = PATHS[kind];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -81,12 +117,27 @@ export async function LegalPage({ kind }: { kind: "privacy" | "terms" }) {
           })}
         </p>
         <div className="mt-8 space-y-4 text-[15px] leading-relaxed text-slate-300">
-          {body
-            .split("\n")
-            .filter(Boolean)
-            .map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+          {toBlocks(body).map((block, index) =>
+            block.type === "ul" ? (
+              <ul key={index} className="space-y-3 pl-1">
+                {block.items.map((item, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,0.8)]"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : block.type === "h" ? (
+              <h2 key={index} className="pt-2 text-lg font-extrabold text-white">
+                {block.text}
+              </h2>
+            ) : (
+              <p key={index}>{block.text}</p>
+            )
+          )}
         </div>
         <h2 className="mt-12 text-lg font-extrabold text-white">
           Contact us about this page
