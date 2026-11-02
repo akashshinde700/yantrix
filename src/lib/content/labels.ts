@@ -233,6 +233,8 @@ export const LABEL_GROUPS: LabelGroup[] = [
       { key: "cp.curriculumBrochure", label: "Curriculum · brochure accordion", value: "Brochure" },
       { key: "cp.curriculumFileCount", label: "Curriculum · file count", value: "files" },
       { key: "cp.curriculumRequest", label: "Curriculum · brochure without a link", value: "Get the syllabus on WhatsApp" },
+      { key: "cp.curriculumMore", label: "Curriculum · hidden lesson count", value: "more" },
+      { key: "cp.curriculumDownload", label: "Curriculum · download syllabus button", value: "Download syllabus PDF" },
     ],
   },
   {

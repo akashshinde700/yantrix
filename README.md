@@ -145,7 +145,7 @@ when it has no content, so a half-filled course still looks finished:
 | **Who should attend?** (persona bullets) | Basics → "Who should attend" heading + bullets |
 | Tools covered | About & highlights → tools |
 | What you'll learn | About & highlights → outcomes |
-| **Course Curriculum** — centred heading, one **Show / Hide Curriculum** button, `N Modules` count, a **Brochure** accordion (downloadable syllabus files, WhatsApp fallback) and one accordion per module with its lesson rows, session count and optional duration. Search appears automatically for long syllabi | Curriculum tab |
+| **Course Curriculum** — centred heading, one **Show / Hide Curriculum** button, `N Modules` count, a **Brochure** accordion (downloadable syllabus files, WhatsApp fallback) and one accordion per module with its lesson rows, session count and optional duration. The first two modules open by default and collapsed modules preview their first lessons, so the outline reads as content instead of a list of headings. Search appears automatically for long syllabi | Curriculum tab |
 | What's included (icon grid) | Projects & extras → inclusions |
 | **Stand out with an industry-recognized certification** | Projects & extras → Certification |
 | **Capstone projects** and **Mini projects** (separate headings + counts) | Projects & extras |
@@ -154,6 +154,42 @@ when it has no content, so a half-filled course still looks finished:
 All eyebrows, headings, intros, empty states and button labels on this page live
 in **Interface text → Course page headings**, so the wording can change without
 touching the per-course content.
+
+### Course curricula (written syllabi + PDFs)
+
+Every course ships with a full written outline, not a six-line summary:
+
+| Course | Modules | Lessons |
+| --- | --- | --- |
+| Full Stack Development | 47 | 243 |
+| Web Development | 23 | 92 |
+| Python Programming | 24 | 96 |
+| Java Programming | 25 | 100 |
+| Data Analytics | 24 | 96 |
+| Digital Marketing | 25 | 100 |
+| UI / UX Design | 22 | 88 |
+| Basic Computer Training | 14 | 56 |
+
+- Source of truth: `src/lib/content/curriculum/course-curriculum.json`, exposed
+  through `curriculumFor(slug)` in `src/lib/content/curriculum-seeds.ts` and
+  consumed by `course-seeds.ts` (`curriculum` + `curriculumFiles`).
+- Each module has a title, an optional pacing hint (`duration`) and a list of
+  lessons. Order, wording and pacing are editable per course in
+  **Admin → Courses → Curriculum**; the brochure file list lives in the same tab.
+- Printable syllabus: `public/files/<slug>-syllabus.pdf`, generated from the same
+  JSON by `scripts/build-syllabus-pdfs.py` (reportlab). Re-run and commit the
+  PDFs whenever the outline changes:
+
+  ```bash
+  pip install reportlab
+  python3 scripts/build-syllabus-pdfs.py
+  ```
+
+- **Upgrading an existing install:** the store keeps whatever was saved, so a
+  database written before this change still shows the old short outline. Edit the
+  curriculum in the admin panel, or reset the content store to the seeds
+  (`POST /api/admin/content` with `{"op":"reset"}` — destructive, it drops all
+  admin edits).
 
 ### Mentors & partner companies
 

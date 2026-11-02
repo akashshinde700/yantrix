@@ -534,3 +534,40 @@ our data:
 **Verified**: `tsc`, `eslint`, `next build` clean; course page renders the
 centred heading, the Show button, the `6 Modules · 24 Sessions` count line, the
 Brochure accordion and six module panels; admin editor accepts the new file list.
+
+## Full syllabus for every course (curriculum content, not just layout)
+
+The curriculum block had the right shape but almost no content: six modules and
+twenty-four sessions for the whole Full Stack programme. Students read that as
+"curriculum not showing", so the outline itself was written out properly.
+
+**Data**
+
+- `src/lib/content/curriculum/course-curriculum.json` — 204 modules /
+  871 lessons across the eight courses (Full Stack alone: 47 modules, 243
+  lessons, covering web foundations, JavaScript, React, Next.js, Node/Express,
+  MongoDB, SQL, auth, security, testing, the Java and Python tracks, AI APIs,
+  Docker, CI/CD, cloud, two capstones, DSA, aptitude and interview prep).
+- `src/lib/content/curriculum-seeds.ts` — typed `curriculumFor(slug)` and
+  `syllabusFiles(slug)` helpers; `course-seeds.ts` now references them instead
+  of carrying inline outlines, so there is one place to edit.
+- `scripts/build-syllabus-pdfs.py` — renders `public/files/<slug>-syllabus.pdf`
+  (8 files, 5–18 KB) with the same content, page numbers and a footer note that
+  fees and batch dates are confirmed at admissions. Verified with pypdf:
+  7 pages for Full Stack, text present on first and last page.
+- Full Stack FAQ no longer claims "the first four modules are common" — the
+  common foundation is now named properly.
+
+**Presentation**
+
+- The first two modules open on load, so the section is never an empty shell.
+- Collapsed modules show a one-line preview of their first three lessons plus
+  `+N more` — the content is visible without hunting for the toggle.
+- A "Download syllabus PDF" link sits under the Show Curriculum button.
+- Course cards on the listings show `N Modules · N Sessions`.
+
+**Verified**: `tsc`, `eslint`, `next build` clean. Live checks — Full Stack page
+renders 47 module panels, `47 Modules · 243 Sessions`, the brochure row and the
+syllabus link; the other seven pages render 23/24/25/24/25/22/14 panels; all
+eight PDFs return 200; the content API reports 47 modules + 1 syllabus file for
+`seed-4`.
