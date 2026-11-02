@@ -1056,7 +1056,7 @@ html[data-entered] .door-intro {
 /* the button fills as the 10-second auto-open approaches */
 .door-auto-bar {
   /* duration comes from the component so the bar and the timer never drift */
-  animation: door-auto var(--door-auto, 2.5s) linear forwards;
+  animation: door-auto var(--door-auto, 3s) linear forwards;
   transform: scaleX(0);
   opacity: 0.8;
   transform-origin: left center;

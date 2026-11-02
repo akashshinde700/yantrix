@@ -34,7 +34,7 @@ type Phase = "idle" | "unlocking" | "opening" | "gone";
  * usable, which read as "the door is slow". Bolt retraction is still visible,
  * just twice as fast, and the swing is a single 1.25s ease.
  */
-const AUTO_OPEN_SECONDS = 2.5;
+const AUTO_OPEN_SECONDS = 3;
 const UNLOCK_MS = 620;
 const OPEN_MS = 1250;
 

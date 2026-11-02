@@ -69,3 +69,7 @@ student_photos/
 
 # personal note (reference link)
 link
+
+# python bytecode
+__pycache__/
+*.pyc
