@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useLabels, useSettings } from "@/lib/content/provider";
 import { whatsappUrl } from "@/lib/content/helpers";
 import { ENTERED_EVENT } from "@/components/site/universe/chapters";
+import { lockScroll, unlockScroll } from "@/components/site/scroll-lock";
 
 /* ═══════════════════════════════════════════════════════════════════════
    COSMIC POPUP — animated modal that appears when user visits the site.
@@ -87,6 +88,7 @@ export function CosmicPopup() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [starBurst, setStarBurst] = useState<Star[]>([]);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const closePopup = () => {
     setIsOpen(false);
@@ -128,6 +130,44 @@ export function CosmicPopup() {
 
   const waHref = whatsappUrl(settings);
 
+  /*
+   * A dialog that greets every visitor has to behave like one: hold the page
+   * still behind it, move focus inside, keep Tab in there and hand focus back
+   * to where it came from. Escape is handled below.
+   */
+  useEffect(() => {
+    if (!isOpen) return;
+    const previous = document.activeElement as HTMLElement | null;
+    lockScroll();
+    const frame = requestAnimationFrame(() => {
+      const first = panelRef.current?.querySelector<HTMLElement>("button, [href], input");
+      first?.focus();
+    });
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const focusables = panelRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusables || focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", onKey);
+      unlockScroll();
+      previous?.focus?.();
+    };
+  }, [isOpen]);
+
   // Esc closes the popup
   useEffect(() => {
     if (!isOpen) return;
@@ -148,7 +188,7 @@ export function CosmicPopup() {
           aria-modal="true"
           aria-label={`Welcome to ${settings.name}`}
           data-lenis-prevent
-          className="fixed inset-0 z-50 flex items-center justify-center bg-space/80 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-space/80 p-4 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -199,6 +239,7 @@ export function CosmicPopup() {
              Modal panel with cosmic glassmorphism
              ═══════════════════════════════════════════════════════ */}
           <motion.div
+            ref={panelRef}
             className="relative w-full max-w-lg transform-gpu"
             variants={slideVariants}
             initial="hidden"

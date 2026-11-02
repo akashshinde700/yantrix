@@ -25,6 +25,10 @@ export function SmoothScroll() {
       prevent: (node) => node.closest?.("[data-lenis-prevent], [role='dialog'], [data-radix-popper-content-wrapper]") != null,
     });
 
+    // Shared handle: overlays (lightbox, dialogs) need to park the inertial
+    // loop, not just `overflow: hidden` — see scroll-lock.ts.
+    window.__yantrixLenis = lenis;
+
     const html = document.documentElement;
     if (!html.hasAttribute("data-entered")) lenis.stop();
     const onEntered = () => lenis.start();
@@ -32,6 +36,7 @@ export function SmoothScroll() {
 
     return () => {
       window.removeEventListener(ENTERED_EVENT, onEntered);
+      if (window.__yantrixLenis === lenis) delete window.__yantrixLenis;
       lenis.destroy();
     };
   }, []);

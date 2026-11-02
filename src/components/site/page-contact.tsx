@@ -156,7 +156,11 @@ export function PageContact() {
           <Reveal>
             <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8">
               {submitted ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="flex flex-col items-center justify-center py-12 text-center"
+                >
                   <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200">
                     <CheckCircle2 className="h-9 w-9" aria-hidden="true" />
                   </span>

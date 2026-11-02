@@ -308,7 +308,7 @@ export function CourseDetail({ slug }: { slug: string }) {
     ...(hasPlacement ? [{ id: "placement", label: "Placement" }] : []),
     ...(hasTrainer ? [{ id: "trainer", label: t("cp.trainerEyebrow") }] : []),
     ...(reviews.length ? [{ id: "reviews", label: "Reviews" }] : []),
-    ...(faqs.length ? [{ id: "faqs", label: "FAQs" }] : []),
+    ...(faqs.length ? [{ id: "course-faqs", label: "FAQs" }] : []),
   ];
 
   return (
@@ -626,7 +626,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ WHY THIS COURSE ═══════════════ */}
       {benefits.length ? (
         <Section
-          id="why"
+            id="why"
           eyebrow={t("cp.offerEyebrow")}
           title={
             course.offerTitle ||
@@ -671,7 +671,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ WHO SHOULD ATTEND ═══════════════ */}
       {course.audiencePoints?.length || course.audience ? (
         <Section
-          id="audience"
+            id="audience"
           eyebrow={t("cp.audienceEyebrow")}
           title={course.audienceTitle || t("cp.audienceTitle")}
           description={t("cp.audienceText")}
@@ -735,7 +735,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ TOOLS ═══════════════ */}
       {tools.length ? (
         <Section
-          id="tools"
+            id="tools"
           eyebrow={t("cp.toolsEyebrow")}
           title={t("cp.toolsTitle")}
           description={t("cp.toolsText")}
@@ -758,7 +758,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ WHAT YOU'LL LEARN ═══════════════ */}
       {learn.length ? (
         <Section
-          id="learn"
+            id="learn"
           eyebrow={t("cp.outcomesEyebrow")}
           title={`What you'll learn in ${course.title}`}
           description={t("cp.outcomesText")}
@@ -835,7 +835,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ REVIEWS ═══════════════ */}
       {reviews.length ? (
         <Section
-          id="reviews"
+            id="reviews"
           eyebrow={t("cp.reviewsEyebrow")}
           title={t("cp.reviewsTitle")}
           description={t("cp.reviewsText")}
@@ -869,7 +869,8 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ FAQ ═══════════════ */}
       {faqs.length ? (
         <Section
-          id="faqs"
+          /* namespaced: the home page owns `#faqs`, two ids must never clash */
+            id="course-faqs"
           eyebrow={t("cp.faqEyebrow")}
           title={`${course.title} — questions students ask`}
           description={t("cp.faqText")}
@@ -924,7 +925,7 @@ export function CourseDetail({ slug }: { slug: string }) {
       {/* ═══════════════ RELATED ═══════════════ */}
       {related.length ? (
         <Section
-          id="related"
+            id="related"
           eyebrow={t("cp.relatedEyebrow")}
           title={`Other courses at ${settings.shortName || settings.name}`}
         >
@@ -971,6 +972,9 @@ export function CourseDetail({ slug }: { slug: string }) {
           `Talk to our team about the next ${course.title} batch, the fee and the admission process.`
         }
       />
+
+      {/* keeps the final row clear of the fixed mobile bar */}
+      <div aria-hidden="true" className="h-20 lg:hidden" />
 
       <StickyEnquire
         title={course.title}
@@ -1524,20 +1528,31 @@ function CurriculumSection({
                 </button>
                 <div
                   id={`module-panel-${index}`}
-                  hidden={!expanded}
-                  className="border-t border-white/10 px-4 pb-4 pt-3 sm:px-5"
+                  /* animated with grid rows: the panel keeps its height transition
+                     without being unmounted, and stays out of the tab order while
+                     collapsed (`inert` + aria-hidden). */
+                  aria-hidden={!expanded}
+                  inert={!expanded}
+                  className={cn(
+                    "grid transition-[grid-template-rows,opacity] duration-300 ease-out",
+                    expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  )}
                 >
-                  <ul className="grid gap-1.5 sm:grid-cols-2">
-                    {topics.map((topic) => (
-                      <li key={topic} className="flex items-start gap-2 text-sm text-slate-300">
-                        <CheckCircle2
-                          className="mt-0.5 h-4 w-4 shrink-0 text-cyber-300/80"
-                          aria-hidden="true"
-                        />
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="overflow-hidden">
+                    <div className="border-t border-white/10 px-4 pb-4 pt-3 sm:px-5">
+                      <ul className="grid gap-1.5 sm:grid-cols-2">
+                        {topics.map((topic) => (
+                          <li key={topic} className="flex items-start gap-2 text-sm text-slate-300">
+                            <CheckCircle2
+                              className="mt-0.5 h-4 w-4 shrink-0 text-cyber-300/80"
+                              aria-hidden="true"
+                            />
+                            {topic}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </li>
             );
@@ -1596,8 +1611,20 @@ function CurriculumSection({
 
 function StickyEnquire({ title, fee, label }: { title: string; fee: string; label: string }) {
   const navigate = useSiteStore((s) => s.navigate);
+
+  /*
+   * While this bar is on screen it owns the bottom of the viewport, so the
+   * floating action stack has to sit above it. The flag is read from CSS
+   * (see --fab-bottom in globals.css) instead of every button guessing.
+   */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute("data-mobile-cta", "");
+    return () => root.removeAttribute("data-mobile-cta");
+  }, []);
+
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#050914]/95 px-4 py-3 pr-24 backdrop-blur lg:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#050914]/95 px-4 py-3 shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur lg:hidden">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-white">{title}</p>

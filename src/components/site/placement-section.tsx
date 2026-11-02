@@ -19,7 +19,13 @@ export function PlacementSection() {
   return (
     <section className="relative py-16 sm:py-20" aria-labelledby="placement-heading">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading dark eyebrow={section.eyebrow} title={section.title} description={section.description} />
+        <SectionHeading
+            id="placement-heading"
+          dark
+          eyebrow={section.eyebrow}
+          title={section.title}
+          description={section.description}
+        />
 
         <div className="relative mt-14">
           {/* the path — desktop: horizontal through the nodes; mobile: vertical */}

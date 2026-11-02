@@ -411,3 +411,60 @@ curriculum outline instead of a bare accordion.
 block with real counts (6 modules / 24 sessions on Full Stack, 4/· on the
 shorter courses); a course-specific heading and a per-module duration chip were
 set through the admin API, rendered on the page, then reverted.
+
+## Full audit: animation flow, overlap, responsive, forms, navigation
+
+Audited every route and the whole component tree (no headless browser in this
+sandbox, so verification is `next build` + `tsc` + `eslint` + parsed HTML from
+the running dev server).
+
+**Overlap / z-index**
+
+- Floating buttons each guessed their own `bottom-*` value, so on mobile they
+  overwrote each other (back-to-top sat on the guide launcher, the course page's
+  enquiry bar sat under the WhatsApp bubble). All four now read shared
+  `--fab-*` variables; the enquiry bar publishes `data-mobile-cta` and the stack
+  lifts above it.
+- The greeting dialog had no scroll lock, no focus trap and the same z-index as
+  the header — fixed, it now sits above the floats but under the entrance door.
+- Photo lightbox: same treatment, plus arrow-key paging, counter and animation.
+
+**Animation**
+
+- `<MotionConfig reducedMotion="user">` for Framer Motion + a global
+  `prefers-reduced-motion` CSS block.
+- Marquees measure their track width and derive the duration from a constant
+  px/s speed, and pause while off screen.
+- Curriculum modules animate open/closed (grid rows, `inert` while collapsed)
+  instead of snapping.
+- `Reveal` triggers at 1% visibility with a bottom margin, so a fast scroll no
+  longer leaves a section invisible.
+
+**Correctness**
+
+- `SectionHeading` gained an `id`, which fixed 9 `aria-labelledby` references
+  that pointed at nothing.
+- Door-intro's SVG gradients rendered twice (one per door leaf) — ids are now
+  per side.
+- Course FAQ block is `#course-faqs` (the home page owns `#faqs`).
+- `aria-controls` only points at elements that exist (guide panel, mobile menu).
+- Mobile menu closes on Escape, outside tap and at the `lg` breakpoint.
+- `<Button>` defaults to `type="button"`, so no stray button can post a form.
+- Scroll helpers drive Lenis: page changes reset to the top and section jumps
+  land under the sticky header.
+- Contact form success state is announced (`role="status"`).
+
+**Responsive / touch**
+
+- `overflow-x-clip` on the site shell stops sideways scrolling caused by
+  decorative blobs; `min-h-svh` instead of `min-h-screen`.
+- Admin tables scroll horizontally instead of clipping.
+- Hero carousel: labelled slide groups, arrow-key support, explicit button
+  types; the dead, unused `hero-slider.tsx` duplicate (300+ lines) was removed.
+- Sweep/aurora effects are throttled or skipped on small screens and touch
+  devices.
+
+**Verified**: `tsc --noEmit`, `eslint`, `next build` clean; all public routes and
+all 8 course pages return 200; parsed HTML has no duplicate ids, no dangling
+`aria-labelledby`/`aria-controls` targets, no unnamed buttons, no images without
+`alt`; all 22 internal links, all 48 assets and the contact API resolve.

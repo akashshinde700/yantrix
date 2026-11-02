@@ -1819,3 +1819,113 @@ body[data-scroll-locked] .placed-track {
     display: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   FLOATING ACTION STACK
+   ──────────────────────────────────────────────────────────────────────
+   Everything pinned to the bottom of the viewport (guide launcher, WhatsApp
+   bubble, back-to-top, page chapter dock) reads its offset from these
+   variables instead of hard-coded `bottom-*` values. That is the single
+   reason they used to overlap: each component guessed its own distance.
+
+   `data-mobile-cta` is set on <html> while the course-page enquiry bar is on
+   screen, which lifts the whole stack above it. Above `lg` the bar is hidden
+   again, so the vars fall back to their desktop values.
+   ══════════════════════════════════════════════════════════════════════ */
+:root {
+  --fab-bottom: 1.25rem; /* first row  — guide launcher / WhatsApp */
+  --fab-bottom-2: 5.75rem; /* second row — back-to-top, dock */
+  --fab-panel-bottom: 5.5rem; /* popovers anchored above row one (launcher is 56px tall) */
+}
+
+@media (min-width: 640px) {
+  :root {
+    --fab-bottom: 1.5rem;
+    --fab-bottom-2: 6.25rem;
+    --fab-panel-bottom: 6rem;
+  }
+}
+
+html[data-mobile-cta] {
+  --fab-bottom: 5.5rem;
+  --fab-bottom-2: 10rem;
+  --fab-panel-bottom: 9.5rem;
+}
+
+@media (min-width: 1024px) {
+  html[data-mobile-cta] {
+    --fab-bottom: 1.5rem;
+    --fab-bottom-2: 6.25rem;
+    --fab-panel-bottom: 6rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   KEYBOARD FOCUS
+   ──────────────────────────────────────────────────────────────────────
+   The UI is dark-on-dark in places, where the browser default ring is
+   invisible. One consistent, high-contrast ring for every interactive
+   element, only for keyboard users.
+   ══════════════════════════════════════════════════════════════════════ */
+:where(a, button, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 3px;
+}
+
+:where(input, select, textarea):focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+/* Light sections need a darker ring so it stays visible on white. */
+:where(.bg-white, .bg-slate-50, .bg-slate-100) :where(a, button, summary, [role="button"]):focus-visible {
+  outline-color: #1d4ed8;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SMALL-SCREEN PERFORMANCE
+   ──────────────────────────────────────────────────────────────────────
+   Blurred layers, animated conic rings and mix-blend spotlights are cheap on
+   desktop GPUs and expensive on low-end phones. Keep the look, drop the
+   frames we cannot afford.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .aurora-card::before {
+    animation-duration: 18s;
+  }
+  .sweep-card::after {
+    display: none;
+  }
+  [class*="backdrop-blur-2xl"],
+  [class*="backdrop-blur-xl"] {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+
+@media (hover: none) {
+  /* hover-only effects never run on touch — skip the work entirely */
+  .aurora-card::before {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   REDUCED MOTION — global safety net
+   ──────────────────────────────────────────────────────────────────────
+   Per-component overrides already cover the big effects (marquees, ken
+   burns, parallax). This stops anything new from ignoring the OS setting:
+   transitions collapse to an instant state change and infinite CSS
+   animations run once instead of forever.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

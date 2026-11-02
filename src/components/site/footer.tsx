@@ -23,6 +23,7 @@ import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { useSiteStore } from "@/lib/store";
 import { useCollection, useLabels, useSettings } from "@/lib/content/provider";
+import { scrollToTop } from "@/components/site/scroll-lock";
 import {
   emailHref,
   fullAddress,
@@ -232,7 +233,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
         </defs>
         <path d="M0 160 Q720 -40 1440 160 Z" fill="url(#horizon-glow)" />
         <motion.path
-          id="horizon-arc"
+            id="horizon-arc"
           d="M0 160 Q720 -40 1440 160"
           fill="none"
           stroke="url(#horizon-stroke)"
@@ -525,7 +526,7 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
               </a>
               <button
                 type="button"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                onClick={() => scrollToTop("smooth")}
                 className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1 font-semibold text-slate-300 transition-colors hover:border-cyan-300/50 hover:text-white"
               >
                 {t("footer.backToOrbit")}

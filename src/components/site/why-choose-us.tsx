@@ -75,6 +75,7 @@ export function WhyChooseUs() {
           eyebrow={section.eyebrow}
           title={section.title}
           description={section.description}
+        id="why-choose-heading"
         />
         <div className="mt-12 grid gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3">
           {items.map((feature, i) => {
@@ -154,6 +155,7 @@ export function TrainingModes() {
           eyebrow={section.eyebrow}
           title={section.title}
           description={section.description}
+        id="training-modes-heading"
         />
         <div className="mx-auto mt-12 grid max-w-4xl gap-6 [perspective:1400px] md:grid-cols-2">
           {modes.map((mode, i) => (
