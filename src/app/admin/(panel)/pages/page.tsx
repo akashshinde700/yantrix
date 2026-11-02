@@ -34,6 +34,44 @@ export default async function PagesAdminPage() {
             ],
           },
           {
+            title: "Home · brochure download",
+            description:
+              "The brochure block on the home page. Without a link the button opens the contact page instead.",
+            fields: [
+              { name: "home.brochureTitle", label: "Card title" },
+              { name: "home.brochureText", label: "Card text", type: "textarea" },
+              {
+                name: "home.brochurePoints",
+                label: "Checklist",
+                type: "stringList",
+                help: "One point per line.",
+              },
+              { name: "home.brochureCta", label: "Button label" },
+              {
+                name: "home.brochureUrl",
+                label: "Brochure link",
+                placeholder: "/files/yantrix-brochure.pdf",
+                help: "Public PDF / Drive link. Leave empty to send visitors to the enquiry form.",
+              },
+              { name: "home.brochureImage", label: "Brochure cover image (optional)", type: "image" },
+            ],
+          },
+          {
+            title: "Home · mobile app",
+            description: "The app download banner. Hidden when the text and the link are both empty.",
+            fields: [
+              { name: "home.appTitle", label: "App name" },
+              { name: "home.appText", label: "App text", type: "textarea" },
+              { name: "home.appCta", label: "Button label" },
+              {
+                name: "home.appUrl",
+                label: "Play Store / App Store link",
+                help: "Leave empty to hide the store buttons.",
+              },
+              { name: "home.appImage", label: "Phone / app screenshot (optional)", type: "image" },
+            ],
+          },
+          {
             title: "Courses page",
             fields: [
               { name: "courses.note", label: "Note under the course grid", type: "textarea" },

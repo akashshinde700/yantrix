@@ -217,3 +217,36 @@ Stage Summary:
   jump links match section ids, and a stripped record (all new fields removed,
   custom tagline kept) gains the sections back via Fill new sections while the
   admin's own tagline survives.
+
+## Home page: sections missing vs. the reference site
+
+Audited skillected.com's home page and added everything it has that we did not,
+all admin-editable and all self-hiding when empty.
+
+- NEW collections (types + seeds + admin metadata):
+  `announcements` (offer ticker), `gallery` (campus photos with categories),
+  `partners` (certifications / collaborations), `videos` (YouTube), `testimonials`
+  (student quotes + optional video), `centres` (branch addresses).
+- NEW section-copy keys: gallery, partners, videos, testimonials, brochure, app,
+  centres — so each heading and its visibility are editable in Page sections.
+- NEW `src/components/site/home-sections.tsx`:
+  · `AnnouncementTicker` — seamless marquee above the header on every page
+    (duplicated row, pauses on hover, static + single row for reduced motion);
+  · `CampusGallery` — category chips + lightbox;
+  · `PartnersSection`, `VideosSection` (click-to-load `youtube-nocookie`),
+    `TestimonialsSection` (stars, quote, optional video), `BrochureSection`
+    (checklist, PDF or enquiry fallback), `AppSection` (phone mock-up), and
+    `CentresSection` (address, hours, call, directions).
+- Home page order now: hero → skills/why/modes → **gallery + partners** →
+  about → **videos** → trainers → **testimonials** → placement →
+  **brochure + app + centres** → FAQ → CTA.
+- `pages.home` gained brochure/app copy (title, text, points, CTA, link, image),
+  surfaced as two new groups on Admin → Pages & navigation.
+- `NavLink` gained an optional `hash`: footer links can jump straight to a home
+  section (`/#gallery`), editable from Footer quick links.
+- globals.css: `.ticker-track` marquee (42s loop, hover pause, reduced-motion
+  fallback).
+- Verified: home SSR contains all eight blocks, ticker items render twice (loop
+  copy is aria-hidden), gallery create/delete round-trips through the admin API
+  and appears/disappears on the page, footer hash links emit `/#gallery`, and
+  tsc + eslint + next build are clean.

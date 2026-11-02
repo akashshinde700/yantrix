@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/site/header";
+import { AnnouncementTicker } from "@/components/site/home-sections";
 import { Footer } from "@/components/site/footer";
 import { WhatsAppFloat } from "@/components/site/whatsapp-float";
 import { DoorIntro } from "@/components/site/door-intro";
@@ -165,6 +166,7 @@ export function SiteShell({
         Skip to main content
       </a>
       <ScrollProgress />
+      <AnnouncementTicker />
       <Header />
 
       <main id="main-content" className="flex-1 relative z-10">

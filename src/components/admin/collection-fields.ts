@@ -258,7 +258,8 @@ export const COLLECTION_META: Record<CollectionKey, CollectionMeta> = {
   },
   navFooter: {
     title: "Footer quick links",
-    description: "Links in the footer navigation.",
+    description:
+      "Links in the footer navigation. The optional section anchor jumps straight to a block on that page.",
     addLabel: "Add link",
     titleField: "label",
     subtitleField: "view",
@@ -266,6 +267,12 @@ export const COLLECTION_META: Record<CollectionKey, CollectionMeta> = {
     fields: [
       { name: "label", label: "Label" },
       { name: "view", label: "Page", type: "select", options: viewOptions },
+      {
+        name: "hash",
+        label: "Section anchor (optional)",
+        placeholder: "gallery",
+        help: "e.g. gallery, videos, testimonials, brochure, centres — jumps to that section on the home page.",
+      },
     ],
   },
   courseChips: {
@@ -342,6 +349,107 @@ export const COLLECTION_META: Record<CollectionKey, CollectionMeta> = {
       { name: "batch", label: "Batch / year", placeholder: "2025" },
       { name: "package", label: "Package (optional)", placeholder: "4.2 LPA", help: "Leave empty to hide. Only publish figures you can verify." },
       { name: "quote", label: "Student quote (optional)", type: "textarea" },
+    ],
+  },
+  announcements: {
+    title: "Offer ticker",
+    description:
+      "The scrolling strip at the very top of every page — offers, batch announcements and admission notices. Keep 3–4 messages so the strip always fills a wide screen.",
+    addLabel: "Add message",
+    titleField: "text",
+    subtitleField: "highlight",
+    emptyHint: "No messages yet — the ticker stays hidden until you add one.",
+    defaults: { text: "New batch starting soon", highlight: "Admissions open", icon: "Sparkles" },
+    fields: [
+      { name: "highlight", label: "Loud label", placeholder: "FLAT 50% OFF" },
+      iconField,
+      { name: "text", label: "Message", type: "textarea", help: "One short line — it scrolls by." },
+    ],
+  },
+  gallery: {
+    title: "Campus gallery",
+    description:
+      "Photos of the centre, classrooms, labs and events. Photos in the same category are grouped under one filter chip.",
+    addLabel: "Add photo",
+    titleField: "title",
+    subtitleField: "category",
+    emptyHint: "No photos yet — the gallery section stays hidden until you add one.",
+    defaults: { title: "", category: "Campus", image: "", alt: "" },
+    fields: [
+      { name: "image", label: "Photo", type: "image", help: "Upload a photo or paste a path such as /images/campus.jpg" },
+      { name: "title", label: "Caption" },
+      { name: "category", label: "Category", placeholder: "Campus / Classroom / Labs / Events" },
+      { name: "alt", label: "Image alt text", help: "Describe the photo for accessibility and image search." },
+    ],
+  },
+  partners: {
+    title: "Partners & certifications",
+    description:
+      "The collaboration strip — certification, placement and workshop partners. Only list partnerships you can back up.",
+    addLabel: "Add partner",
+    titleField: "name",
+    subtitleField: "kind",
+    emptyHint: "No partners yet — the strip stays hidden until you add one.",
+    defaults: { name: "", kind: "Certification", logo: "", description: "", link: "" },
+    fields: [
+      { name: "logo", label: "Logo", type: "image", help: "Square logo works best. Without one the name is shown in a monogram badge." },
+      { name: "name", label: "Partner name" },
+      { name: "kind", label: "Label", placeholder: "Certification / Placement / Collaboration" },
+      { name: "description", label: "What it means for students", type: "textarea" },
+      { name: "link", label: "Link (optional)", placeholder: "https://…" },
+    ],
+  },
+  videos: {
+    title: "Videos",
+    description:
+      "The “watch our learning journey” cards. Paste a YouTube link (or just the 11-character video id) — the player only loads when a visitor clicks play.",
+    addLabel: "Add video",
+    titleField: "title",
+    subtitleField: "duration",
+    emptyHint: "No videos yet — the section stays hidden until you add one.",
+    defaults: { title: "", description: "", youtubeId: "", thumbnail: "", duration: "" },
+    fields: [
+      { name: "youtubeId", label: "YouTube video id or link", help: "e.g. dQw4w9WgXcQ or https://youtu.be/dQw4w9WgXcQ" },
+      { name: "thumbnail", label: "Thumbnail (optional)", type: "image", help: "Leave empty to use YouTube's own thumbnail." },
+      { name: "title", label: "Title" },
+      { name: "duration", label: "Duration", placeholder: "3:20" },
+      { name: "description", label: "Description", type: "textarea" },
+    ],
+  },
+  testimonials: {
+    title: "Student testimonials",
+    description:
+      "Short student quotes (video optional) shown in the “hear it from our students” section.",
+    addLabel: "Add testimonial",
+    titleField: "name",
+    subtitleField: "role",
+    emptyHint: "No testimonials yet — the section stays hidden until you add one.",
+    defaults: { name: "", role: "", quote: "", photo: "", youtubeId: "", rating: 5 },
+    fields: [
+      { name: "photo", label: "Photo (optional)", type: "image", help: "Without a photo the student's initials are shown." },
+      { name: "name", label: "Student name" },
+      { name: "role", label: "Course / batch / role", placeholder: "Full Stack Development · 2025 batch" },
+      { name: "rating", label: "Rating (1–5)", type: "number" },
+      { name: "youtubeId", label: "Video testimonial (YouTube id, optional)" },
+      { name: "quote", label: "Quote", type: "textarea" },
+    ],
+  },
+  centres: {
+    title: "Centres",
+    description:
+      "Physical centres shown in the “find us here” section. Add every branch where classroom batches run.",
+    addLabel: "Add centre",
+    titleField: "name",
+    subtitleField: "address",
+    emptyHint: "No centres yet — the section stays hidden until you add one.",
+    defaults: { name: "", address: "", phone: "", hours: "", mapLink: "", image: "" },
+    fields: [
+      { name: "image", label: "Photo (optional)", type: "image" },
+      { name: "name", label: "Centre name", placeholder: "Dhanori (main centre)" },
+      { name: "address", label: "Full address", type: "textarea" },
+      { name: "phone", label: "Phone" },
+      { name: "hours", label: "Timings", placeholder: "Mon – Sat · 9:00 AM – 7:00 PM" },
+      { name: "mapLink", label: "Google Maps link (optional)" },
     ],
   },
 };
