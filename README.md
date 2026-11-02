@@ -155,6 +155,24 @@ All eyebrows, headings, intros, empty states and button labels on this page live
 in **Interface text → Course page headings**, so the wording can change without
 touching the per-course content.
 
+### Entrance door (timing & smoothness)
+
+The door intro lives in `src/components/site/door-intro.tsx` (markup/timings) and
+the `ENTRANCE DOOR` block of `src/app/globals.css` (look). Timings are constants at
+the top of the component — `AUTO_OPEN_SECONDS` (2.5s, the progress bar follows it
+via `--door-auto`), `UNLOCK_MS` (620ms) and `OPEN_MS` (1250ms), so a visitor can be
+on the site in under two seconds after clicking.
+
+The animation is built to stay on the compositor:
+
+- the light burst and door darkening are **opacity overlays** (`::after`), not
+  `filter: brightness()` — a filter on a rotating 3D layer re-rasterises every frame;
+- the volumetric rays are 150vmax (was 220vmax) and promoted with
+  `will-change: transform, opacity`;
+- the energy traces use a static wide halo path instead of a per-frame SVG
+  `drop-shadow()`, and all infinite loops pause once the doors start swinging;
+- the door root is `contain: layout paint style`, so its paints never escape it.
+
 ### Photos, frames and card effects
 
 - **Mentor portraits** are stored at `public/images/mentors/<slug>.jpg` (600×800).

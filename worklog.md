@@ -616,3 +616,33 @@ rectangle, so the animated conic border around each card was invisible — the
 present (26/8/4/17 occurrences); compiled CSS contains `.media-frame`,
 `.media-tone` and `aurora-card::before { z-index: 3 }`; portrait sheet reviewed
 image by image after the repaint.
+
+## Entrance door: snappier and smooth
+
+Feedback was that opening the door felt slow / janky. Two causes, both fixed.
+
+**It was actually slow.** 3s auto-open + 1.1s unlock + 2s swing meant ~6s before
+the site was usable. Now `AUTO_OPEN_SECONDS = 2.5`, `UNLOCK_MS = 620`,
+`OPEN_MS = 1250` — under two seconds from click to the site, and the progress bar
+reads its duration from the same constant instead of a hard-coded `3s`.
+
+**It also stuttered.** Everything expensive about the animation was re-rasterising
+per frame:
+
+| Was | Now |
+| --- | --- |
+| `.door-rays` a 220vmax square with a radial mask (~3200px² at 1440p, tens of MB of GPU texture) | 150vmax, promoted with `will-change: transform, opacity` |
+| `filter: brightness()` transitions on `.door-light` and both `.door-panel`s | opacity veils on `::after` — compositor-only |
+| `filter: drop-shadow()` on 16 animated SVG trace paths | a static wide low-opacity halo path |
+| infinite trace/dust/emblem loops running while the doors fly away | `animation-play-state: paused` during `opening` |
+| no paint isolation | `contain: layout paint style` on the door root |
+
+Smaller wins: the WebAudio graph is now built on the next frame after the click
+instead of inside the handler (that alone was a visible hitch), bolts retract on a
+170ms cadence that fits the 620ms unlock, the sound design follows the new timing
+constants, and the fade is 1.25s so the overlay unmounts exactly when it finishes.
+
+**Verified**: `tsc`, `eslint`, `next build` clean; the served markup carries
+`animation-duration:2.5s` on the progress bar, and the compiled stylesheet
+contains `150vmax`, the two `::after` veils, `animation-play-state: paused`,
+`contain: layout paint style` and the 1.25s panel/light/ray transitions.

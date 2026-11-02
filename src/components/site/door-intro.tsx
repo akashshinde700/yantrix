@@ -26,10 +26,17 @@ import { soundPreference, startAmbient } from "@/components/site/universe/ambien
 
 type Phase = "idle" | "unlocking" | "opening" | "gone";
 
-/** The door opens by itself after this long (a click or Enter opens it sooner). */
-const AUTO_OPEN_SECONDS = 3;
-const UNLOCK_MS = 1100;
-const OPEN_MS = 2000;
+/**
+ * The door opens by itself after this long (a click or Enter opens it sooner).
+ *
+ * Timings are deliberately short: the door is an invitation, not a gate. The old
+ * numbers (3s + 1.1s unlock + 2s swing) meant ~6s of waiting before the site was
+ * usable, which read as "the door is slow". Bolt retraction is still visible,
+ * just twice as fast, and the swing is a single 1.25s ease.
+ */
+const AUTO_OPEN_SECONDS = 2.5;
+const UNLOCK_MS = 620;
+const OPEN_MS = 1250;
 
 /* Circuit traces on each door, drawn toward the seam (x = 100). */
 const TRACES = [
@@ -73,28 +80,31 @@ function playDoorSound() {
       src.stop(start + length + 0.05);
     };
 
-    // three bolt clacks
-    [0.1, 0.32, 0.54].forEach((t) => noise(now + t, 0.09, 1800, 6, 0.35));
+    // three bolt clacks, spaced across the (shorter) unlock window
+    const unlock = UNLOCK_MS / 1000;
+    [0.04, unlock * 0.42, unlock * 0.78].forEach((t) => noise(now + t, 0.08, 1800, 6, 0.35));
     // air whoosh as the doors swing
-    noise(now + UNLOCK_MS / 1000, 1.6, 300, 0.8, 0.28, 2400);
-    // rising chord
+    noise(now + unlock, 1.1, 300, 0.8, 0.28, 2400);
+    // rising chord that rings out just past the doors leaving the screen
+    const chordStart = unlock * 0.7;
+    const chordEnd = unlock + 2.4;
     const chord = ctx.createGain();
-    chord.gain.setValueAtTime(0.0001, now + 0.8);
-    chord.gain.exponentialRampToValueAtTime(0.09, now + 1.4);
-    chord.gain.exponentialRampToValueAtTime(0.0001, now + 3.6);
+    chord.gain.setValueAtTime(0.0001, now + chordStart);
+    chord.gain.exponentialRampToValueAtTime(0.09, now + chordStart + 0.5);
+    chord.gain.exponentialRampToValueAtTime(0.0001, now + chordEnd);
     chord.connect(out);
     [220, 277.18, 329.63, 440, 659.25].forEach((f, i) => {
       const o = ctx.createOscillator();
       o.type = "sine";
-      o.frequency.setValueAtTime(f, now + 0.8);
-      o.frequency.exponentialRampToValueAtTime(f * 1.5, now + 3);
+      o.frequency.setValueAtTime(f, now + chordStart);
+      o.frequency.exponentialRampToValueAtTime(f * 1.5, now + chordEnd - 0.4);
       const g = ctx.createGain();
       g.gain.value = 0.3 / (i + 1);
       o.connect(g).connect(chord);
-      o.start(now + 0.8 + i * 0.05);
-      o.stop(now + 3.7);
+      o.start(now + chordStart + i * 0.04);
+      o.stop(now + chordEnd + 0.1);
     });
-    setTimeout(() => ctx.close(), 4200);
+    setTimeout(() => ctx.close(), (chordEnd + 0.4) * 1000);
   } catch {
     /* audio is optional */
   }
@@ -231,6 +241,8 @@ function DoorPanel({ side, phase }: { side: "left" | "right"; phase: Phase }) {
         {TRACES.map((d, i) => (
           <g key={d}>
             <path d={d} fill="none" stroke="rgba(125,211,252,0.13)" strokeWidth="0.7" vectorEffect="non-scaling-stroke" />
+            {/* static halo: cheaper than a drop-shadow filter on an animated dash */}
+            <path d={d} fill="none" stroke="rgba(34,211,238,0.10)" strokeWidth="4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
             <path
               d={d}
               fill="none"
@@ -321,13 +333,17 @@ export function DoorIntro() {
     setPhase("unlocking");
     timers.current.push(setTimeout(() => setPhase("opening"), UNLOCK_MS));
     timers.current.push(setTimeout(finish, UNLOCK_MS + OPEN_MS));
-    // the click is the visitor's permission for audio: the space ambience swells in as the doors open
-    try {
-      playDoorSound();
-      if (soundPreference() !== "off") startAmbient({ delay: 2.6 });
-    } catch (error) {
-      console.warn("[door] sound unavailable:", error);
-    }
+    // The click is the visitor's permission for audio, but building a WebAudio
+    // graph (noise buffers, oscillators) costs a few ms on the main thread — do it
+    // after the first animation frame so the door starts moving immediately.
+    requestAnimationFrame(() => {
+      try {
+        playDoorSound();
+        if (soundPreference() !== "off") startAmbient({ delay: 1.9 });
+      } catch (error) {
+        console.warn("[door] sound unavailable:", error);
+      }
+    });
   }, [phase, finish]);
 
   // opens by itself after AUTO_OPEN_SECONDS (a click or Enter opens it sooner)
@@ -368,7 +384,7 @@ export function DoorIntro() {
     >
       {/* light behind the doors + rays that burst on opening */}
       <div aria-hidden="true" className="door-light absolute inset-0" />
-      <div aria-hidden="true" className="door-rays absolute left-1/2 top-1/2 h-[220vmax] w-[220vmax] -translate-x-1/2 -translate-y-1/2" />
+      <div aria-hidden="true" className="door-rays absolute left-1/2 top-1/2" />
 
       <DoorPanel side="left" phase={phase} />
       <DoorPanel side="right" phase={phase} />
@@ -380,7 +396,7 @@ export function DoorIntro() {
           <span
             key={i}
             className={cn("door-bolt absolute -left-7 h-2.5 w-14 rounded-full", phase !== "idle" && "door-bolt-open")}
-            style={{ ...pos, transitionDelay: `${i * 260}ms` }}
+            style={{ ...pos, transitionDelay: `${i * 170}ms` }}
           />
         ))}
       </div>
@@ -442,7 +458,11 @@ export function DoorIntro() {
           className="door-cta group relative inline-flex h-14 items-center gap-3 overflow-hidden rounded-full px-9 text-base font-bold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#010208]"
         >
           {/* auto-open progress */}
-          <span aria-hidden="true" className="door-auto-bar absolute inset-x-6 bottom-1.5 h-0.5 origin-left rounded-full bg-gradient-to-r from-cyan-300 to-[#e8cf98]" />
+          <span
+            aria-hidden="true"
+            className="door-auto-bar absolute inset-x-6 bottom-1.5 h-0.5 origin-left rounded-full bg-gradient-to-r from-cyan-300 to-[#e8cf98]"
+            style={{ animationDuration: `${AUTO_OPEN_SECONDS}s` }}
+          />
           <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-cyan-300" />
