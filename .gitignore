@@ -66,3 +66,6 @@ db/*.db
 student_photos/
 *.xlsx
 *.mp4
+
+# personal note (reference link)
+link
