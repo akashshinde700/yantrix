@@ -22,8 +22,8 @@ type Block = { type: "p" | "h"; text: string } | { type: "ul"; items: string[] }
 
 /**
  * Plain-text body -> blocks. Lines starting with "*", "-" or "•" become bullet
- * points (consecutive ones share a list); a short numbered line such as
- * "14. No Refund Policy" becomes a sub-heading; anything else is a paragraph.
+ * points (consecutive ones share a list); a short line without end punctuation,
+ * such as "No Refund Policy", becomes a sub-heading; anything else is a paragraph.
  */
 function toBlocks(body: string): Block[] {
   const blocks: Block[] = [];
@@ -35,7 +35,7 @@ function toBlocks(body: string): Block[] {
     if (bullet) {
       if (last?.type === "ul") last.items.push(bullet[1]);
       else blocks.push({ type: "ul", items: [bullet[1]] });
-    } else if (/^\d+[.)]\s+\S/.test(line) && line.length <= 80 && !/[.:;,]$/.test(line)) {
+    } else if (line.length <= 80 && !/[.:;,!?]$/.test(line)) {
       blocks.push({ type: "h", text: line });
     } else {
       blocks.push({ type: "p", text: line });

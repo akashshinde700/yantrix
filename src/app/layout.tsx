@@ -109,6 +109,7 @@ export default async function RootLayout({
           document and globals.css reveals it instantly.
         */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html:
               '(function(){try{var n=0,last=0,done=false,' +
@@ -130,7 +131,9 @@ export default async function RootLayout({
           full-screen intro as an intrusive interstitial for search traffic),
           and crawlers / audit tools. Direct and shared-link visits get the door.
         */}
+        {/* suppressHydrationWarning: browser extensions rewrite inline head scripts before React hydrates */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html:
               '(function(){try{var d=document.documentElement;' +
