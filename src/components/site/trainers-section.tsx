@@ -249,7 +249,7 @@ export function TrainersSection() {
                 <Dialog>
                   <article className="aurora-card sweep-card group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0a1230]/85 transition-colors duration-300 hover:border-cyan-300/40">
                     {/* portrait photo, like the reference mentor wall */}
-                    <div className="relative aspect-[3/4] overflow-hidden">
+                    <div className="media-frame relative aspect-[3/4] overflow-hidden">
                       <PersonPhoto
                         src={trainer.photo}
                         name={trainer.name}

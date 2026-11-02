@@ -445,7 +445,7 @@ export function CourseDetail({ slug }: { slug: string }) {
             {/* ── cover + price card ── */}
             <div className="space-y-4">
               <div className="group relative overflow-hidden rounded-3xl border border-white/12 bg-[#070d22] shadow-[0_28px_70px_-30px_rgba(2,8,23,0.95)]">
-                <div className="aspect-[16/10] w-full overflow-hidden">
+                <div className="media-frame media-tone aspect-[16/10] w-full overflow-hidden">
                   <CoverArt course={course} priority />
                 </div>
                 <HudCorners dark />
@@ -942,7 +942,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                   "group flex flex-col transition-all duration-300 hover:-translate-y-1 hover:border-cyber-400/40"
                 )}
               >
-                <div className="aspect-[16/9] w-full overflow-hidden border-b border-white/10">
+                <div className="media-frame media-tone aspect-[16/9] w-full overflow-hidden border-b border-white/10">
                   <CoverArt course={other} iconClassName="h-12 w-12" variant={index + 1} />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
