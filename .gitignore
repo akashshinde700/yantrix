@@ -73,3 +73,6 @@ link
 # python bytecode
 __pycache__/
 *.pyc
+
+# deploy credentials (never commit)
+deploy_config*.json

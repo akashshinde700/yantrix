@@ -22,16 +22,54 @@ export function absoluteUrl(content: SiteContent, pathname: string): string {
   return `${base}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
 }
 
+/**
+ * A full document title. The admin template ("%s | Yantrix Technology") is
+ * applied only when the title does not already name the brand, so a title an
+ * admin wrote with the brand in it never ends in the name twice.
+ */
+export function brandedTitle(content: SiteContent, title: string): string {
+  const template = content.seo.global.titleTemplate || "%s";
+  const name = content.settings.name.trim().toLowerCase();
+  if (!title) return content.seo.global.defaultTitle;
+  if (!template.includes("%s") || (name && title.toLowerCase().includes(name))) return title;
+  return template.replace("%s", title);
+}
+
 /** Compose a document title using the admin-configured template. */
 export function pageTitle(content: SiteContent, view: SiteView): string {
   const page = content.seo.pages[view];
-  const template = content.seo.global.titleTemplate || "%s";
   if (view === "home") return page.title || content.seo.global.defaultTitle;
-  return template.includes("%s") ? template.replace("%s", page.title) : page.title;
+  return brandedTitle(content, page.title);
+}
+
+/**
+ * Meta descriptions longer than ~160 characters are cut off in search
+ * results; trim at a word boundary instead of mid-word.
+ */
+export function clampDescription(text: string, max = 160): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  const atWord = cut.slice(0, cut.lastIndexOf(" ") > 80 ? cut.lastIndexOf(" ") : cut.length);
+  return `${atWord.replace(/[\s,;:—–-]+$/, "")}…`;
 }
 
 export function pageDescription(content: SiteContent, view: SiteView): string {
-  return content.seo.pages[view].description || content.seo.global.defaultDescription;
+  return clampDescription(content.seo.pages[view].description || content.seo.global.defaultDescription);
+}
+
+/**
+ * "5–6 Months (typical)" -> "P6M". Schema.org durations are ISO 8601; the
+ * upper bound of a range is used. Returns undefined when nothing parses.
+ */
+export function isoDuration(text: string | undefined): string | undefined {
+  if (!text) return undefined;
+  const match = text.match(/(\d+(?:\.\d+)?)(?:\s*[–—-]\s*(\d+(?:\.\d+)?))?\s*(year|month|week|day|hour|hr)/i);
+  if (!match) return undefined;
+  const value = Math.ceil(Number(match[2] ?? match[1]));
+  const unit = match[3].toLowerCase();
+  if (unit.startsWith("h")) return `PT${value}H`;
+  return `P${value}${{ year: "Y", month: "M", week: "W", day: "D" }[unit as "year" | "month" | "week" | "day"]}`;
 }
 
 /* ─────────────────────────── courses ─────────────────────────── */
@@ -235,14 +273,15 @@ export function buildJsonLd(
     image: c.coverImage ? absoluteUrl(content, c.coverImage) : undefined,
     educationalLevel: c.level || undefined,
     teaches: c.learn?.length ? c.learn : c.highlights?.length ? c.highlights : undefined,
-    timeRequired: c.duration || undefined,
+    timeRequired: isoDuration(c.duration),
     syllabusSections: c.curriculum?.length
       ? c.curriculum.map((module) => ({ "@type": "Syllabus", name: module.title }))
       : undefined,
     provider: { "@id": orgId, "@type": "EducationalOrganization", name: settings.name, url: `${url}/` },
     offers: {
       "@type": "Offer",
-      category: c.fee && !/request|enquir/i.test(c.fee) ? "Paid" : "Paid — fee on enquiry",
+      // Google's course rich result accepts only Free / Partially Free / Subscription / Paid
+      category: "Paid",
       description: c.fee || undefined,
       availability: "https://schema.org/InStock",
       url: absoluteUrl(content, coursePath(c)),
@@ -259,7 +298,7 @@ export function buildJsonLd(
       return {
         "@type": "CourseInstance",
         courseMode: /online/i.test(mode) ? "Online" : "Onsite",
-        courseWorkload: c.duration || undefined,
+        courseWorkload: isoDuration(c.duration),
         startDate: batch?.startDate || undefined,
         location: /online/i.test(mode) ? undefined : address,
       };

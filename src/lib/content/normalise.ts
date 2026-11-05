@@ -34,6 +34,49 @@ function mergeDeep<T>(defaults: T, stored: unknown): T {
   return (stored === undefined || stored === null ? defaults : stored) as T;
 }
 
+/*
+ * Values that earlier versions of the code shipped as defaults and that were
+ * later improved. A stored value that still equals one of these was never
+ * edited by an admin, so it follows the current default; anything an admin
+ * typed is left alone.
+ */
+const LEGACY_DEFAULTS: [path: string, oldValue: string][] = [
+  // the site is served on www; the bare domain only redirects
+  ["settings.url", "https://yantrixtechnology.com"],
+  ["seo.global.defaultTitle",
+    "Yantrix Technology | IT Training Institute — Online & Offline Courses with Placement Assistance"],
+  ["seo.global.defaultDescription",
+    "Yantrix Technology is an IT training institute offering online and offline courses in Full Stack Development, Web Development, Python, Java, Data Analytics and more — with live projects and placement assistance."],
+  ["seo.pages.home.title",
+    "Yantrix Technology | IT Training Institute — Online & Offline Courses with Placement Assistance"],
+  ["seo.pages.home.description",
+    "Yantrix Technology is an IT training institute offering online and offline courses in Full Stack Development, Web Development, Python, Java, Data Analytics and more — with live projects and placement assistance."],
+  ["seo.pages.courses.title",
+    "IT Courses — Full Stack, Web Development, Python, Java & More | Yantrix Technology"],
+  ["seo.pages.courses.description",
+    "Explore career-oriented IT courses at Yantrix Technology: Full Stack Development, Web Development, Python, Java, Data Analytics, Digital Marketing, UI/UX Design and basic computer training. Online & offline batches with placement assistance."],
+  ["seo.pages.about.title", "About Yantrix Technology — Practical IT Training Institute Since 2024"],
+  ["seo.pages.about.description",
+    "Yantrix Technology, founded in 2024, is an IT training institute focused on practical learning, live projects and career growth. Learn about our mission, vision and training approach."],
+  ["seo.pages.contact.title", "Contact Yantrix Technology — Enquire About IT Courses & Admission"],
+];
+
+function getPath(root: unknown, path: string): unknown {
+  return path.split(".").reduce<unknown>((node, key) => (isObject(node) ? node[key] : undefined), root);
+}
+
+function setPath(root: unknown, path: string, value: unknown): void {
+  const keys = path.split(".");
+  const parent = getPath(root, keys.slice(0, -1).join("."));
+  if (isObject(parent)) parent[keys[keys.length - 1]] = value;
+}
+
+function upgradeLegacyDefaults(content: SiteContent): void {
+  for (const [path, oldValue] of LEGACY_DEFAULTS) {
+    if (getPath(content, path) === oldValue) setPath(content, path, getPath(DEFAULT_CONTENT, path));
+  }
+}
+
 /** Fields that identify the same record across seed data and stored data. */
 const NATURAL_KEYS = ["slug", "name", "question", "title"] as const;
 
@@ -69,6 +112,7 @@ function backfillRecord(
 
 export function normaliseContent(raw: unknown): SiteContent {
   const merged = mergeDeep<SiteContent>(DEFAULT_CONTENT, raw);
+  upgradeLegacyDefaults(merged);
   const seeded = new Set<CollectionKey>(merged.seededCollections ?? []);
 
   for (const key of Object.keys(merged.collections) as CollectionKey[]) {

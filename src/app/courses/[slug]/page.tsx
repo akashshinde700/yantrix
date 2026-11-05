@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { SitePage } from "@/components/site/site-page";
 import { CourseDetail } from "@/components/site/course-detail";
 import { getContent } from "@/lib/content/store";
-import { absoluteUrl, courseHeadline, coursePath, findCourse } from "@/lib/seo";
+import { absoluteUrl, clampDescription, courseHeadline, coursePath, findCourse } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
    * that actually matters (course + fees + syllabus).
    */
   const title = { absolute: course.seoTitle || `${headline} — Fees & Syllabus` };
-  const description = (
+  const description = clampDescription(
     course.seoDescription ||
     [
       course.tagline || course.description,
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ]
       .filter(Boolean)
       .join(" ")
-  ).slice(0, 300);
+  );
   const url = absoluteUrl(content, coursePath(course));
   const { global } = content.seo;
 

@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
 import { ContentIcon } from "@/components/site/content-icon";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
+import { GatedDownload } from "@/components/site/syllabus-gate";
 import { CtaBand } from "@/components/site/cta-band";
 import { HudCorners, ScanSweep } from "@/components/site/ai-decor";
 import { useCollection, useLabels, useSettings, useSiteContent } from "@/lib/content/provider";
@@ -518,15 +519,15 @@ export function CourseDetail({ slug }: { slug: string }) {
                 </ul>
 
                 {course.brochureUrl ? (
-                  <a
-                    href={course.brochureUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <GatedDownload
+                    url={course.brochureUrl}
+                    label={course.brochureTitle || `${course.title} syllabus`}
+                    course={course.title}
                     className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:border-cyber-300/60 hover:bg-white/10"
                   >
                     <Download className="h-3.5 w-3.5" aria-hidden="true" />
                     {course.brochureTitle || "Download syllabus"}
-                  </a>
+                  </GatedDownload>
                 ) : null}
               </div>
             </div>
@@ -1501,15 +1502,15 @@ function CurriculumSection({
 
         {brochureFiles[0]?.url ? (
           <p className="mt-4">
-            <a
-              href={brochureFiles[0].url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <GatedDownload
+              url={brochureFiles[0].url}
+              label={brochureFiles[0].label}
+              course={courseTitle}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyber-300 underline decoration-cyber-300/40 underline-offset-4 transition-colors hover:text-white"
             >
               <Download className="h-3.5 w-3.5" aria-hidden="true" />
               {t("cp.curriculumDownload")}
-            </a>
+            </GatedDownload>
           </p>
         ) : null}
       </div>
@@ -1583,11 +1584,11 @@ function CurriculumSection({
                     <ul className="divide-y divide-white/[0.06]">
                       {brochureFiles.map((file) => (
                         <li key={`${file.label}-${file.url}`}>
-                          <a
-                            href={file.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group flex items-center gap-3 px-4 py-3 text-sm text-slate-200 transition-colors hover:bg-white/[0.04] hover:text-white sm:px-5"
+                          <GatedDownload
+                            url={file.url}
+                            label={file.label}
+                            course={courseTitle}
+                            className="group flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-slate-200 transition-colors hover:bg-white/[0.04] hover:text-white sm:px-5"
                           >
                             <FileText className="h-4 w-4 shrink-0 text-cyber-300/80" aria-hidden="true" />
                             <span className="min-w-0 flex-1 truncate">{file.label}</span>
@@ -1595,7 +1596,7 @@ function CurriculumSection({
                               className="h-4 w-4 shrink-0 text-slate-500 transition-colors group-hover:text-cyber-300"
                               aria-hidden="true"
                             />
-                          </a>
+                          </GatedDownload>
                         </li>
                       ))}
                     </ul>

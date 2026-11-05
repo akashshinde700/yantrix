@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { SitePage } from "@/components/site/site-page";
 import { LegalPage } from "@/components/site/legal-page";
 import { getContent } from "@/lib/content/store";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, brandedTitle } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title: content.settings.legal.refundTitle,
     description: `Fee and refund policy for courses and services at ${content.settings.name}.`,
     alternates: { canonical: absoluteUrl(content, "/refund-policy") },
+    openGraph: {
+      title: brandedTitle(content, content.settings.legal.refundTitle),
+      url: absoluteUrl(content, "/refund-policy"),
+    },
     robots: { index: true, follow: true },
   };
 }

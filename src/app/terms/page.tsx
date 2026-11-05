@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SitePage } from "@/components/site/site-page";
 import { LegalPage } from "@/components/site/legal-page";
 import { getContent } from "@/lib/content/store";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, brandedTitle } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +12,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title: content.settings.legal.termsTitle,
     description: `Terms of use for the ${content.settings.name} website and course information.`,
     alternates: { canonical: absoluteUrl(content, "/terms") },
+    openGraph: {
+      title: brandedTitle(content, content.settings.legal.termsTitle),
+      url: absoluteUrl(content, "/terms"),
+    },
     robots: { index: true, follow: true },
   };
 }

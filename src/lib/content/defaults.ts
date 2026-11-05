@@ -508,7 +508,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     name: "Yantrix Technology",
     shortName: "Yantrix",
     domain: "YantrixTechnology.com",
-    url: "https://yantrixtechnology.com",
+    url: "https://www.yantrixtechnology.com",
     tagline: "Practical IT Training for Real Careers",
     positioning:
       "Yantrix Technology helps students and professionals learn practical IT skills through online and offline training, live project-based learning, and placement assistance.",
@@ -570,11 +570,10 @@ export const DEFAULT_CONTENT: SiteContent = {
   },
   seo: {
     global: {
-      defaultTitle:
-        "Yantrix Technology | IT Training Institute — Online & Offline Courses with Placement Assistance",
+      defaultTitle: "Yantrix Technology | IT Training Institute in Pune",
       titleTemplate: "%s | Yantrix Technology",
       defaultDescription:
-        "Yantrix Technology is an IT training institute offering online and offline courses in Full Stack Development, Web Development, Python, Java, Data Analytics and more — with live projects and placement assistance.",
+        "IT training institute in Pune: online & offline courses in Full Stack, Python, Java and Data Analytics with live projects and placement assistance.",
       keywords: [
         "IT training institute",
         "online IT courses",

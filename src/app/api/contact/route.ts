@@ -15,6 +15,8 @@ const enquirySchema = z.object({
     .pipe(z.string().regex(/^(\+91)?[6-9]\d{9}$/, "Invalid mobile number")),
   course: z.string().trim().min(1).max(120),
   message: z.string().trim().max(1000).optional().nullable(),
+  /** where the enquiry came from: the contact form or a gated syllabus download */
+  source: z.enum(["website", "syllabus"]).optional(),
 });
 
 /* ── Shared in-memory rate limiting (max 5 submissions / 10 min / IP) ── */
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, mobile, course, message } = parsed.data;
+    const { name, email, mobile, course, message, source } = parsed.data;
 
     const enquiry = await addEnquiry({
       name,
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
       mobile,
       course,
       message: message && message.length > 0 ? message : null,
-      source: "website",
+      source: source ?? "website",
     });
 
     // confirmation to the student + alert to the admin, after the response is sent

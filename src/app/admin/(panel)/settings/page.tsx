@@ -40,7 +40,7 @@ export default async function SettingsAdminPage() {
               {
                 name: "url",
                 label: "Website URL",
-                placeholder: "https://yantrixtechnology.com",
+                placeholder: "https://www.yantrixtechnology.com",
               },
               { name: "tagline", label: "Tagline" },
               { name: "foundedYear", label: "Founded year", type: "number" },

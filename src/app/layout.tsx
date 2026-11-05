@@ -7,7 +7,7 @@ import "@fontsource-variable/plus-jakarta-sans";
 import "@fontsource-variable/jetbrains-mono";
 import { Toaster } from "@/components/ui/toaster";
 import { getContent } from "@/lib/content/store";
-import { absoluteUrl, safeClarityId, safeMeasurementId } from "@/lib/seo";
+import { absoluteUrl, pageDescription, pageTitle, safeClarityId, safeMeasurementId } from "@/lib/seo";
 
 /**
  * All metadata is generated from the admin-editable content document, so
@@ -26,10 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(settings.url),
     title: {
-      default: home.title || global.defaultTitle,
+      default: pageTitle(content, "home"),
       template: global.titleTemplate || "%s",
     },
-    description: home.description || global.defaultDescription,
+    description: pageDescription(content, "home"),
     keywords: [...new Set([...global.keywords, ...home.keywords])],
     applicationName: settings.name,
     authors: [{ name: settings.name, url: settings.url }],
@@ -50,16 +50,16 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: global.locale || "en_IN",
       url: absoluteUrl(content, home.path || "/"),
       siteName: settings.name,
-      title: home.title || global.defaultTitle,
-      description: home.description || global.defaultDescription,
+      title: pageTitle(content, "home"),
+      description: pageDescription(content, "home"),
       images: [{ url: ogImage, width: 1344, height: 768, alt: settings.name }],
     },
     twitter: {
       card: "summary_large_image",
       site: global.twitterHandle || undefined,
       creator: global.twitterHandle || undefined,
-      title: home.title || global.defaultTitle,
-      description: home.description || global.defaultDescription,
+      title: pageTitle(content, "home"),
+      description: pageDescription(content, "home"),
       images: [ogImage],
     },
     robots: {

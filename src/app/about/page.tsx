@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const content = await getContent();
   const page = content.seo.pages.about;
   return {
-    title: page.title,
+    title: { absolute: pageTitle(content, "about") },
     description: pageDescription(content, "about"),
     keywords: page.keywords,
     alternates: { canonical: absoluteUrl(content, page.path) },

@@ -30,7 +30,8 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   const { robotsIndex } = content.seo.global;
   const base = content.settings.url.replace(/\/$/, "");
   // A named user-agent group replaces the "*" group for that bot, so each one repeats the private paths.
-  const privatePaths = ["/admin", "/api"];
+  // /files/ holds the syllabus PDFs, which are handed out after the enquiry form
+  const privatePaths = ["/admin", "/api", "/files/"];
 
   return {
     rules: robotsIndex
