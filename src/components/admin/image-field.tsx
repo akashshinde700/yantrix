@@ -5,13 +5,14 @@ import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+/** Default longest side for uploads: plenty for photos shown in small cards. */
 const MAX_SIDE = 800;
 
-/** Downscale in the browser (max 800px, WebP) so uploads are small and fast. */
-async function shrink(file: File): Promise<Blob> {
+/** Downscale in the browser (WebP) so uploads are small and fast. */
+async function shrink(file: File, maxSide = MAX_SIDE): Promise<Blob> {
   if (file.type === "image/gif") return file; // keep animation
   const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(bitmap.width * scale);
   canvas.height = Math.round(bitmap.height * scale);
@@ -31,11 +32,14 @@ export function ImageField({
   value,
   onChange,
   placeholder,
+  maxSide,
 }: {
   id: string;
   value: string;
   onChange: (next: string) => void;
   placeholder?: string;
+  /** Longest side after resizing; raise it for images shown large (e.g. 1600 for course covers). */
+  maxSide?: number;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -46,7 +50,7 @@ export function ImageField({
     setError(null);
     try {
       const body = new FormData();
-      body.append("file", await shrink(file), file.name.replace(/\.\w+$/, ".webp"));
+      body.append("file", await shrink(file, maxSide), file.name.replace(/\.\w+$/, ".webp"));
       const res = await fetch("/api/admin/media", { method: "POST", body, credentials: "same-origin" });
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; url?: string; error?: string };
       if (!res.ok || !json.url) throw new Error(json.error || "Upload failed.");

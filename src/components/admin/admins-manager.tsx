@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, ShieldCheck, Trash2, UserCog } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Loader2, Plus, ShieldCheck, Trash2, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,41 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type { AdminRole, PublicAdmin } from "@/lib/content/types";
 
+/** Password input with a show/hide toggle, so a typo is visible before saving. */
+function PasswordInput({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative">
+      <Input
+        id={id}
+        type={visible ? "text" : "password"}
+        required
+        minLength={8}
+        autoComplete="new-password"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="pr-10"
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-500 hover:text-slate-900"
+      >
+        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
+
 export function AdminsManager({
   admins,
   currentAdminId,
@@ -37,6 +72,8 @@ export function AdminsManager({
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
+  const [resetFor, setResetFor] = useState<PublicAdmin | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -92,6 +129,30 @@ export function AdminsManager({
       return;
     }
     toast({ title: "Account updated" });
+    router.refresh();
+  };
+
+  const resetPassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!resetFor) return;
+    setBusy(resetFor.id);
+    const response = await fetch(`/api/admin/admins/${resetFor.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: newPassword }),
+    });
+    const data = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+    setBusy(null);
+    if (!response.ok || !data.ok) {
+      toast({ variant: "destructive", title: "Password not changed", description: data.error });
+      return;
+    }
+    toast({
+      title: "Password changed",
+      description: `${resetFor.email} can now sign in with the new password. Any open sessions were signed out.`,
+    });
+    setResetFor(null);
+    setNewPassword("");
     router.refresh();
   };
 
@@ -152,7 +213,8 @@ export function AdminsManager({
                 </td>
                 <td className="hidden px-4 py-3 text-xs text-slate-500 sm:table-cell">
                   {admin.lastLoginAt
-                    ? new Date(admin.lastLoginAt).toLocaleString()
+                    ? // fixed locale + zone: server and browser must render the same text
+                      new Date(admin.lastLoginAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
                     : "Never"}
                 </td>
                 <td className="px-4 py-3">
@@ -194,6 +256,22 @@ export function AdminsManager({
                   </button>
                 </td>
                 <td className="px-4 py-3 text-right">
+                  {isOwner && admin.id !== currentAdminId ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-slate-600"
+                      onClick={() => {
+                        setNewPassword("");
+                        setResetFor(admin);
+                      }}
+                      aria-label={`Reset password for ${admin.email}`}
+                      title="Reset password"
+                      disabled={busy === admin.id}
+                    >
+                      <KeyRound className="h-4 w-4" />
+                    </Button>
+                  ) : null}
                   {isOwner && admin.id !== currentAdminId ? (
                     <Button
                       variant="ghost"
@@ -253,15 +331,10 @@ export function AdminsManager({
             </div>
             <div className="space-y-2">
               <Label htmlFor="admin-password">Temporary password</Label>
-              <Input
+              <PasswordInput
                 id="admin-password"
-                type="password"
-                required
-                minLength={8}
                 value={form.password}
-                onChange={(event) =>
-                  setForm({ ...form, password: event.target.value })
-                }
+                onChange={(password) => setForm({ ...form, password })}
               />
             </div>
             <div className="space-y-2">
@@ -291,6 +364,34 @@ export function AdminsManager({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
               Create account
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resetFor !== null} onOpenChange={(next) => (next ? null : setResetFor(null))}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-4 w-4" /> Reset password
+            </DialogTitle>
+            <DialogDescription>
+              Set a new password for {resetFor?.email}. They will be signed out everywhere and
+              sign in again with this password (and the emailed code).
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={resetPassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reset-password">New password (min. 8 characters)</Label>
+              <PasswordInput id="reset-password" value={newPassword} onChange={setNewPassword} />
+            </div>
+            <Button
+              type="submit"
+              disabled={busy === resetFor?.id || newPassword.length < 8}
+              className="w-full font-bold"
+            >
+              {busy === resetFor?.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Save new password
             </Button>
           </form>
         </DialogContent>

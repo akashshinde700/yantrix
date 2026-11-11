@@ -28,6 +28,10 @@ Run:
                                 #   server. Refuses if the server already has
                                 #   content, unless --force is also given.
                                 #   Enquiries and the audit log are not copied.
+  python deploy.py --set-admin EMAIL --name NAME --role editor
+                                # create an admin on the live site, or reset an
+                                #   existing one's password (asked for, or from
+                                #   ADMIN_SET_PASSWORD; only the hash is sent)
 
 Credentials come from deploy_config.yantrix.json (gitignored) next to this
 script, or the file named by DEPLOY_CONFIG. Keys:
@@ -41,6 +45,7 @@ stops if the dump fails.
 """
 
 import base64
+import getpass
 import hashlib
 import json
 import os
@@ -61,6 +66,7 @@ CHECK_ONLY = "--check" in ARGS
 ROLLBACK = "--rollback" in ARGS
 STAGE_ONLY = "--stage" in ARGS
 PUSH_DATA = "--push-data" in ARGS
+SET_ADMIN = "--set-admin" in ARGS
 FORCE = "--force" in ARGS
 
 # -- Config ---------------------------------------------------
@@ -446,6 +452,69 @@ const val = (v) => v && typeof v === "object"
 '''
 
 
+# Runs on the server with the app's own mysql2: creates the admin, or for an
+# existing email sets the new password, role and re-activates it. Bumping
+# session_version signs that account out everywhere.
+SET_ADMIN_JS = r'''
+const fs = require("fs");
+const crypto = require("crypto");
+const mysql = require("mysql2/promise");
+const env = Object.fromEntries(fs.readFileSync(process.argv[2], "utf8").split("\n")
+  .filter((l) => /^[A-Z_]+=/.test(l)).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).replace(/^"|"$/g, "")]));
+const a = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
+(async () => {
+  const c = await mysql.createConnection(env.DATABASE_URL);
+  const [r] = await c.query(
+    `INSERT INTO admins (id, name, email, password_hash, role, active, created_at, session_version)
+     VALUES (?, ?, ?, ?, ?, 1, NOW(3), 0)
+     ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role = VALUES(role),
+       name = VALUES(name), active = 1, session_version = session_version + 1`,
+    [crypto.randomUUID(), a.name, a.email, a.hash, a.role]);
+  console.log(r.affectedRows === 1 ? `created ${a.email} (${a.role})` : `updated ${a.email} (${a.role})`);
+  await c.end();
+})().catch((e) => { console.error(e.message); process.exit(1); });
+'''
+
+
+def scrypt_hash(password):
+    """Same format as src/lib/admin/auth.ts hashPassword: scrypt:<salt hex>:<key hex>."""
+    salt = secrets.token_hex(16)
+    key = hashlib.scrypt(password.encode(), salt=salt.encode(), n=16384, r=8, p=1, dklen=64)
+    return f"scrypt:{salt}:{key.hex()}"
+
+
+def set_admin(ssh):
+    """python deploy.py --set-admin EMAIL [--name NAME] [--role owner|editor|viewer]
+    The password is read from ADMIN_SET_PASSWORD or asked for; only its hash leaves this PC."""
+    def arg(flag, default=None):
+        return ARGS[ARGS.index(flag) + 1] if flag in ARGS and ARGS.index(flag) + 1 < len(ARGS) else default
+    email = (arg("--set-admin") or "").strip().lower()
+    role = arg("--role", "editor")
+    name = arg("--name") or email.split("@")[0].replace(".", " ").title()
+    if "@" not in email or role not in ("owner", "editor", "viewer"):
+        raise RuntimeError("usage: python deploy.py --set-admin EMAIL [--name NAME] [--role owner|editor|viewer]")
+    password = os.environ.get("ADMIN_SET_PASSWORD") or getpass.getpass(f"Password for {email}: ")
+    if len(password) < 8:
+        raise RuntimeError("password must be at least 8 characters")
+    banner(f"Admin account: {email} ({role})")
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    remote_dir = f"{SITE_HOME}/tmp/set-admin-{stamp}"
+    run(ssh, f"mkdir -p {remote_dir} && chmod 700 {remote_dir}", check=True)
+    sftp = ssh.open_sftp()
+    try:
+        with sftp.open(f"{remote_dir}/admin.json", "w") as f:
+            f.write(json.dumps({"email": email, "name": name, "role": role, "hash": scrypt_hash(password)}))
+        with sftp.open(f"{remote_dir}/set-admin.cjs", "w") as f:
+            f.write(SET_ADMIN_JS)
+    finally:
+        sftp.close()
+    try:
+        run(ssh, f"NODE_PATH={STANDALONE}/node_modules:{STAGING}/node_modules node {remote_dir}/set-admin.cjs {APP}/.env "
+                 f"{remote_dir}/admin.json", check=True)
+    finally:
+        run(ssh, f"rm -rf {remote_dir}", quiet=True)
+
+
 def push_data(ssh):
     banner("Copy local content, admins and media to the server")
     local_url = read_local_env().get("DATABASE_URL", "").strip('"')
@@ -630,6 +699,9 @@ def main():
         elif PUSH_DATA:
             verify_target(ssh)
             push_data(ssh)
+        elif SET_ADMIN:
+            verify_target(ssh)
+            set_admin(ssh)
         else:
             deploy(ssh)
     except Exception as e:

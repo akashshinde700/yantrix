@@ -831,6 +831,7 @@ export function CourseEditor({
                   <ImageField
                     id="coverImage"
                     value={asString(values.coverImage)}
+                    maxSide={1600}
                     placeholder="/images/courses/full-stack.webp"
                     onChange={(next) => set("coverImage", next)}
                   />
@@ -930,6 +931,7 @@ export function CourseEditor({
                   <ImageField
                     id="aboutImage"
                     value={asString(values.aboutImage)}
+                    maxSide={1600}
                     placeholder="/images/courses/classroom.webp"
                     onChange={(next) => set("aboutImage", next)}
                   />
@@ -1107,6 +1109,7 @@ export function CourseEditor({
                   <ImageField
                     id="certificateImage"
                     value={asString(values.certificateImage)}
+                    maxSide={1600}
                     placeholder="/images/certificate.webp"
                     onChange={(next) => set("certificateImage", next)}
                   />
