@@ -1,5 +1,7 @@
 # Yantrix Technology — website + admin panel
 
+> **Admin panel pehli baar chala rahe hain?** [Hinglish screen training (9:45) + panel-wise timestamps](docs/admin-training/README.md).
+>
 > 📘 **Naye user hain?** [`docs/Yantrix-User-Guide-Hinglish.docx`](docs/Yantrix-User-Guide-Hinglish.docx) —
 > poori Hinglish user guide, har public page aur har admin panel ke screenshots + step-by-step instructions ke saath.
 
@@ -73,7 +75,7 @@ npm run start
 ### Course pages
 
 Every course in **Admin → Courses** owns a public page at `/courses/<slug>`.
-The editor is split into five tabs so the page can be filled in gradually —
+The editor is split into seven tabs so the page can be filled in gradually —
 anything left empty is simply not rendered:
 
 | Tab | What it controls |

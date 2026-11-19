@@ -76,3 +76,6 @@ __pycache__/
 
 # deploy credentials (never commit)
 deploy_config*.json
+
+# Reviewed, synthetic-data-only operator training (keep all other MP4s ignored)
+!/docs/admin-training/yantrix-admin-hinglish.mp4
