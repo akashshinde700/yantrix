@@ -6,20 +6,13 @@ import {
   ArrowUp,
   ArrowUpRight,
   Clock,
-  AtSign,
-  Facebook,
   GraduationCap,
-  Instagram,
-  Linkedin,
   Mail,
   MapPin,
-  MessageCircle,
   Phone,
-  Send,
-  Twitter,
-  Youtube,
 } from "lucide-react";
 import { Logo } from "@/components/site/logo";
+import { SocialLinks } from "@/components/site/social-links";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { useSiteStore } from "@/lib/store";
 import { useCollection, useLabels, useSettings } from "@/lib/content/provider";
@@ -111,22 +104,6 @@ const column: Variants = {
   }),
 };
 
-const SOCIAL: {
-  key: keyof SiteSettings["social"];
-  label: string;
-  Icon: typeof Instagram;
-}[] = [
-  { key: "instagram", label: "Instagram", Icon: Instagram },
-  { key: "facebook", label: "Facebook", Icon: Facebook },
-  { key: "linkedin", label: "LinkedIn", Icon: Linkedin },
-  { key: "youtube", label: "YouTube", Icon: Youtube },
-  { key: "twitter", label: "X (Twitter)", Icon: Twitter },
-  { key: "telegram", label: "Telegram", Icon: Send },
-  { key: "whatsappChannel", label: "WhatsApp channel", Icon: MessageCircle },
-  { key: "threads", label: "Threads", Icon: AtSign },
-  { key: "googleBusiness", label: "Google Business Profile", Icon: MapPin },
-];
-
 /** Client-side routes behind the SPA views. */
 const VIEW_PATHS = {
   home: "/",
@@ -200,7 +177,6 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
   const status = useOpenStatus(settings);
   const year = new Date().getFullYear();
   const waHref = whatsappUrl(settings);
-  const social = SOCIAL.filter((s) => settings.social[s.key]);
   const wordmark = (settings.shortName || settings.name).toUpperCase();
 
   return (
@@ -326,23 +302,12 @@ export function Footer({ showCta = true }: { showCta?: boolean }) {
                 </span>
               )}
             </div>
-            {social.length > 0 && (
-              <ul className="flex gap-2" aria-label={t("footer.followHeading")}>
-                {social.map(({ key, label, Icon }) => (
-                  <li key={key}>
-                    <a
-                      href={settings.social[key]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={label}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition-all hover:-translate-y-1 hover:border-cyan-300/50 hover:text-white hover:shadow-[0_0_20px_-4px_rgba(34,211,238,0.7)]"
-                    >
-                      <Icon className="h-4 w-4" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <SocialLinks
+              settings={settings}
+              label={t("footer.followHeading")}
+              className="flex-wrap gap-2"
+              linkClassName="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition-all hover:-translate-y-1 hover:border-cyan-300/50 hover:text-white hover:shadow-[0_0_20px_-4px_rgba(34,211,238,0.7)]"
+            />
           </motion.div>
 
           {/* Quick links */}

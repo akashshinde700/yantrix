@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/site/logo";
 import { WhatsAppIcon } from "@/components/site/whatsapp-icon";
 import { SoundButton } from "@/components/site/sound-button";
+import { SocialLinks } from "@/components/site/social-links";
 import { useSiteStore } from "@/lib/store";
 import { useCollection, useLabels, useSettings } from "@/lib/content/provider";
 import { phoneHref, whatsappUrl } from "@/lib/content/helpers";
@@ -130,6 +131,14 @@ export function Header() {
               />
               <span>{settings.contact.phone}</span>
             </a>
+            {/* social profiles from Admin → Site settings; the mobile menu lists them on small screens */}
+            <SocialLinks
+              settings={settings}
+              label={t("footer.followHeading")}
+              className="hidden gap-1 border-l border-white/15 pl-4 md:flex"
+              linkClassName="flex h-6 w-6 items-center justify-center rounded-full text-brand-100 transition-colors hover:bg-white/10 hover:text-cyber-200"
+              iconClassName="h-3.5 w-3.5"
+            />
           </div>
         </div>
       </div>
@@ -259,6 +268,14 @@ export function Header() {
                     <WhatsAppIcon className="h-5 w-5" />
                     {t("header.ctaWhatsapp")}
                   </a>
+                </li>
+                <li className="pt-3">
+                  <SocialLinks
+                    settings={settings}
+                    label={t("footer.followHeading")}
+                    className="flex-wrap justify-center gap-2"
+                    linkClassName="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                  />
                 </li>
               </ul>
             </motion.div>
